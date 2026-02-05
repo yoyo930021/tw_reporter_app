@@ -20,7 +20,7 @@ dependencies:
 
   # 型別安全 HTTP 客戶端 (程式碼生成)
   dio: ^5.7.0
-  # retrofit: ^4.5.0  # 暫時註解，Phase 3 時處理版本兼容問題
+  retrofit: ^4.9.2
 
   # 不可變資料類別與 JSON 序列化 (程式碼生成)
   freezed_annotation: ^3.0.0
@@ -41,14 +41,14 @@ dev_dependencies:
   # 程式碼生成器
   build_runner: ^2.4.13
   auto_route_generator: ^10.2.6
-  # retrofit_generator: ^9.1.2  # 暫時註解，Phase 3 時處理版本兼容問題
+  retrofit_generator: ^10.2.1
   freezed: ^3.2.3
   json_serializable: ^6.11.2
 
   # 嚴格 Lint 規則
   very_good_analysis: ^10.1.0
-  flutter_compositions_lints:
-    path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions_lints
+  # flutter_compositions_lints:  # 暫時註解：與 retrofit_generator analyzer 版本衝突
+  #   path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions_lints
 
   # Mock 測試
   mocktail: ^1.0.4
