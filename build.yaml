@@ -5,7 +5,7 @@ targets:
         options:
           # 優化生成的程式碼
           union_key: 'type'
-          union_value_case: FreezedUnionCase.pascal
+          union_value_case: pascal
 
       json_serializable:
         options:

@@ -16,11 +16,11 @@ dependencies:
     path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions
 
   # 型別安全路由 (程式碼生成)
-  auto_route: ^9.2.2
+  auto_route: ^10.3.0
 
   # 型別安全 HTTP 客戶端 (程式碼生成)
   dio: ^5.7.0
-  retrofit: ^4.5.0
+  # retrofit: ^4.5.0  # 暫時註解，Phase 3 時處理版本兼容問題
 
   # 不可變資料類別與 JSON 序列化 (程式碼生成)
   freezed_annotation: ^3.0.0
@@ -28,7 +28,7 @@ dependencies:
 
   # 其他實用套件
   cached_network_image: ^3.4.1  # 圖片快取
-  intl: ^0.19.0  # 日期格式化
+  intl: ^0.20.2  # 日期格式化
   shared_preferences: ^2.3.2  # 本地儲存
   url_launcher: ^6.3.1  # 外部連結
   flutter_html: ^3.0.0-beta.2  # HTML 渲染
@@ -40,13 +40,13 @@ dev_dependencies:
 
   # 程式碼生成器
   build_runner: ^2.4.13
-  auto_route_generator: ^9.0.0
-  retrofit_generator: ^9.1.2
-  freezed: ^3.0.0
-  json_serializable: ^6.8.0
+  auto_route_generator: ^10.2.6
+  # retrofit_generator: ^9.1.2  # 暫時註解，Phase 3 時處理版本兼容問題
+  freezed: ^3.2.3
+  json_serializable: ^6.11.2
 
   # 嚴格 Lint 規則
-  very_good_analysis: ^6.0.0
+  very_good_analysis: ^10.1.0
   flutter_compositions_lints:
     path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions_lints
 
