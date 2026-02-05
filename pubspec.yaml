@@ -1,0 +1,96 @@
+name: tw_reporter_app
+description: "報導者新聞 APP - Taiwan Reporter News Application"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # 狀態管理 (Composition API)
+  flutter_compositions:
+    path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions
+
+  # 型別安全路由 (程式碼生成)
+  auto_route: ^9.2.2
+
+  # 型別安全 HTTP 客戶端 (程式碼生成)
+  dio: ^5.7.0
+  retrofit: ^4.5.0
+
+  # 不可變資料類別與 JSON 序列化 (程式碼生成)
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+  # 其他實用套件
+  cached_network_image: ^3.4.1  # 圖片快取
+  intl: ^0.19.0  # 日期格式化
+  shared_preferences: ^2.3.2  # 本地儲存
+  url_launcher: ^6.3.1  # 外部連結
+  flutter_html: ^3.0.0-beta.2  # HTML 渲染
+  cupertino_icons: ^1.0.8  # iOS 風格圖示
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # 程式碼生成器
+  build_runner: ^2.4.13
+  auto_route_generator: ^9.0.0
+  retrofit_generator: ^9.1.2
+  freezed: ^3.0.0
+  json_serializable: ^6.8.0
+
+  # 嚴格 Lint 規則
+  very_good_analysis: ^6.0.0
+  flutter_compositions_lints:
+    path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions_lints
+
+  # Mock 測試
+  mocktail: ^1.0.4
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package

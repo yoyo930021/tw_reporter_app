@@ -1,0 +1,57 @@
+[
+  {
+    "id": "69787503f7e6ab070044a7ae",
+    "slug": "swedish-civil-psychological-defence-resilience",
+    "title": "人民能成為國家之盾嗎？從制度、心防到文化，瑞典打造「全民防禦」之路",
+    "subtitle": "",
+    "og_description": "專訪瑞典國防學者與心理防衛局專家，解釋瑞典如何動員社會參與民防改革？",
+    "hero_image": {
+      "id": "6978b7cff7e6ab070044a7be",
+      "filetype": "image/jpeg",
+      "description": "人民能成為國家之盾嗎？從制度、心防到文化，瑞典打造「全民防禦」之路",
+      "resized_targets": {
+        "tiny": {
+          "url": "https://www.twreporter.org/images/20260127210415-a6951ea477dc89387f326c0d7495128d-tiny.jpg",
+          "width": 150,
+          "height": 100
+        },
+        "mobile": {
+          "url": "https://www.twreporter.org/images/20260127210415-a6951ea477dc89387f326c0d7495128d-mobile.jpg",
+          "width": 800,
+          "height": 533
+        },
+        "desktop": {
+          "url": "https://www.twreporter.org/images/20260127210415-a6951ea477dc89387f326c0d7495128d-desktop.jpg",
+          "width": 2000,
+          "height": 1333
+        }
+      }
+    },
+    "category_set": [
+      {
+        "category": {
+          "id": "63206383207bf7c5f871622c",
+          "name": "國際兩岸",
+          "sort_order": 17
+        },
+        "subcategory": {
+          "id": "63206383207bf7c5f8716232",
+          "key": "63206383207bf7c5f8716232",
+          "name": "歐洲",
+          "latest_order": 0
+        }
+      }
+    ],
+    "published_date": "2026-01-28T16:00:00Z",
+    "is_external": false,
+    "tags": [
+      {
+        "id": "5768ed08406be01000c69076",
+        "key": "5768ed08406be01000c69076",
+        "name": "中國",
+        "latest_order": 10
+      }
+    ],
+    "style": "article:v2:default"
+  }
+]
