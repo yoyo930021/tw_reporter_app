@@ -1,0 +1,20 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_compositions/flutter_compositions.dart';
+
+@RoutePage()
+class SearchPage extends CompositionWidget {
+  const SearchPage({super.key});
+
+  @override
+  Widget Function(BuildContext) setup() {
+    return (BuildContext context) => Scaffold(
+          appBar: AppBar(
+            title: const Text('搜尋'),
+          ),
+          body: const Center(
+            child: Text('搜尋頁面'),
+          ),
+        );
+  }
+}
