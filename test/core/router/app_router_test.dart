@@ -29,7 +29,7 @@ void main() {
 
     test('should generate type-safe route for HomePage', () {
       // Act
-      const PageRouteInfo<dynamic> route = HomeRoute();
+      final PageRouteInfo<dynamic> route = HomeRoute();
 
       // Assert
       expect(route.routeName, equals('HomeRoute'));

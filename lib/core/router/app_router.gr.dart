@@ -112,18 +112,48 @@ class CategoryRouteArgs {
 
 /// generated route for
 /// [HomePage]
-class HomeRoute extends PageRouteInfo<void> {
-  const HomeRoute({List<PageRouteInfo>? children})
-    : super(HomeRoute.name, initialChildren: children);
+class HomeRoute extends PageRouteInfo<HomeRouteArgs> {
+  HomeRoute({TwReporterApi? api, Key? key, List<PageRouteInfo>? children})
+    : super(
+        HomeRoute.name,
+        args: HomeRouteArgs(api: api, key: key),
+        initialChildren: children,
+      );
 
   static const String name = 'HomeRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const HomePage();
+      final args = data.argsAs<HomeRouteArgs>(
+        orElse: () => const HomeRouteArgs(),
+      );
+      return HomePage(api: args.api, key: args.key);
     },
   );
+}
+
+class HomeRouteArgs {
+  const HomeRouteArgs({this.api, this.key});
+
+  final TwReporterApi? api;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'HomeRouteArgs{api: $api, key: $key}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! HomeRouteArgs) return false;
+    return api == other.api && key == other.key;
+  }
+
+  @override
+  int get hashCode => api.hashCode ^ key.hashCode;
 }
 
 /// generated route for
