@@ -13,13 +13,17 @@ part of 'app_router.dart';
 /// generated route for
 /// [ArticlePage]
 class ArticleRoute extends PageRouteInfo<ArticleRouteArgs> {
-  ArticleRoute({Key? key, required String slug, List<PageRouteInfo>? children})
-    : super(
-        ArticleRoute.name,
-        args: ArticleRouteArgs(key: key, slug: slug),
-        rawPathParams: {'slug': slug},
-        initialChildren: children,
-      );
+  ArticleRoute({
+    TwReporterApi? api,
+    Key? key,
+    required String slug,
+    List<PageRouteInfo>? children,
+  }) : super(
+         ArticleRoute.name,
+         args: ArticleRouteArgs(api: api, key: key, slug: slug),
+         rawPathParams: {'slug': slug},
+         initialChildren: children,
+       );
 
   static const String name = 'ArticleRoute';
 
@@ -30,13 +34,15 @@ class ArticleRoute extends PageRouteInfo<ArticleRouteArgs> {
       final args = data.argsAs<ArticleRouteArgs>(
         orElse: () => ArticleRouteArgs(slug: pathParams.getString('slug')),
       );
-      return ArticlePage(key: args.key, slug: args.slug);
+      return ArticlePage(api: args.api, key: args.key, slug: args.slug);
     },
   );
 }
 
 class ArticleRouteArgs {
-  const ArticleRouteArgs({this.key, required this.slug});
+  const ArticleRouteArgs({this.api, this.key, required this.slug});
+
+  final TwReporterApi? api;
 
   final Key? key;
 
@@ -44,30 +50,31 @@ class ArticleRouteArgs {
 
   @override
   String toString() {
-    return 'ArticleRouteArgs{key: $key, slug: $slug}';
+    return 'ArticleRouteArgs{api: $api, key: $key, slug: $slug}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! ArticleRouteArgs) return false;
-    return key == other.key && slug == other.slug;
+    return api == other.api && key == other.key && slug == other.slug;
   }
 
   @override
-  int get hashCode => key.hashCode ^ slug.hashCode;
+  int get hashCode => api.hashCode ^ key.hashCode ^ slug.hashCode;
 }
 
 /// generated route for
 /// [CategoryPage]
 class CategoryRoute extends PageRouteInfo<CategoryRouteArgs> {
   CategoryRoute({
+    TwReporterApi? api,
     Key? key,
     required String category,
     List<PageRouteInfo>? children,
   }) : super(
          CategoryRoute.name,
-         args: CategoryRouteArgs(key: key, category: category),
+         args: CategoryRouteArgs(api: api, key: key, category: category),
          rawPathParams: {'category': category},
          initialChildren: children,
        );
@@ -82,13 +89,19 @@ class CategoryRoute extends PageRouteInfo<CategoryRouteArgs> {
         orElse: () =>
             CategoryRouteArgs(category: pathParams.getString('category')),
       );
-      return CategoryPage(key: args.key, category: args.category);
+      return CategoryPage(
+        api: args.api,
+        key: args.key,
+        category: args.category,
+      );
     },
   );
 }
 
 class CategoryRouteArgs {
-  const CategoryRouteArgs({this.key, required this.category});
+  const CategoryRouteArgs({this.api, this.key, required this.category});
+
+  final TwReporterApi? api;
 
   final Key? key;
 
@@ -96,18 +109,18 @@ class CategoryRouteArgs {
 
   @override
   String toString() {
-    return 'CategoryRouteArgs{key: $key, category: $category}';
+    return 'CategoryRouteArgs{api: $api, key: $key, category: $category}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! CategoryRouteArgs) return false;
-    return key == other.key && category == other.category;
+    return api == other.api && key == other.key && category == other.category;
   }
 
   @override
-  int get hashCode => key.hashCode ^ category.hashCode;
+  int get hashCode => api.hashCode ^ key.hashCode ^ category.hashCode;
 }
 
 /// generated route for
@@ -158,18 +171,48 @@ class HomeRouteArgs {
 
 /// generated route for
 /// [LatestPage]
-class LatestRoute extends PageRouteInfo<void> {
-  const LatestRoute({List<PageRouteInfo>? children})
-    : super(LatestRoute.name, initialChildren: children);
+class LatestRoute extends PageRouteInfo<LatestRouteArgs> {
+  LatestRoute({TwReporterApi? api, Key? key, List<PageRouteInfo>? children})
+    : super(
+        LatestRoute.name,
+        args: LatestRouteArgs(api: api, key: key),
+        initialChildren: children,
+      );
 
   static const String name = 'LatestRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const LatestPage();
+      final args = data.argsAs<LatestRouteArgs>(
+        orElse: () => const LatestRouteArgs(),
+      );
+      return LatestPage(api: args.api, key: args.key);
     },
   );
+}
+
+class LatestRouteArgs {
+  const LatestRouteArgs({this.api, this.key});
+
+  final TwReporterApi? api;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'LatestRouteArgs{api: $api, key: $key}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! LatestRouteArgs) return false;
+    return api == other.api && key == other.key;
+  }
+
+  @override
+  int get hashCode => api.hashCode ^ key.hashCode;
 }
 
 /// generated route for
@@ -190,32 +233,92 @@ class MyReadingRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [SearchPage]
-class SearchRoute extends PageRouteInfo<void> {
-  const SearchRoute({List<PageRouteInfo>? children})
-    : super(SearchRoute.name, initialChildren: children);
+class SearchRoute extends PageRouteInfo<SearchRouteArgs> {
+  SearchRoute({TwReporterApi? api, Key? key, List<PageRouteInfo>? children})
+    : super(
+        SearchRoute.name,
+        args: SearchRouteArgs(api: api, key: key),
+        initialChildren: children,
+      );
 
   static const String name = 'SearchRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const SearchPage();
+      final args = data.argsAs<SearchRouteArgs>(
+        orElse: () => const SearchRouteArgs(),
+      );
+      return SearchPage(api: args.api, key: args.key);
     },
   );
 }
 
+class SearchRouteArgs {
+  const SearchRouteArgs({this.api, this.key});
+
+  final TwReporterApi? api;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'SearchRouteArgs{api: $api, key: $key}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! SearchRouteArgs) return false;
+    return api == other.api && key == other.key;
+  }
+
+  @override
+  int get hashCode => api.hashCode ^ key.hashCode;
+}
+
 /// generated route for
 /// [TopicsPage]
-class TopicsRoute extends PageRouteInfo<void> {
-  const TopicsRoute({List<PageRouteInfo>? children})
-    : super(TopicsRoute.name, initialChildren: children);
+class TopicsRoute extends PageRouteInfo<TopicsRouteArgs> {
+  TopicsRoute({TwReporterApi? api, Key? key, List<PageRouteInfo>? children})
+    : super(
+        TopicsRoute.name,
+        args: TopicsRouteArgs(api: api, key: key),
+        initialChildren: children,
+      );
 
   static const String name = 'TopicsRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const TopicsPage();
+      final args = data.argsAs<TopicsRouteArgs>(
+        orElse: () => const TopicsRouteArgs(),
+      );
+      return TopicsPage(api: args.api, key: args.key);
     },
   );
+}
+
+class TopicsRouteArgs {
+  const TopicsRouteArgs({this.api, this.key});
+
+  final TwReporterApi? api;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'TopicsRouteArgs{api: $api, key: $key}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! TopicsRouteArgs) return false;
+    return api == other.api && key == other.key;
+  }
+
+  @override
+  int get hashCode => api.hashCode ^ key.hashCode;
 }

@@ -38,7 +38,7 @@ void main() {
 
     test('should generate type-safe route for LatestPage', () {
       // Act
-      const PageRouteInfo<dynamic> route = LatestRoute();
+      final PageRouteInfo<dynamic> route = LatestRoute();
 
       // Assert
       expect(route.routeName, equals('LatestRoute'));
@@ -69,7 +69,7 @@ void main() {
 
     test('should generate type-safe route for TopicsPage', () {
       // Act
-      const PageRouteInfo<dynamic> route = TopicsRoute();
+      final PageRouteInfo<dynamic> route = TopicsRoute();
 
       // Assert
       expect(route.routeName, equals('TopicsRoute'));
@@ -78,7 +78,7 @@ void main() {
 
     test('should generate type-safe route for SearchPage', () {
       // Act
-      const PageRouteInfo<dynamic> route = SearchRoute();
+      final PageRouteInfo<dynamic> route = SearchRoute();
 
       // Assert
       expect(route.routeName, equals('SearchRoute'));

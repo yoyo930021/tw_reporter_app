@@ -4,6 +4,7 @@ import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:intl/intl.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
+import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/features/category/logic/use_category_articles.dart';
 
 @RoutePage()
@@ -98,48 +99,50 @@ class CategoryPage extends CompositionWidget {
   }
 
   Widget _buildArticleItem(Article article) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: InkWell(
-        onTap: () {
-          // TODO: 導航到文章詳情頁
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // 文章標題
-              Text(
-                article.title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+    return Builder(
+      builder: (BuildContext context) => Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: InkWell(
+          onTap: () {
+            context.router.push(ArticleRoute(slug: article.slug));
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                // 文章標題
+                Text(
+                  article.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-              // 文章描述
-              Text(
-                article.ogDescription,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
+                // 文章描述
+                Text(
+                  article.ogDescription,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-              // 發布日期
-              Text(
-                _formatDate(article.publishedDate),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
+                // 發布日期
+                Text(
+                  _formatDate(article.publishedDate),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

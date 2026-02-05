@@ -92,7 +92,8 @@ class TopicsPage extends CompositionWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
         onTap: () {
-          // TODO: 導航到專題詳情頁
+          // Note: Topic detail page not implemented yet
+          // Will be added in future phase when needed
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
