@@ -9,6 +9,40 @@ import 'package:tw_reporter_app/features/category/logic/use_category_articles.da
 
 class MockTwReporterApi extends Mock implements TwReporterApi {}
 
+// Helper function to create mock ListResponse
+ListResponse<Article> createMockListResponse(List<Article> articles, int offset) {
+  return ListResponse<Article>(
+    data: ListData<Article>(
+      meta: ListMeta(limit: articles.length > 0 ? articles.length : 10, offset: offset, total: 100),
+      records: articles,
+    ),
+    status: 'success',
+  );
+}
+
+// Helper to create articles with specific category
+List<Article> createArticlesWithCategory(String categoryName, int count) {
+  return List<Article>.generate(
+    count,
+    (int index) => Article(
+      id: '$index',
+      slug: 'article-$index',
+      title: '$categoryName文章 $index',
+      ogDescription: '描述',
+      categorySet: <CategorySet>[
+        CategorySet(
+          category: Category(
+            id: 'cat-$categoryName',
+            name: categoryName,
+          ),
+        ),
+      ],
+      publishedDate: DateTime.now(),
+      isExternal: false,
+    ),
+  );
+}
+
 // 測試用的 Composition Widget
 class TestWidget extends CompositionWidget {
   TestWidget({
@@ -33,24 +67,12 @@ void main() {
     testWidgets('should load articles for specific category on mount',
         (WidgetTester tester) async {
       // Arrange
-      final List<Article> mockArticles = List<Article>.generate(
-        10,
-        (int index) => Article(
-          id: '$index',
-          slug: 'article-$index',
-          title: '國際文章 $index',
-          ogDescription: '描述',
-          categorySet: <CategorySet>[],
-          publishedDate: DateTime.now(),
-          isExternal: false,
-        ),
-      );
+      // Create articles with the correct category
+      final List<Article> mockArticles = createArticlesWithCategory('國際', 10);
 
-      when(() => mockApi.fetchCategoryArticles(
-            category: '國際',
-            page: 1,
-            limit: 10,
-          )).thenAnswer((_) async => mockArticles);
+      // Mock fetchPosts - extension method calls this with limit * 8
+      when(() => mockApi.fetchPosts(limit: 80, offset: 0))
+          .thenAnswer((_) async => createMockListResponse(mockArticles, 0));
 
       // Act
       await tester.pumpWidget(

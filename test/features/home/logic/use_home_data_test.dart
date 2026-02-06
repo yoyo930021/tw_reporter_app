@@ -9,6 +9,47 @@ import 'package:tw_reporter_app/features/home/logic/use_home_data.dart';
 
 class MockTwReporterApi extends Mock implements TwReporterApi {}
 
+// Helper function to create mock IndexPageData
+IndexPageData createMockIndexPageData({
+  List<Article>? editorPicksSection,
+  List<Article>? latestSection,
+  List<Article>? reviewsSection,
+  List<Article>? photosSection,
+  List<Article>? infographicsSection,
+  List<Article>? culture,
+  List<Article>? econ,
+  List<Article>? education,
+  List<Article>? environment,
+  List<Article>? health,
+  List<Article>? humanrights,
+  List<Article>? politicsAndSociety,
+  List<Article>? world,
+}) {
+  return IndexPageData(
+    editorPicksSection: editorPicksSection,
+    latestSection: latestSection,
+    reviewsSection: reviewsSection,
+    photosSection: photosSection,
+    infographicsSection: infographicsSection,
+    culture: culture,
+    econ: econ,
+    education: education,
+    environment: environment,
+    health: health,
+    humanrights: humanrights,
+    politicsAndSociety: politicsAndSociety,
+    world: world,
+  );
+}
+
+// Helper function to create mock ApiResponse
+ApiResponse<IndexPageData> createMockIndexPageResponse(IndexPageData data) {
+  return ApiResponse<IndexPageData>(
+    data: data,
+    status: 'success',
+  );
+}
+
 // 測試用的 Composition Widget
 class TestWidget extends CompositionWidget {
   TestWidget({
@@ -53,7 +94,7 @@ void main() {
         ),
       ];
 
-      when(() => mockApi.fetchFeaturedArticles())
+      when(() => mockApi.fetchIndexPage())
           .thenAnswer((_) async => mockArticles);
 
       // Act
@@ -87,12 +128,12 @@ void main() {
       expect(find.text('Loading: false'), findsOneWidget);
       expect(find.text('Count: 2'), findsOneWidget);
       expect(find.text('First: 精選文章 1'), findsOneWidget);
-      verify(() => mockApi.fetchFeaturedArticles()).called(1);
+      verify(() => mockApi.fetchIndexPage()).called(1);
     });
 
     testWidgets('should handle featured articles fetch error', (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchFeaturedArticles())
+      when(() => mockApi.fetchIndexPage())
           .thenThrow(Exception('Network error'));
 
       // Act
@@ -152,7 +193,7 @@ void main() {
         ),
       ];
 
-      when(() => mockApi.fetchFeaturedArticles())
+      when(() => mockApi.fetchIndexPage())
           .thenAnswer((_) async => <Article>[]);
 
       when(() => mockApi.fetchCategoryArticles(
@@ -205,7 +246,7 @@ void main() {
       int featuredCallCount = 0;
       int categoryCallCount = 0;
 
-      when(() => mockApi.fetchFeaturedArticles()).thenAnswer((_) async {
+      when(() => mockApi.fetchIndexPage()).thenAnswer((_) async {
         featuredCallCount++;
         return <Article>[
           Article(
@@ -274,7 +315,7 @@ void main() {
       // Arrange
       int callCount = 0;
 
-      when(() => mockApi.fetchFeaturedArticles()).thenAnswer((_) async {
+      when(() => mockApi.fetchIndexPage()).thenAnswer((_) async {
         callCount++;
         await Future<void>.delayed(const Duration(milliseconds: 100));
         return <Article>[];
