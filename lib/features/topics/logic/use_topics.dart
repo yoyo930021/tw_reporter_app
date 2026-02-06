@@ -58,7 +58,7 @@ TopicsResult useTopics(
 }) {
   // 使用 useInfiniteScroll 處理無限滾動邏輯
   final InfiniteScrollResult<Topic> scrollResult = useInfiniteScroll<Topic>(
-    fetcher: (int page) => api.fetchTopics(page: page),
+    fetcher: (int page) => api.fetchTopicsByPage(page: page, limit: pageSize),
     pageSize: pageSize,
   );
 

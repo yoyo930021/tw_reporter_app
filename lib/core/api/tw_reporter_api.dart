@@ -309,6 +309,22 @@ extension TwReporterApiExtensions on TwReporterApi {
     return searchResults;
   }
 
+  /// 獲取專題列表（wrapper method with page-based pagination）
+  ///
+  /// [page] 頁碼（從 1 開始）
+  /// [limit] 每頁專題數量
+  Future<List<Topic>> fetchTopicsByPage({
+    required int page,
+    int limit = 10,
+  }) async {
+    final int offset = (page - 1) * limit;
+    final ListResponse<Topic> response = await fetchTopics(
+      limit: limit,
+      offset: offset,
+    );
+    return response.data.records;
+  }
+
   /// 映射分類名稱到 API 名稱
   String _mapCategoryNameToApiName(String category) {
     const Map<String, String> categoryMap = <String, String>{
