@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
-import 'package:tw_reporter_app/core/models/article.dart';
-import 'package:tw_reporter_app/core/models/category.dart';
 
 void main() {
   group('Topic', () {
@@ -11,32 +9,24 @@ void main() {
         'id': 'topic123',
         'slug': 'test-topic',
         'title': '測試專題',
-        'ogDescription': '專題描述',
-        'heroImage': <String, dynamic>{
+        'short_title': '測試',
+        'og_description': '專題描述',
+        'leading_image': <String, dynamic>{
           'id': 'img123',
           'filetype': 'image/jpeg',
           'description': '主圖',
-          'resizedTargets': <String, dynamic>{},
+          'resized_targets': <String, dynamic>{},
         },
-        'ogImage': <String, dynamic>{
+        'og_image': <String, dynamic>{
           'id': 'img456',
           'filetype': 'image/jpeg',
-          'resizedTargets': <String, dynamic>{},
+          'resized_targets': <String, dynamic>{},
         },
-        'publishedDate': '2026-01-28T16:00:00Z',
-        'relatedsBackground': '#ffffff',
-        'relatedsFormat': 'list',
-        'relatedPosts': <Map<String, dynamic>>[
-          <String, dynamic>{
-            'id': 'article1',
-            'slug': 'related-article',
-            'title': '相關文章',
-            'ogDescription': '描述',
-            'categorySet': <Map<String, dynamic>>[],
-            'publishedDate': '2026-01-01T00:00:00Z',
-            'isExternal': false,
-          },
-        ],
+        'published_date': '2026-01-28T16:00:00Z',
+        'relateds_background': '#ffffff',
+        'relateds_format': 'list',
+        'relateds': <String>['article1', 'article2'],
+        'full': true,
       };
 
       // Act
@@ -46,8 +36,9 @@ void main() {
       expect(topic.id, equals('topic123'));
       expect(topic.slug, equals('test-topic'));
       expect(topic.title, equals('測試專題'));
+      expect(topic.shortTitle, equals('測試'));
       expect(topic.ogDescription, equals('專題描述'));
-      expect(topic.heroImage, isNotNull);
+      expect(topic.leadingImage, isNotNull);
       expect(topic.ogImage, isNotNull);
       expect(
         topic.publishedDate,
@@ -55,8 +46,9 @@ void main() {
       );
       expect(topic.relatedsBackground, equals('#ffffff'));
       expect(topic.relatedsFormat, equals('list'));
-      expect(topic.relatedPosts, hasLength(1));
-      expect(topic.relatedPosts?.first.title, equals('相關文章'));
+      expect(topic.relateds, hasLength(2));
+      expect(topic.relateds?.first, equals('article1'));
+      expect(topic.full, isTrue);
     });
 
     test('should create Topic with minimal required fields', () {
@@ -65,7 +57,7 @@ void main() {
         'id': '123',
         'slug': 'minimal-topic',
         'title': '最小專題',
-        'publishedDate': '2026-01-01T00:00:00Z',
+        'published_date': '2026-01-01T00:00:00Z',
       };
 
       // Act
@@ -74,12 +66,14 @@ void main() {
       // Assert
       expect(topic.id, equals('123'));
       expect(topic.title, equals('最小專題'));
+      expect(topic.shortTitle, isNull);
       expect(topic.ogDescription, isNull);
-      expect(topic.heroImage, isNull);
+      expect(topic.leadingImage, isNull);
       expect(topic.ogImage, isNull);
       expect(topic.relatedsBackground, isNull);
       expect(topic.relatedsFormat, isNull);
-      expect(topic.relatedPosts, isNull);
+      expect(topic.relateds, isNull);
+      expect(topic.full, isNull);
     });
 
     test('should convert Topic to JSON', () {
@@ -89,17 +83,7 @@ void main() {
         slug: 'test-topic',
         title: '測試專題',
         publishedDate: DateTime.parse('2026-01-01T00:00:00Z'),
-        relatedPosts: <Article>[
-          Article(
-            id: 'article1',
-            slug: 'test-article',
-            title: '測試文章',
-            ogDescription: '描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime.now(),
-            isExternal: false,
-          ),
-        ],
+        relateds: <String>['article1', 'article2'],
       );
 
       // Act
@@ -108,7 +92,8 @@ void main() {
       // Assert
       expect(json['id'], equals('123'));
       expect(json['title'], equals('測試專題'));
-      expect(json['relatedPosts'], isA<List<dynamic>>());
+      expect(json['relateds'], isA<List<dynamic>>());
+      expect(json['relateds'], hasLength(2));
     });
 
     test('should support equality comparison', () {
@@ -153,3 +138,4 @@ void main() {
     });
   });
 }
+

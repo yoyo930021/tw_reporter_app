@@ -8,7 +8,7 @@ void main() {
       final Map<String, dynamic> json = <String, dynamic>{
         'id': '63206383207bf7c5f871622c',
         'name': '國際兩岸',
-        'sortOrder': 17,
+        'sort_order': 17,
       };
 
       // Act
@@ -59,7 +59,7 @@ void main() {
         'id': '63206383207bf7c5f8716232',
         'key': '63206383207bf7c5f8716232',
         'name': '歐洲',
-        'latestOrder': 0,
+        'latest_order': 0,
       };
 
       // Act

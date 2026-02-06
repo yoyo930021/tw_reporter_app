@@ -13,12 +13,12 @@ void main() {
         'slug': 'test-article',
         'title': '測試文章標題',
         'subtitle': '測試副標題',
-        'ogDescription': '這是測試描述',
-        'heroImage': <String, dynamic>{
+        'og_description': '這是測試描述',
+        'hero_image': <String, dynamic>{
           'id': 'img123',
           'filetype': 'image/jpeg',
           'description': '主圖描述',
-          'resizedTargets': <String, dynamic>{
+          'resized_targets': <String, dynamic>{
             'mobile': <String, dynamic>{
               'url': 'https://example.com/image.jpg',
               'width': 800,
@@ -26,17 +26,17 @@ void main() {
             },
           },
         },
-        'ogImage': <String, dynamic>{
+        'og_image': <String, dynamic>{
           'id': 'img456',
           'filetype': 'image/jpeg',
-          'resizedTargets': <String, dynamic>{},
+          'resized_targets': <String, dynamic>{},
         },
-        'categorySet': <Map<String, dynamic>>[
+        'category_set': <Map<String, dynamic>>[
           <String, dynamic>{
             'category': <String, dynamic>{
               'id': 'cat123',
               'name': '國際兩岸',
-              'sortOrder': 17,
+              'sort_order': 17,
             },
             'subcategory': <String, dynamic>{
               'id': 'subcat123',
@@ -45,8 +45,8 @@ void main() {
             },
           },
         ],
-        'publishedDate': '2026-01-28T16:00:00Z',
-        'isExternal': false,
+        'published_date': '2026-01-28T16:00:00Z',
+        'is_external': false,
         'tags': <Map<String, dynamic>>[
           <String, dynamic>{
             'id': 'tag123',
@@ -90,10 +90,10 @@ void main() {
         'id': '123',
         'slug': 'minimal-article',
         'title': '最小文章',
-        'ogDescription': '描述',
-        'categorySet': <Map<String, dynamic>>[],
-        'publishedDate': '2026-01-01T00:00:00Z',
-        'isExternal': false,
+        'og_description': '描述',
+        'category_set': <Map<String, dynamic>>[],
+        'published_date': '2026-01-01T00:00:00Z',
+        'is_external': false,
       };
 
       // Act
