@@ -23,7 +23,7 @@ void main() {
   group('TopicsPage', () {
     testWidgets('should display app bar with title', (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer((_) async => <Topic>[]);
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer((_) async => <Topic>[]);
 
       // Act
       await tester.pumpWidget(
@@ -51,7 +51,7 @@ void main() {
         ),
       );
 
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer((_) async => mockTopics);
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer((_) async => mockTopics);
 
       // Act
       await tester.pumpWidget(
@@ -69,7 +69,7 @@ void main() {
     testWidgets('should display loading indicator on initial load',
         (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer(
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer(
         (_) async {
           await Future<void>.delayed(const Duration(milliseconds: 50));
           return <Topic>[];
@@ -95,7 +95,7 @@ void main() {
     testWidgets('should display empty state when no topics',
         (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer((_) async => <Topic>[]);
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer((_) async => <Topic>[]);
 
       // Act
       await tester.pumpWidget(
@@ -111,7 +111,7 @@ void main() {
     testWidgets('should have RefreshIndicator for pull to refresh',
         (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer((_) async =>
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer((_) async =>
           List<Topic>.generate(
             3,
             (int index) => Topic(
@@ -138,7 +138,7 @@ void main() {
         (WidgetTester tester) async {
       // Arrange
       int currentPage = 1;
-      when(() => mockApi.fetchTopics(page: any(named: 'page')))
+      when(() => mockApi.fetchTopicsByPage(page: any(named: 'page')))
           .thenAnswer((_) async {
         final int page = currentPage++;
         return List<Topic>.generate(
@@ -174,7 +174,7 @@ void main() {
     testWidgets('should not show load more indicator when no more topics',
         (WidgetTester tester) async {
       // Arrange - 返回少於 page size 的專題，表示沒有更多了
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer((_) async =>
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer((_) async =>
           List<Topic>.generate(
             3, // Less than page size
             (int index) => Topic(
@@ -208,7 +208,7 @@ void main() {
         publishedDate: DateTime(2024, 3, 15),
       );
 
-      when(() => mockApi.fetchTopics(page: 1))
+      when(() => mockApi.fetchTopicsByPage(page: 1))
           .thenAnswer((_) async => <Topic>[mockTopic]);
 
       // Act
@@ -233,7 +233,7 @@ void main() {
         publishedDate: DateTime.now(),
       );
 
-      when(() => mockApi.fetchTopics(page: 1))
+      when(() => mockApi.fetchTopicsByPage(page: 1))
           .thenAnswer((_) async => <Topic>[mockTopic]);
 
       // Act

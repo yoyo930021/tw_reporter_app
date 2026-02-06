@@ -42,7 +42,7 @@ void main() {
         ),
       );
 
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer((_) async => mockTopics);
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer((_) async => mockTopics);
 
       // Act
       await tester.pumpWidget(
@@ -72,14 +72,14 @@ void main() {
       expect(find.text('Count: 10'), findsOneWidget);
       expect(find.text('Loading: false'), findsOneWidget);
       expect(find.text('HasMore: true'), findsOneWidget);
-      verify(() => mockApi.fetchTopics(page: 1)).called(1);
+      verify(() => mockApi.fetchTopicsByPage(page: 1)).called(1);
     });
 
     testWidgets('should load more topics when loadMore is called',
         (WidgetTester tester) async {
       // Arrange
       int currentPage = 1;
-      when(() => mockApi.fetchTopics(page: any(named: 'page')))
+      when(() => mockApi.fetchTopicsByPage(page: any(named: 'page')))
           .thenAnswer((_) async {
         return List<Topic>.generate(
           10,
@@ -142,7 +142,7 @@ void main() {
         ),
       );
 
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer((_) async => mockTopics);
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer((_) async => mockTopics);
 
       // Act
       await tester.pumpWidget(
@@ -175,7 +175,7 @@ void main() {
     testWidgets('should refresh and reset topics', (WidgetTester tester) async {
       // Arrange
       int callCount = 0;
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer((_) async {
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer((_) async {
         callCount++;
         return List<Topic>.generate(
           10,
@@ -242,7 +242,7 @@ void main() {
         ),
       );
 
-      when(() => mockApi.fetchTopics(page: 1)).thenAnswer((_) async => mockTopics);
+      when(() => mockApi.fetchTopicsByPage(page: 1)).thenAnswer((_) async => mockTopics);
 
       // Act
       await tester.pumpWidget(
@@ -263,7 +263,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert - 驗證 API 被正確調用
-      verify(() => mockApi.fetchTopics(page: 1)).called(1);
+      verify(() => mockApi.fetchTopicsByPage(page: 1)).called(1);
       expect(find.text('Count: 10'), findsOneWidget);
     });
   });
