@@ -7,6 +7,7 @@ import 'package:tw_reporter_app/core/models/article.dart';
 /// 包含文章詳情所需的所有狀態和方法
 typedef ArticleDetailResult = ({
   Ref<Article?> article,
+  Ref<List<Article>> relatedArticles,
   Ref<bool> isLoading,
   Ref<bool> hasError,
   Ref<String?> error,
@@ -16,46 +17,15 @@ typedef ArticleDetailResult = ({
 /// 文章詳情 Composable
 ///
 /// 用於載入和管理單篇文章的詳細內容
-///
-/// ## 使用範例
-///
-/// ```dart
-/// final ArticleDetailResult result = useArticleDetail(
-///   api,
-///   slug: 'article-slug',
-/// );
-///
-/// // 顯示文章內容
-/// if (result.isLoading.value) {
-///   CircularProgressIndicator()
-/// } else if (result.hasError.value) {
-///   Text('錯誤: ${result.error.value}')
-/// } else if (result.article.value != null) {
-///   ArticleContent(article: result.article.value!)
-/// }
-///
-/// // 重新載入
-/// result.refresh();
-/// ```
-///
-/// ## 參數
-///
-/// - [api]: TwReporterApi 實例，用於資料獲取
-/// - [slug]: 文章的 slug（唯一識別碼）
-///
-/// ## 返回值
-///
-/// - [article]: 文章詳情資料
-/// - [isLoading]: 是否正在載入中
-/// - [hasError]: 是否發生錯誤
-/// - [error]: 錯誤訊息
-/// - [refresh]: 重新載入文章的函數
 ArticleDetailResult useArticleDetail(
   TwReporterApi api, {
   required String slug,
 }) {
   // 文章資料
   final Ref<Article?> article = ref<Article?>(null);
+
+  // 相關文章
+  final Ref<List<Article>> relatedArticles = ref<List<Article>>(<Article>[]);
 
   // 載入狀態
   final Ref<bool> isLoading = ref<bool>(false);
@@ -77,6 +47,16 @@ ArticleDetailResult useArticleDetail(
     try {
       final ApiResponse<Article> response = await api.fetchPost(slug);
       article.value = response.data;
+
+      // 載入相關文章
+      final List<String>? relatedIds = response.data.relateds;
+      if (relatedIds != null && relatedIds.isNotEmpty) {
+        try {
+          relatedArticles.value = await api.fetchArticlesByIds(relatedIds);
+        } catch (_) {
+          // 相關文章載入失敗不影響主文章顯示
+        }
+      }
     } catch (e, stackTrace) {
       hasError.value = true;
       error.value = e.toString();
@@ -99,6 +79,7 @@ ArticleDetailResult useArticleDetail(
 
   return (
     article: article,
+    relatedArticles: relatedArticles,
     isLoading: isLoading,
     hasError: hasError,
     error: error,

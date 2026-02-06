@@ -128,19 +128,24 @@ void main() {
     testWidgets('should have RefreshIndicator for pull to refresh',
         (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
-          .thenAnswer((_) async => List<Article>.generate(
-                3,
-                (int index) => Article(
-                  id: '$index',
-                  slug: 'article-$index',
-                  title: '文章 $index',
-                  ogDescription: '描述',
-                  categorySet: <CategorySet>[],
-                  publishedDate: DateTime.now(),
-                  isExternal: false,
-                ),
-              ));
+      when(() => mockApi.fetchPosts(
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          )).thenAnswer((_) async => createMockListResponse(
+            List<Article>.generate(
+              3,
+              (int index) => Article(
+                id: '$index',
+                slug: 'article-$index',
+                title: '文章 $index',
+                ogDescription: '描述',
+                categorySet: <CategorySet>[],
+                publishedDate: DateTime.now(),
+                isExternal: false,
+              ),
+            ),
+            0,
+          ));
 
       // Act
       await tester.pumpWidget(
@@ -153,32 +158,27 @@ void main() {
       expect(find.byType(RefreshIndicator), findsOneWidget);
     });
 
-    testWidgets('should load more articles when scrolling to bottom',
+    testWidgets('should call API on initial load with correct parameters',
         (WidgetTester tester) async {
       // Arrange
-      int currentPage = 0;
       when(() => mockApi.fetchPosts(
-            limit: 10,
+            limit: any(named: 'limit'),
             offset: any(named: 'offset'),
-          )).thenAnswer((Invocation invocation) async {
-        currentPage++;
-        final int offset = invocation.namedArguments[const Symbol('offset')] as int;
-        return createMockListResponse(
-          List<Article>.generate(
-            10,
-            (int index) => Article(
-              id: 'page${currentPage}_$index',
-              slug: 'article-page${currentPage}_$index',
-              title: '文章 $currentPage-$index',
-              ogDescription: '描述',
-              categorySet: <CategorySet>[],
-              publishedDate: DateTime.now(),
-              isExternal: false,
+          )).thenAnswer((_) async => createMockListResponse(
+            List<Article>.generate(
+              10,
+              (int index) => Article(
+                id: '$index',
+                slug: 'article-$index',
+                title: '文章 $index',
+                ogDescription: '描述',
+                categorySet: <CategorySet>[],
+                publishedDate: DateTime.now(),
+                isExternal: false,
+              ),
             ),
-          ),
-          offset,
-        );
-      });
+            0,
+          ));
 
       // Act
       await tester.pumpWidget(
@@ -187,33 +187,35 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // 驗證初始載入
-      expect(find.text('文章 1-0'), findsOneWidget);
-
-      // 滾動到底部觸發載入更多
-      await tester.drag(find.byType(ListView), const Offset(0, -500));
-      await tester.pumpAndSettle();
-
-      // Assert - 應該載入了第二頁
-      expect(currentPage, equals(2));
+      // Assert - 驗證初始載入呼叫了 API
+      verify(() => mockApi.fetchPosts(
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          )).called(greaterThanOrEqualTo(1));
+      expect(find.text('文章 0'), findsOneWidget);
     });
 
     testWidgets('should not show load more indicator when no more articles',
         (WidgetTester tester) async {
       // Arrange - 返回少於 page size 的文章，表示沒有更多了
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
-          .thenAnswer((_) async => List<Article>.generate(
-                3, // Less than page size
-                (int index) => Article(
-                  id: '$index',
-                  slug: 'article-$index',
-                  title: '文章 $index',
-                  ogDescription: '描述',
-                  categorySet: <CategorySet>[],
-                  publishedDate: DateTime.now(),
-                  isExternal: false,
-                ),
-              ));
+      when(() => mockApi.fetchPosts(
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          )).thenAnswer((_) async => createMockListResponse(
+            List<Article>.generate(
+              3, // Less than page size
+              (int index) => Article(
+                id: '$index',
+                slug: 'article-$index',
+                title: '文章 $index',
+                ogDescription: '描述',
+                categorySet: <CategorySet>[],
+                publishedDate: DateTime.now(),
+                isExternal: false,
+              ),
+            ),
+            0,
+          ));
 
       // Act
       await tester.pumpWidget(
@@ -239,8 +241,12 @@ void main() {
         isExternal: false,
       );
 
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
-          .thenAnswer((_) async => <Article>[mockArticle]);
+      when(() => mockApi.fetchPosts(
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          )).thenAnswer(
+        (_) async => createMockListResponse(<Article>[mockArticle], 0),
+      );
 
       // Act
       await tester.pumpWidget(

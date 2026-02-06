@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:tw_reporter_app/core/models/author.dart';
 import 'package:tw_reporter_app/core/models/category.dart';
 import 'package:tw_reporter_app/core/models/image_size.dart';
 import 'package:tw_reporter_app/core/models/tag.dart';
@@ -21,7 +22,16 @@ sealed class Article with _$Article {
     @JsonKey(name: 'is_external') required bool isExternal,
     List<Tag>? tags,
     String? style,
-    @JsonKey(name: 'content') String? htmlContent,
+    @JsonKey(name: 'content') Map<String, dynamic>? content,
+    List<Author>? writers,
+    List<Author>? photographers,
+    List<Author>? designers,
+    @JsonKey(name: 'extend_byline') String? extendByline,
+    Map<String, dynamic>? brief,
+    List<String>? relateds,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    String? copyright,
+    @JsonKey(name: 'leading_image_description') String? leadingImageDescription,
   }) = _Article;
 
   factory Article.fromJson(Map<String, dynamic> json) =>

@@ -12,13 +12,13 @@ void main() {
     expect(find.byType(MaterialApp), findsOneWidget);
   });
 
-  testWidgets('Bottom navigation should have 5 items',
+  testWidgets('Bottom navigation should have 4 items',
       (WidgetTester tester) async {
     // Build our app
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
-    // Verify that bottom navigation bar exists with 5 items
+    // Verify that bottom navigation bar exists with 4 items
     final Finder bottomNavBar = find.byType(BottomNavigationBar);
     expect(bottomNavBar, findsOneWidget);
 
@@ -26,8 +26,6 @@ void main() {
     expect(find.text('首頁'), findsOneWidget);
     expect(find.text('最新'), findsOneWidget);
     expect(find.text('專題'), findsOneWidget);
-    expect(find.text('搜尋'), findsOneWidget);
     expect(find.text('我的閱讀'), findsOneWidget);
   });
 }
-

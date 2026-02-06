@@ -31,7 +31,7 @@ sealed class Subcategory with _$Subcategory {
 @freezed
 sealed class CategorySet with _$CategorySet {
   const factory CategorySet({
-    required Category category,
+    Category? category,
     Subcategory? subcategory,
   }) = _CategorySet;
 

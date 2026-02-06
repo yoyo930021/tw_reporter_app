@@ -48,10 +48,20 @@ void main() {
         categorySet: <CategorySet>[],
         publishedDate: DateTime(2024, 1, 1),
         isExternal: false,
-        htmlContent: '<p>文章內容</p>',
+        content: <String, dynamic>{
+          'api_data': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'type': 'unstyled',
+              'content': <String>['文章內容'],
+              'id': '1',
+              'styles': <String, dynamic>{},
+              'alignment': 'center',
+            },
+          ],
+        },
       );
 
-      when(() => mockApi.fetchPost('test-article'))
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full')))
           .thenAnswer((_) async => createMockArticleResponse(mockArticle));
 
       // Act
@@ -70,8 +80,8 @@ void main() {
                         Text('Loading: ${result.isLoading.value}'),
                         if (result.article.value != null)
                           Text('Title: ${result.article.value!.title}'),
-                        if (result.article.value?.htmlContent != null)
-                          Text('Content: ${result.article.value!.htmlContent}'),
+                        if (result.article.value?.content != null)
+                          Text('Content: has content'),
                       ],
                     ),
                   );
@@ -86,13 +96,13 @@ void main() {
       // Assert
       expect(find.text('Loading: false'), findsOneWidget);
       expect(find.text('Title: 測試文章標題'), findsOneWidget);
-      expect(find.text('Content: <p>文章內容</p>'), findsOneWidget);
-      verify(() => mockApi.fetchPost('test-article')).called(1);
+      expect(find.text('Content: has content'), findsOneWidget);
+      verify(() => mockApi.fetchPost('test-article', full: any(named: 'full'))).called(1);
     });
 
     testWidgets('should handle article fetch error', (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchPost('test-article'))
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full')))
           .thenThrow(Exception('Network error'));
 
       // Act
@@ -131,7 +141,7 @@ void main() {
       // Arrange
       int callCount = 0;
 
-      when(() => mockApi.fetchPost('test-article')).thenAnswer((_) async {
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full'))).thenAnswer((_) async {
         callCount++;
         return createMockArticleResponse(
           Article(
@@ -192,7 +202,7 @@ void main() {
       // Arrange
       int fetchCallCount = 0;
 
-      when(() => mockApi.fetchPost('test-article')).thenAnswer((_) async {
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full'))).thenAnswer((_) async {
         fetchCallCount++;
         await Future<void>.delayed(const Duration(milliseconds: 100));
         return createMockArticleResponse(
@@ -271,9 +281,9 @@ void main() {
         isExternal: false,
       );
 
-      when(() => mockApi.fetchPost('article-1'))
+      when(() => mockApi.fetchPost('article-1', full: any(named: 'full')))
           .thenAnswer((_) async => createMockArticleResponse(article1));
-      when(() => mockApi.fetchPost('article-2'))
+      when(() => mockApi.fetchPost('article-2', full: any(named: 'full')))
           .thenAnswer((_) async => createMockArticleResponse(article2));
 
       // Act - 載入 article-1
@@ -303,7 +313,7 @@ void main() {
 
       // Assert
       expect(find.text('Title: 文章 1'), findsOneWidget);
-      verify(() => mockApi.fetchPost('article-1')).called(1);
+      verify(() => mockApi.fetchPost('article-1', full: any(named: 'full'))).called(1);
     });
   });
 }

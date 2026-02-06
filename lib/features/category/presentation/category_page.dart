@@ -1,14 +1,20 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:intl/intl.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
+import 'package:tw_reporter_app/core/storage/reading_storage.dart';
+import 'package:tw_reporter_app/core/theme/app_spacing.dart';
+import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
 import 'package:tw_reporter_app/features/category/logic/use_category_articles.dart';
+import 'package:tw_reporter_app/features/home/presentation/home_page.dart';
+import 'package:tw_reporter_app/shared/widgets/article_card.dart';
+import 'package:tw_reporter_app/shared/widgets/empty_state.dart';
+import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
 
 @RoutePage()
-class CategoryPage extends CompositionWidget {
+class CategoryPage extends StatelessWidget {
   const CategoryPage({
     this.api,
     super.key,
@@ -19,25 +25,43 @@ class CategoryPage extends CompositionWidget {
   final String category;
 
   @override
+  Widget build(BuildContext context) {
+    final apiInstance = api ?? ApiProvider.of(context).api;
+    return _CategoryPageContent(api: apiInstance, category: category);
+  }
+}
+
+class _CategoryPageContent extends CompositionWidget {
+  const _CategoryPageContent({
+    required this.api,
+    required this.category,
+  });
+
+  final TwReporterApi api;
+  final String category;
+
+  @override
   Widget Function(BuildContext) setup() {
-    // 使用 useCategoryArticles composable 取得分類文章列表
     final CategoryArticlesResult categoryArticles = useCategoryArticles(
-      api!,
+      api,
       category: category,
     );
+    final Ref<Set<String>> readSlugs = ref<Set<String>>(<String>{});
 
-    // 捲動控制器，用於檢測是否滾動到底部
+    onMounted(() async {
+      final storage = await ReadingStorage.create();
+      readSlugs.value = storage.getReadSlugs();
+    });
+
     final ReadonlyRef<ScrollController> scrollControllerRef =
         useScrollController();
 
-    // 監聽滾動事件，當接近底部時載入更多
     watchEffect(() {
       final ScrollController scrollController = scrollControllerRef.value;
       if (scrollController.hasClients) {
         final double position = scrollController.position.pixels;
         final double maxScroll = scrollController.position.maxScrollExtent;
 
-        // 當滾動到距離底部 200 像素時，載入更多
         if (position >= maxScroll - 200 &&
             categoryArticles.hasMore.value &&
             !categoryArticles.isLoading.value) {
@@ -50,30 +74,24 @@ class CategoryPage extends CompositionWidget {
           appBar: AppBar(
             title: Text(category),
           ),
-          body: _buildBody(categoryArticles, scrollControllerRef.value),
+          body: _buildBody(categoryArticles, scrollControllerRef.value, readSlugs.value),
         );
   }
 
   Widget _buildBody(
     CategoryArticlesResult categoryArticles,
     ScrollController scrollController,
+    Set<String> readSlugs,
   ) {
-    // 初始載入中狀態
     if (categoryArticles.isLoading.value &&
         categoryArticles.articles.value.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const LoadingIndicator();
     }
 
-    // 空狀態
     if (categoryArticles.articles.value.isEmpty) {
-      return const Center(
-        child: Text('此分類目前沒有文章'),
-      );
+      return const EmptyState(message: '此分類目前沒有文章');
     }
 
-    // 文章列表
     return RefreshIndicator(
       onRefresh: categoryArticles.refresh,
       child: ListView.builder(
@@ -81,76 +99,28 @@ class CategoryPage extends CompositionWidget {
         itemCount: categoryArticles.articles.value.length +
             (categoryArticles.hasMore.value ? 1 : 0),
         itemBuilder: (BuildContext context, int index) {
-          // 載入更多指示器
           if (index == categoryArticles.articles.value.length) {
-            return const Padding(
-              padding: EdgeInsets.all(16),
+            return Padding(
+              padding: AppSpacing.edgeInsetsMd,
               child: Center(
-                child: Text('載入更多...'),
+                child: Text('載入更多...', style: AppTextStyles.caption),
               ),
             );
           }
 
           final Article article = categoryArticles.articles.value[index];
-          return _buildArticleItem(article);
+          return ArticleCard(
+            article: article,
+            isRead: readSlugs.contains(article.slug),
+            onTap: () {
+              context.router.push(ArticleRoute(
+                slug: article.slug,
+                heroImageUrl: ArticleCard.getArticleImageUrl(article),
+              ));
+            },
+          );
         },
       ),
     );
-  }
-
-  Widget _buildArticleItem(Article article) {
-    return Builder(
-      builder: (BuildContext context) => Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: InkWell(
-          onTap: () {
-            context.router.push(ArticleRoute(slug: article.slug));
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                // 文章標題
-                Text(
-                  article.title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // 文章描述
-                Text(
-                  article.ogDescription,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-
-                // 發布日期
-                Text(
-                  _formatDate(article.publishedDate),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final DateFormat formatter = DateFormat('yyyy年MM月dd日');
-    return formatter.format(date);
   }
 }

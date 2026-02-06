@@ -9,6 +9,37 @@ import 'package:tw_reporter_app/features/search/logic/use_search.dart';
 
 class MockTwReporterApi extends Mock implements TwReporterApi {}
 
+/// Helper: wrap articles in a [ListResponse].
+ListResponse<Article> _listResponse(List<Article> articles, {int offset = 0}) {
+  return ListResponse<Article>(
+    data: ListData<Article>(
+      meta: ListMeta(
+        limit: articles.length,
+        offset: offset,
+        total: 100,
+      ),
+      records: articles,
+    ),
+    status: 'success',
+  );
+}
+
+/// Helper: create articles whose title contains [query] for client-side search.
+List<Article> _searchableArticles(String query, int count, {String prefix = ''}) {
+  return List<Article>.generate(
+    count,
+    (int i) => Article(
+      id: '$prefix$i',
+      slug: 'article-$prefix$i',
+      title: '$query結果 $prefix$i',
+      ogDescription: '描述 $prefix$i',
+      categorySet: <CategorySet>[],
+      publishedDate: DateTime.now(),
+      isExternal: false,
+    ),
+  );
+}
+
 // 測試用的 Composition Widget
 class TestWidget extends CompositionWidget {
   TestWidget({
@@ -28,6 +59,14 @@ void main() {
   setUp(() {
     mockApi = MockTwReporterApi();
   });
+
+  /// Setup default fetchPosts mock returning articles with matching titles.
+  void mockFetchPosts(List<Article> articles) {
+    when(() => mockApi.fetchPosts(
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        )).thenAnswer((_) async => _listResponse(articles));
+  }
 
   group('useSearch', () {
     testWidgets('should start with empty query and no results',
@@ -63,9 +102,8 @@ void main() {
 
     testWidgets('should update query when setQuery is called',
         (WidgetTester tester) async {
-      // Arrange - Mock API 以避免 debounced search 失敗
-      when(() => mockApi.searchArticles(query: '測試', page: 1))
-          .thenAnswer((_) async => <Article>[]);
+      // Arrange - Mock fetchPosts for debounced search
+      mockFetchPosts(_searchableArticles('測試', 5));
 
       // Act
       await tester.pumpWidget(
@@ -102,22 +140,9 @@ void main() {
 
     testWidgets('should search with debounce when query changes',
         (WidgetTester tester) async {
-      // Arrange
-      final List<Article> mockArticles = List<Article>.generate(
-        5,
-        (int index) => Article(
-          id: '$index',
-          slug: 'article-$index',
-          title: '搜尋結果 $index',
-          ogDescription: '描述',
-          categorySet: <CategorySet>[],
-          publishedDate: DateTime.now(),
-          isExternal: false,
-        ),
-      );
-
-      when(() => mockApi.searchArticles(query: '測試', page: 1))
-          .thenAnswer((_) async => mockArticles);
+      // Arrange - searchArticles internally calls fetchPosts(limit:50, offset:0)
+      // and filters by title containing query
+      mockFetchPosts(_searchableArticles('測試', 5));
 
       // Act
       await tester.pumpWidget(
@@ -152,10 +177,14 @@ void main() {
 
       // Assert
       expect(find.text('Count: 5'), findsOneWidget);
-      verify(() => mockApi.searchArticles(query: '測試', page: 1)).called(1);
+      verify(() => mockApi.fetchPosts(
+            limit: 50,
+            offset: 0,
+          )).called(1);
     });
 
-    testWidgets('should not search if query is empty', (WidgetTester tester) async {
+    testWidgets('should not search if query is empty',
+        (WidgetTester tester) async {
       // Act
       await tester.pumpWidget(
         MaterialApp(
@@ -187,30 +216,25 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert - 不應該調用 API
-      verifyNever(() => mockApi.searchArticles(query: '', page: any(named: 'page')));
+      verifyNever(() => mockApi.fetchPosts(
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          ));
       expect(find.text('Count: 0'), findsOneWidget);
     });
 
     testWidgets('should load more results when loadMore is called',
         (WidgetTester tester) async {
       // Arrange
-      int currentPage = 1;
-      when(() => mockApi.searchArticles(
-            query: '測試',
-            page: any(named: 'page'),
+      var callCount = 0;
+      when(() => mockApi.fetchPosts(
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
           )).thenAnswer((_) async {
-        return List<Article>.generate(
-          10,
-          (int index) => Article(
-            id: 'page${currentPage}_$index',
-            slug: 'article-$index',
-            title: '結果 $currentPage-$index',
-            ogDescription: '描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime.now(),
-            isExternal: false,
-          ),
-        )..forEach((_) => currentPage++);
+        callCount++;
+        return _listResponse(
+          _searchableArticles('測試', 10, prefix: 'p${callCount}_'),
+        );
       });
 
       // Act
@@ -258,34 +282,25 @@ void main() {
 
     testWidgets('should clear results when query changes',
         (WidgetTester tester) async {
-      // Arrange
-      when(() => mockApi.searchArticles(query: '第一次', page: 1))
-          .thenAnswer((_) async => List<Article>.generate(
-                5,
-                (int index) => Article(
-                  id: 'first_$index',
-                  slug: 'article-$index',
-                  title: '第一次結果 $index',
-                  ogDescription: '描述',
-                  categorySet: <CategorySet>[],
-                  publishedDate: DateTime.now(),
-                  isExternal: false,
-                ),
-              ));
-
-      when(() => mockApi.searchArticles(query: '第二次', page: 1))
-          .thenAnswer((_) async => List<Article>.generate(
-                3,
-                (int index) => Article(
-                  id: 'second_$index',
-                  slug: 'article-$index',
-                  title: '第二次結果 $index',
-                  ogDescription: '描述',
-                  categorySet: <CategorySet>[],
-                  publishedDate: DateTime.now(),
-                  isExternal: false,
-                ),
-              ));
+      // Arrange - both searches go through fetchPosts
+      // First search: articles with '第一次' in title
+      // Second search: articles with '第二次' in title
+      var callCount = 0;
+      when(() => mockApi.fetchPosts(
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          )).thenAnswer((_) async {
+        callCount++;
+        if (callCount == 1) {
+          return _listResponse(
+            _searchableArticles('第一次', 5, prefix: 'first_'),
+          );
+        } else {
+          return _listResponse(
+            _searchableArticles('第二次', 3, prefix: 'second_'),
+          );
+        }
+      });
 
       // Act
       await tester.pumpWidget(

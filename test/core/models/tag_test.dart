@@ -10,7 +10,7 @@ void main() {
         'id': '5768ed08406be01000c69076',
         'key': '5768ed08406be01000c69076',
         'name': '中國',
-        'latestOrder': 10,
+        'latest_order': 10,
         'category': null,
       };
 
@@ -31,7 +31,7 @@ void main() {
         'id': '123',
         'key': 'test-key',
         'name': '測試標籤',
-        'latestOrder': 5,
+        'latest_order': 5,
         'category': <String, dynamic>{
           'id': '456',
           'name': '測試分類',
@@ -81,7 +81,7 @@ void main() {
 
       // Assert
       expect(json['name'], equals('測試標籤'));
-      expect(json['latestOrder'], equals(10));
+      expect(json['latest_order'], equals(10));
       expect(json['category']['name'], equals('分類'));
     });
 

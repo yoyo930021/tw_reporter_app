@@ -1,37 +1,55 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:intl/intl.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
+import 'package:tw_reporter_app/core/storage/reading_storage.dart';
+import 'package:tw_reporter_app/core/theme/app_spacing.dart';
+import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
+import 'package:tw_reporter_app/features/home/presentation/home_page.dart';
 import 'package:tw_reporter_app/features/latest/logic/use_latest_articles.dart';
+import 'package:tw_reporter_app/shared/widgets/article_card.dart';
+import 'package:tw_reporter_app/shared/widgets/empty_state.dart';
+import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
 
 @RoutePage()
-class LatestPage extends CompositionWidget {
-  const LatestPage({
-    this.api,
-    super.key,
-  });
+class LatestPage extends StatelessWidget {
+  const LatestPage({this.api, super.key});
 
   final TwReporterApi? api;
 
   @override
+  Widget build(BuildContext context) {
+    final apiInstance = api ?? ApiProvider.of(context).api;
+    return _LatestPageContent(api: apiInstance);
+  }
+}
+
+class _LatestPageContent extends CompositionWidget {
+  const _LatestPageContent({required this.api});
+
+  final TwReporterApi api;
+
+  @override
   Widget Function(BuildContext) setup() {
-    // 使用 useLatestArticles composable 取得最新文章列表
-    final LatestArticlesResult latestArticles = useLatestArticles(api!);
+    final LatestArticlesResult latestArticles = useLatestArticles(api);
+    final Ref<Set<String>> readSlugs = ref<Set<String>>(<String>{});
 
-    // 捲動控制器，用於檢測是否滾動到底部
-    final ReadonlyRef<ScrollController> scrollControllerRef = useScrollController();
+    onMounted(() async {
+      final storage = await ReadingStorage.create();
+      readSlugs.value = storage.getReadSlugs();
+    });
 
-    // 監聽滾動事件，當接近底部時載入更多
+    final ReadonlyRef<ScrollController> scrollControllerRef =
+        useScrollController();
+
     watchEffect(() {
       final ScrollController scrollController = scrollControllerRef.value;
       if (scrollController.hasClients) {
         final double position = scrollController.position.pixels;
         final double maxScroll = scrollController.position.maxScrollExtent;
 
-        // 當滾動到距離底部 200 像素時，載入更多
         if (position >= maxScroll - 200 &&
             latestArticles.hasMore.value &&
             !latestArticles.isLoading.value) {
@@ -44,30 +62,24 @@ class LatestPage extends CompositionWidget {
           appBar: AppBar(
             title: const Text('最新文章'),
           ),
-          body: _buildBody(latestArticles, scrollControllerRef.value),
+          body: _buildBody(latestArticles, scrollControllerRef.value, readSlugs.value),
         );
   }
 
   Widget _buildBody(
     LatestArticlesResult latestArticles,
     ScrollController scrollController,
+    Set<String> readSlugs,
   ) {
-    // 初始載入中狀態
     if (latestArticles.isLoading.value &&
         latestArticles.articles.value.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const LoadingIndicator();
     }
 
-    // 空狀態
     if (latestArticles.articles.value.isEmpty) {
-      return const Center(
-        child: Text('目前沒有文章'),
-      );
+      return const EmptyState(message: '目前沒有文章');
     }
 
-    // 文章列表
     return RefreshIndicator(
       onRefresh: latestArticles.refresh,
       child: ListView.builder(
@@ -75,76 +87,28 @@ class LatestPage extends CompositionWidget {
         itemCount: latestArticles.articles.value.length +
             (latestArticles.hasMore.value ? 1 : 0),
         itemBuilder: (BuildContext context, int index) {
-          // 載入更多指示器
           if (index == latestArticles.articles.value.length) {
-            return const Padding(
-              padding: EdgeInsets.all(16),
+            return Padding(
+              padding: AppSpacing.edgeInsetsMd,
               child: Center(
-                child: Text('載入更多...'),
+                child: Text('載入更多...', style: AppTextStyles.caption),
               ),
             );
           }
 
           final Article article = latestArticles.articles.value[index];
-          return _buildArticleItem(article);
+          return ArticleCard(
+            article: article,
+            isRead: readSlugs.contains(article.slug),
+            onTap: () {
+              context.router.push(ArticleRoute(
+                slug: article.slug,
+                heroImageUrl: ArticleCard.getArticleImageUrl(article),
+              ));
+            },
+          );
         },
       ),
     );
-  }
-
-  Widget _buildArticleItem(Article article) {
-    return Builder(
-      builder: (BuildContext context) => Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: InkWell(
-          onTap: () {
-            context.router.push(ArticleRoute(slug: article.slug));
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                // 文章標題
-                Text(
-                  article.title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // 文章描述
-                Text(
-                  article.ogDescription,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-
-                // 發布日期
-                Text(
-                  _formatDate(article.publishedDate),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final DateFormat formatter = DateFormat('yyyy年MM月dd日');
-    return formatter.format(date);
   }
 }

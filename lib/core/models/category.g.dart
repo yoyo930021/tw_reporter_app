@@ -52,7 +52,7 @@ _CategorySet _$CategorySetFromJson(Map<String, dynamic> json) => $checkedCreate(
     final val = _CategorySet(
       category: $checkedConvert(
         'category',
-        (v) => Category.fromJson(v as Map<String, dynamic>),
+        (v) => v == null ? null : Category.fromJson(v as Map<String, dynamic>),
       ),
       subcategory: $checkedConvert(
         'subcategory',
@@ -66,6 +66,6 @@ _CategorySet _$CategorySetFromJson(Map<String, dynamic> json) => $checkedCreate(
 
 Map<String, dynamic> _$CategorySetToJson(_CategorySet instance) =>
     <String, dynamic>{
-      'category': instance.category.toJson(),
+      'category': instance.category?.toJson(),
       'subcategory': instance.subcategory?.toJson(),
     };

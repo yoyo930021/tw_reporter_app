@@ -9,44 +9,27 @@ import 'package:tw_reporter_app/features/home/logic/use_home_data.dart';
 
 class MockTwReporterApi extends Mock implements TwReporterApi {}
 
-// Helper function to create mock IndexPageData
-IndexPageData createMockIndexPageData({
-  List<Article>? editorPicksSection,
-  List<Article>? latestSection,
-  List<Article>? reviewsSection,
-  List<Article>? photosSection,
-  List<Article>? infographicsSection,
-  List<Article>? culture,
-  List<Article>? econ,
-  List<Article>? education,
-  List<Article>? environment,
-  List<Article>? health,
-  List<Article>? humanrights,
-  List<Article>? politicsAndSociety,
-  List<Article>? world,
-}) {
-  return IndexPageData(
-    editorPicksSection: editorPicksSection,
-    latestSection: latestSection,
-    reviewsSection: reviewsSection,
-    photosSection: photosSection,
-    infographicsSection: infographicsSection,
-    culture: culture,
-    econ: econ,
-    education: education,
-    environment: environment,
-    health: health,
-    humanrights: humanrights,
-    politicsAndSociety: politicsAndSociety,
-    world: world,
-  );
-}
-
-// Helper function to create mock ApiResponse
-ApiResponse<IndexPageData> createMockIndexPageResponse(IndexPageData data) {
+/// Helper: create a mock [ApiResponse<IndexPageData>].
+ApiResponse<IndexPageData> _indexPageResponse(IndexPageData data) {
   return ApiResponse<IndexPageData>(
     data: data,
     status: 'success',
+  );
+}
+
+/// Helper: create test articles.
+List<Article> _articles(int count, {String prefix = ''}) {
+  return List<Article>.generate(
+    count,
+    (int i) => Article(
+      id: '$prefix$i',
+      slug: 'article-$prefix$i',
+      title: '${prefix}文章 $i',
+      ogDescription: '描述',
+      categorySet: <CategorySet>[],
+      publishedDate: DateTime(2024, 1, 1 + i),
+      isExternal: false,
+    ),
   );
 }
 
@@ -71,31 +54,17 @@ void main() {
   });
 
   group('useHomeData', () {
-    testWidgets('should load featured articles on mount', (WidgetTester tester) async {
+    testWidgets('should load index page data on mount',
+        (WidgetTester tester) async {
       // Arrange
-      final List<Article> mockArticles = <Article>[
-        Article(
-          id: '1',
-          slug: 'featured-1',
-          title: '精選文章 1',
-          ogDescription: '描述',
-          categorySet: <CategorySet>[],
-          publishedDate: DateTime(2024, 1, 1),
-          isExternal: false,
-        ),
-        Article(
-          id: '2',
-          slug: 'featured-2',
-          title: '精選文章 2',
-          ogDescription: '描述',
-          categorySet: <CategorySet>[],
-          publishedDate: DateTime(2024, 1, 2),
-          isExternal: false,
-        ),
-      ];
+      final List<Article> editorPicks = _articles(2, prefix: 'ep_');
+      final IndexPageData indexData = IndexPageData(
+        editorPicksSection: editorPicks,
+        latestSection: _articles(3, prefix: 'latest_'),
+      );
 
       when(() => mockApi.fetchIndexPage())
-          .thenAnswer((_) async => mockArticles);
+          .thenAnswer((_) async => _indexPageResponse(indexData));
 
       // Act
       await tester.pumpWidget(
@@ -107,10 +76,16 @@ void main() {
               return (BuildContext context) => Scaffold(
                     body: Column(
                       children: <Widget>[
-                        Text('Loading: ${result.isLoadingFeatured.value}'),
-                        Text('Count: ${result.featuredArticles.value.length}'),
-                        if (result.featuredArticles.value.isNotEmpty)
-                          Text('First: ${result.featuredArticles.value.first.title}'),
+                        Text('Loading: ${result.isLoading.value}'),
+                        Text('HasData: ${result.indexData.value != null}'),
+                        if (result.indexData.value != null)
+                          Text(
+                            'EditorPicks: ${result.indexData.value!.editorPicksSection?.length ?? 0}',
+                          ),
+                        if (result.indexData.value != null)
+                          Text(
+                            'Latest: ${result.indexData.value!.latestSection?.length ?? 0}',
+                          ),
                       ],
                     ),
                   );
@@ -119,19 +94,19 @@ void main() {
         ),
       );
 
-      // 等待初始載入
-      await tester.pump(); // 啟動 onMounted
-      await tester.pump(); // 開始執行 loadFeaturedArticles
+      // 等待載入完成
+      await tester.pumpAndSettle();
 
-      // Assert - 載入完成
-      await tester.pump(const Duration(milliseconds: 100));
+      // Assert
       expect(find.text('Loading: false'), findsOneWidget);
-      expect(find.text('Count: 2'), findsOneWidget);
-      expect(find.text('First: 精選文章 1'), findsOneWidget);
+      expect(find.text('HasData: true'), findsOneWidget);
+      expect(find.text('EditorPicks: 2'), findsOneWidget);
+      expect(find.text('Latest: 3'), findsOneWidget);
       verify(() => mockApi.fetchIndexPage()).called(1);
     });
 
-    testWidgets('should handle featured articles fetch error', (WidgetTester tester) async {
+    testWidgets('should handle fetch error',
+        (WidgetTester tester) async {
       // Arrange
       when(() => mockApi.fetchIndexPage())
           .thenThrow(Exception('Network error'));
@@ -158,55 +133,23 @@ void main() {
       );
 
       // 等待錯誤發生
-      await tester.pump();
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pumpAndSettle();
 
       // Assert
       expect(find.text('HasError: true'), findsOneWidget);
       expect(find.text('Error: Exception: Network error'), findsOneWidget);
     });
 
-    testWidgets('should load category articles on mount', (WidgetTester tester) async {
+    testWidgets('should load category articles from index page',
+        (WidgetTester tester) async {
       // Arrange
-      final List<Article> mockInternationalArticles = <Article>[
-        Article(
-          id: '1',
-          slug: 'intl-1',
-          title: '國際文章 1',
-          ogDescription: '描述',
-          categorySet: <CategorySet>[],
-          publishedDate: DateTime(2024, 1, 1),
-          isExternal: false,
-        ),
-      ];
-
-      final List<Article> mockPoliticsArticles = <Article>[
-        Article(
-          id: '2',
-          slug: 'politics-1',
-          title: '政治文章 1',
-          ogDescription: '描述',
-          categorySet: <CategorySet>[],
-          publishedDate: DateTime(2024, 1, 2),
-          isExternal: false,
-        ),
-      ];
+      final IndexPageData indexData = IndexPageData(
+        world: _articles(2, prefix: 'world_'),
+        culture: _articles(1, prefix: 'culture_'),
+      );
 
       when(() => mockApi.fetchIndexPage())
-          .thenAnswer((_) async => <Article>[]);
-
-      when(() => mockApi.fetchCategoryArticles(
-            category: '國際',
-            page: 1,
-            limit: 5,
-          )).thenAnswer((_) async => mockInternationalArticles);
-
-      when(() => mockApi.fetchCategoryArticles(
-            category: '政治',
-            page: 1,
-            limit: 5,
-          )).thenAnswer((_) async => mockPoliticsArticles);
+          .thenAnswer((_) async => _indexPageResponse(indexData));
 
       // Act
       await tester.pumpWidget(
@@ -218,11 +161,15 @@ void main() {
               return (BuildContext context) => Scaffold(
                     body: Column(
                       children: <Widget>[
-                        Text('Categories: ${result.categoryArticles.value.length}'),
-                        if (result.categoryArticles.value.containsKey('國際'))
-                          Text('國際: ${result.categoryArticles.value['國際']!.length}'),
-                        if (result.categoryArticles.value.containsKey('政治'))
-                          Text('政治: ${result.categoryArticles.value['政治']!.length}'),
+                        Text('HasData: ${result.indexData.value != null}'),
+                        if (result.indexData.value != null)
+                          Text(
+                            'World: ${result.indexData.value!.world?.length ?? 0}',
+                          ),
+                        if (result.indexData.value != null)
+                          Text(
+                            'Culture: ${result.indexData.value!.culture?.length ?? 0}',
+                          ),
                       ],
                     ),
                   );
@@ -232,42 +179,26 @@ void main() {
       );
 
       // 等待載入完成
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('Categories: 2'), findsOneWidget);
-      expect(find.text('國際: 1'), findsOneWidget);
-      expect(find.text('政治: 1'), findsOneWidget);
+      expect(find.text('HasData: true'), findsOneWidget);
+      expect(find.text('World: 2'), findsOneWidget);
+      expect(find.text('Culture: 1'), findsOneWidget);
     });
 
-    testWidgets('should refresh all data when refresh is called', (WidgetTester tester) async {
+    testWidgets('should refresh all data when refresh is called',
+        (WidgetTester tester) async {
       // Arrange
-      int featuredCallCount = 0;
-      int categoryCallCount = 0;
+      var callCount = 0;
 
       when(() => mockApi.fetchIndexPage()).thenAnswer((_) async {
-        featuredCallCount++;
-        return <Article>[
-          Article(
-            id: '$featuredCallCount',
-            slug: 'article-$featuredCallCount',
-            title: '文章 $featuredCallCount',
-            ogDescription: '描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime.now(),
-            isExternal: false,
+        callCount++;
+        return _indexPageResponse(
+          IndexPageData(
+            editorPicksSection: _articles(1, prefix: 'call${callCount}_'),
           ),
-        ];
-      });
-
-      when(() => mockApi.fetchCategoryArticles(
-            category: any(named: 'category'),
-            page: any(named: 'page'),
-            limit: any(named: 'limit'),
-          )).thenAnswer((_) async {
-        categoryCallCount++;
-        return <Article>[];
+        );
       });
 
       // Act
@@ -280,9 +211,12 @@ void main() {
               return (BuildContext context) => Scaffold(
                     body: Column(
                       children: <Widget>[
-                        Text('Count: ${result.featuredArticles.value.length}'),
-                        if (result.featuredArticles.value.isNotEmpty)
-                          Text('First: ${result.featuredArticles.value.first.id}'),
+                        if (result.indexData.value?.editorPicksSection
+                                ?.isNotEmpty ??
+                            false)
+                          Text(
+                            'FirstId: ${result.indexData.value!.editorPicksSection!.first.id}',
+                          ),
                         ElevatedButton(
                           onPressed: result.refresh,
                           child: const Text('Refresh'),
@@ -296,29 +230,28 @@ void main() {
       );
 
       // 等待初始載入
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pumpAndSettle();
 
-      expect(find.text('First: 1'), findsOneWidget);
+      expect(find.text('FirstId: call1_0'), findsOneWidget);
 
       // 執行重新整理
       await tester.tap(find.text('Refresh'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('First: 2'), findsOneWidget);
-      expect(featuredCallCount, equals(2));
+      expect(find.text('FirstId: call2_0'), findsOneWidget);
+      expect(callCount, equals(2));
     });
 
-    testWidgets('should not load when already loading', (WidgetTester tester) async {
+    testWidgets('should not load when already loading',
+        (WidgetTester tester) async {
       // Arrange
-      int callCount = 0;
+      var callCount = 0;
 
       when(() => mockApi.fetchIndexPage()).thenAnswer((_) async {
         callCount++;
         await Future<void>.delayed(const Duration(milliseconds: 100));
-        return <Article>[];
+        return _indexPageResponse(const IndexPageData());
       });
 
       // Act
@@ -331,7 +264,7 @@ void main() {
               return (BuildContext context) => Scaffold(
                     body: Column(
                       children: <Widget>[
-                        Text('Loading: ${result.isLoadingFeatured.value}'),
+                        Text('Loading: ${result.isLoading.value}'),
                         Text('CallCount: $callCount'),
                         ElevatedButton(
                           onPressed: result.refresh,

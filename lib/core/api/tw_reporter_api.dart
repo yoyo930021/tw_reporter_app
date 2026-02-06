@@ -189,17 +189,23 @@ abstract class TwReporterApi {
   ///
   /// [limit] 每頁文章數量，預設 10
   /// [offset] 偏移量，用於分頁
+  /// [ids] 文章 ID 列表（用於按 ID 過濾）
   @GET('/posts')
   Future<ListResponse<Article>> fetchPosts({
     @Query('limit') int limit = 10,
     @Query('offset') int offset = 0,
+    @Query('id') List<String>? ids,
   });
 
   /// 獲取單篇文章詳情
   ///
   /// [slug] 文章的 slug（唯一識別符）
+  /// [full] 是否取得完整內容（含 content、brief 等欄位）
   @GET('/posts/{slug}')
-  Future<ApiResponse<Article>> fetchPost(@Path('slug') String slug);
+  Future<ApiResponse<Article>> fetchPost(
+    @Path('slug') String slug, {
+    @Query('full') bool full = true,
+  });
 
   /// 獲取專題列表
   ///
@@ -264,13 +270,12 @@ extension TwReporterApiExtensions on TwReporterApi {
         response.data.records.where((Article article) {
       // 檢查 category_set 中是否有匹配的分類
       return article.categorySet.any((dynamic cs) {
-        // Casting needed due to type inference limitations
         // ignore: avoid_dynamic_calls
-        return (cs.category.name as String).toLowerCase() ==
+        final String? name = cs.category?.name as String?;
+        if (name == null) return false;
+        return name.toLowerCase() ==
                 _mapCategoryNameToApiName(category).toLowerCase() ||
-            // ignore: avoid_dynamic_calls
-            (cs.category.name as String).toLowerCase() ==
-                category.toLowerCase();
+            name.toLowerCase() == category.toLowerCase();
       });
     }).take(limit).toList();
 
@@ -321,6 +326,21 @@ extension TwReporterApiExtensions on TwReporterApi {
     final ListResponse<Topic> response = await fetchTopics(
       limit: limit,
       offset: offset,
+    );
+    return response.data.records;
+  }
+
+  /// 根據 ID 列表獲取文章（wrapper method）
+  ///
+  /// 使用 GET /posts?id=xxx&id=yyy 批次查詢
+  ///
+  /// [ids] 文章 ID 列表
+  Future<List<Article>> fetchArticlesByIds(List<String> ids) async {
+    if (ids.isEmpty) return <Article>[];
+
+    final ListResponse<Article> response = await fetchPosts(
+      limit: ids.length,
+      ids: ids,
     );
     return response.data.records;
   }

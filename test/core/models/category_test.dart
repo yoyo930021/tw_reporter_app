@@ -109,7 +109,7 @@ void main() {
       final CategorySet categorySet = CategorySet.fromJson(json);
 
       // Assert
-      expect(categorySet.category.name, equals('國際兩岸'));
+      expect(categorySet.category?.name, equals('國際兩岸'));
       expect(categorySet.subcategory, isNotNull);
       expect(categorySet.subcategory?.name, equals('歐洲'));
     });
@@ -127,7 +127,7 @@ void main() {
       final CategorySet categorySet = CategorySet.fromJson(json);
 
       // Assert
-      expect(categorySet.category.name, equals('測試分類'));
+      expect(categorySet.category?.name, equals('測試分類'));
       expect(categorySet.subcategory, isNull);
     });
 

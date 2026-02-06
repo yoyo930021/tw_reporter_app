@@ -1,6 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
+import 'package:tw_reporter_app/core/models/topic.dart';
+import 'package:tw_reporter_app/core/storage/reading_storage.dart';
+import 'package:tw_reporter_app/core/theme/theme_notifier.dart';
 import 'package:tw_reporter_app/features/article/presentation/article_page.dart';
 import 'package:tw_reporter_app/features/category/presentation/category_page.dart';
 import 'package:tw_reporter_app/features/home/presentation/home_page.dart';
@@ -8,6 +11,8 @@ import 'package:tw_reporter_app/features/latest/presentation/latest_page.dart';
 import 'package:tw_reporter_app/features/main/presentation/main_shell.dart';
 import 'package:tw_reporter_app/features/my_reading/presentation/my_reading_page.dart';
 import 'package:tw_reporter_app/features/search/presentation/search_page.dart';
+import 'package:tw_reporter_app/features/settings/presentation/settings_page.dart';
+import 'package:tw_reporter_app/features/topics/presentation/topic_detail_page.dart';
 import 'package:tw_reporter_app/features/topics/presentation/topics_page.dart';
 
 part 'app_router.gr.dart';
@@ -42,12 +47,6 @@ class AppRouter extends RootStackRouter {
               path: 'topics',
             ),
 
-            // 搜尋頁面
-            AutoRoute(
-              page: SearchRoute.page,
-              path: 'search',
-            ),
-
             // 我的閱讀
             AutoRoute(
               page: MyReadingRoute.page,
@@ -62,10 +61,22 @@ class AppRouter extends RootStackRouter {
           path: '/a/:slug',
         ),
 
+        // 專題詳情 - 不在底部導航列中
+        AutoRoute(
+          page: TopicDetailRoute.page,
+          path: '/topics/:slug',
+        ),
+
         // 分類頁面 - 不在底部導航列中
         AutoRoute(
           page: CategoryRoute.page,
           path: '/categories/:category',
+        ),
+
+        // 設定頁面
+        AutoRoute(
+          page: SettingsRoute.page,
+          path: '/settings',
         ),
       ];
 }

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Article {
 
- String get id; String get slug; String get title; String? get subtitle;@JsonKey(name: 'og_description') String get ogDescription;@JsonKey(name: 'hero_image') HeroImage? get heroImage;@JsonKey(name: 'og_image') HeroImage? get ogImage;@JsonKey(name: 'category_set') List<CategorySet> get categorySet;@JsonKey(name: 'published_date') DateTime get publishedDate;@JsonKey(name: 'is_external') bool get isExternal; List<Tag>? get tags; String? get style;@JsonKey(name: 'content') String? get htmlContent;
+ String get id; String get slug; String get title; String? get subtitle;@JsonKey(name: 'og_description') String get ogDescription;@JsonKey(name: 'hero_image') HeroImage? get heroImage;@JsonKey(name: 'og_image') HeroImage? get ogImage;@JsonKey(name: 'category_set') List<CategorySet> get categorySet;@JsonKey(name: 'published_date') DateTime get publishedDate;@JsonKey(name: 'is_external') bool get isExternal; List<Tag>? get tags; String? get style;@JsonKey(name: 'content') Map<String, dynamic>? get content; List<Author>? get writers; List<Author>? get photographers; List<Author>? get designers;@JsonKey(name: 'extend_byline') String? get extendByline; Map<String, dynamic>? get brief; List<String>? get relateds;@JsonKey(name: 'updated_at') DateTime? get updatedAt; String? get copyright;@JsonKey(name: 'leading_image_description') String? get leadingImageDescription;
 /// Create a copy of Article
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ArticleCopyWith<Article> get copyWith => _$ArticleCopyWithImpl<Article>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Article&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.ogDescription, ogDescription) || other.ogDescription == ogDescription)&&(identical(other.heroImage, heroImage) || other.heroImage == heroImage)&&(identical(other.ogImage, ogImage) || other.ogImage == ogImage)&&const DeepCollectionEquality().equals(other.categorySet, categorySet)&&(identical(other.publishedDate, publishedDate) || other.publishedDate == publishedDate)&&(identical(other.isExternal, isExternal) || other.isExternal == isExternal)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.style, style) || other.style == style)&&(identical(other.htmlContent, htmlContent) || other.htmlContent == htmlContent));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Article&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.ogDescription, ogDescription) || other.ogDescription == ogDescription)&&(identical(other.heroImage, heroImage) || other.heroImage == heroImage)&&(identical(other.ogImage, ogImage) || other.ogImage == ogImage)&&const DeepCollectionEquality().equals(other.categorySet, categorySet)&&(identical(other.publishedDate, publishedDate) || other.publishedDate == publishedDate)&&(identical(other.isExternal, isExternal) || other.isExternal == isExternal)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.style, style) || other.style == style)&&const DeepCollectionEquality().equals(other.content, content)&&const DeepCollectionEquality().equals(other.writers, writers)&&const DeepCollectionEquality().equals(other.photographers, photographers)&&const DeepCollectionEquality().equals(other.designers, designers)&&(identical(other.extendByline, extendByline) || other.extendByline == extendByline)&&const DeepCollectionEquality().equals(other.brief, brief)&&const DeepCollectionEquality().equals(other.relateds, relateds)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.copyright, copyright) || other.copyright == copyright)&&(identical(other.leadingImageDescription, leadingImageDescription) || other.leadingImageDescription == leadingImageDescription));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,slug,title,subtitle,ogDescription,heroImage,ogImage,const DeepCollectionEquality().hash(categorySet),publishedDate,isExternal,const DeepCollectionEquality().hash(tags),style,htmlContent);
+int get hashCode => Object.hashAll([runtimeType,id,slug,title,subtitle,ogDescription,heroImage,ogImage,const DeepCollectionEquality().hash(categorySet),publishedDate,isExternal,const DeepCollectionEquality().hash(tags),style,const DeepCollectionEquality().hash(content),const DeepCollectionEquality().hash(writers),const DeepCollectionEquality().hash(photographers),const DeepCollectionEquality().hash(designers),extendByline,const DeepCollectionEquality().hash(brief),const DeepCollectionEquality().hash(relateds),updatedAt,copyright,leadingImageDescription]);
 
 @override
 String toString() {
-  return 'Article(id: $id, slug: $slug, title: $title, subtitle: $subtitle, ogDescription: $ogDescription, heroImage: $heroImage, ogImage: $ogImage, categorySet: $categorySet, publishedDate: $publishedDate, isExternal: $isExternal, tags: $tags, style: $style, htmlContent: $htmlContent)';
+  return 'Article(id: $id, slug: $slug, title: $title, subtitle: $subtitle, ogDescription: $ogDescription, heroImage: $heroImage, ogImage: $ogImage, categorySet: $categorySet, publishedDate: $publishedDate, isExternal: $isExternal, tags: $tags, style: $style, content: $content, writers: $writers, photographers: $photographers, designers: $designers, extendByline: $extendByline, brief: $brief, relateds: $relateds, updatedAt: $updatedAt, copyright: $copyright, leadingImageDescription: $leadingImageDescription)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ArticleCopyWith<$Res>  {
   factory $ArticleCopyWith(Article value, $Res Function(Article) _then) = _$ArticleCopyWithImpl;
 @useResult
 $Res call({
- String id, String slug, String title, String? subtitle,@JsonKey(name: 'og_description') String ogDescription,@JsonKey(name: 'hero_image') HeroImage? heroImage,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'category_set') List<CategorySet> categorySet,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'is_external') bool isExternal, List<Tag>? tags, String? style,@JsonKey(name: 'content') String? htmlContent
+ String id, String slug, String title, String? subtitle,@JsonKey(name: 'og_description') String ogDescription,@JsonKey(name: 'hero_image') HeroImage? heroImage,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'category_set') List<CategorySet> categorySet,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'is_external') bool isExternal, List<Tag>? tags, String? style,@JsonKey(name: 'content') Map<String, dynamic>? content, List<Author>? writers, List<Author>? photographers, List<Author>? designers,@JsonKey(name: 'extend_byline') String? extendByline, Map<String, dynamic>? brief, List<String>? relateds,@JsonKey(name: 'updated_at') DateTime? updatedAt, String? copyright,@JsonKey(name: 'leading_image_description') String? leadingImageDescription
 });
 
 
@@ -65,7 +65,7 @@ class _$ArticleCopyWithImpl<$Res>
 
 /// Create a copy of Article
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? slug = null,Object? title = null,Object? subtitle = freezed,Object? ogDescription = null,Object? heroImage = freezed,Object? ogImage = freezed,Object? categorySet = null,Object? publishedDate = null,Object? isExternal = null,Object? tags = freezed,Object? style = freezed,Object? htmlContent = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? slug = null,Object? title = null,Object? subtitle = freezed,Object? ogDescription = null,Object? heroImage = freezed,Object? ogImage = freezed,Object? categorySet = null,Object? publishedDate = null,Object? isExternal = null,Object? tags = freezed,Object? style = freezed,Object? content = freezed,Object? writers = freezed,Object? photographers = freezed,Object? designers = freezed,Object? extendByline = freezed,Object? brief = freezed,Object? relateds = freezed,Object? updatedAt = freezed,Object? copyright = freezed,Object? leadingImageDescription = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non_nullable
@@ -79,7 +79,16 @@ as List<CategorySet>,publishedDate: null == publishedDate ? _self.publishedDate 
 as DateTime,isExternal: null == isExternal ? _self.isExternal : isExternal // ignore: cast_nullable_to_non_nullable
 as bool,tags: freezed == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
 as List<Tag>?,style: freezed == style ? _self.style : style // ignore: cast_nullable_to_non_nullable
-as String?,htmlContent: freezed == htmlContent ? _self.htmlContent : htmlContent // ignore: cast_nullable_to_non_nullable
+as String?,content: freezed == content ? _self.content : content // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,writers: freezed == writers ? _self.writers : writers // ignore: cast_nullable_to_non_nullable
+as List<Author>?,photographers: freezed == photographers ? _self.photographers : photographers // ignore: cast_nullable_to_non_nullable
+as List<Author>?,designers: freezed == designers ? _self.designers : designers // ignore: cast_nullable_to_non_nullable
+as List<Author>?,extendByline: freezed == extendByline ? _self.extendByline : extendByline // ignore: cast_nullable_to_non_nullable
+as String?,brief: freezed == brief ? _self.brief : brief // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,relateds: freezed == relateds ? _self.relateds : relateds // ignore: cast_nullable_to_non_nullable
+as List<String>?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,copyright: freezed == copyright ? _self.copyright : copyright // ignore: cast_nullable_to_non_nullable
+as String?,leadingImageDescription: freezed == leadingImageDescription ? _self.leadingImageDescription : leadingImageDescription // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -186,10 +195,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String slug,  String title,  String? subtitle, @JsonKey(name: 'og_description')  String ogDescription, @JsonKey(name: 'hero_image')  HeroImage? heroImage, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'category_set')  List<CategorySet> categorySet, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'is_external')  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  String? htmlContent)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String slug,  String title,  String? subtitle, @JsonKey(name: 'og_description')  String ogDescription, @JsonKey(name: 'hero_image')  HeroImage? heroImage, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'category_set')  List<CategorySet> categorySet, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'is_external')  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  Map<String, dynamic>? content,  List<Author>? writers,  List<Author>? photographers,  List<Author>? designers, @JsonKey(name: 'extend_byline')  String? extendByline,  Map<String, dynamic>? brief,  List<String>? relateds, @JsonKey(name: 'updated_at')  DateTime? updatedAt,  String? copyright, @JsonKey(name: 'leading_image_description')  String? leadingImageDescription)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Article() when $default != null:
-return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescription,_that.heroImage,_that.ogImage,_that.categorySet,_that.publishedDate,_that.isExternal,_that.tags,_that.style,_that.htmlContent);case _:
+return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescription,_that.heroImage,_that.ogImage,_that.categorySet,_that.publishedDate,_that.isExternal,_that.tags,_that.style,_that.content,_that.writers,_that.photographers,_that.designers,_that.extendByline,_that.brief,_that.relateds,_that.updatedAt,_that.copyright,_that.leadingImageDescription);case _:
   return orElse();
 
 }
@@ -207,10 +216,10 @@ return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescripti
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String slug,  String title,  String? subtitle, @JsonKey(name: 'og_description')  String ogDescription, @JsonKey(name: 'hero_image')  HeroImage? heroImage, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'category_set')  List<CategorySet> categorySet, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'is_external')  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  String? htmlContent)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String slug,  String title,  String? subtitle, @JsonKey(name: 'og_description')  String ogDescription, @JsonKey(name: 'hero_image')  HeroImage? heroImage, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'category_set')  List<CategorySet> categorySet, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'is_external')  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  Map<String, dynamic>? content,  List<Author>? writers,  List<Author>? photographers,  List<Author>? designers, @JsonKey(name: 'extend_byline')  String? extendByline,  Map<String, dynamic>? brief,  List<String>? relateds, @JsonKey(name: 'updated_at')  DateTime? updatedAt,  String? copyright, @JsonKey(name: 'leading_image_description')  String? leadingImageDescription)  $default,) {final _that = this;
 switch (_that) {
 case _Article():
-return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescription,_that.heroImage,_that.ogImage,_that.categorySet,_that.publishedDate,_that.isExternal,_that.tags,_that.style,_that.htmlContent);}
+return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescription,_that.heroImage,_that.ogImage,_that.categorySet,_that.publishedDate,_that.isExternal,_that.tags,_that.style,_that.content,_that.writers,_that.photographers,_that.designers,_that.extendByline,_that.brief,_that.relateds,_that.updatedAt,_that.copyright,_that.leadingImageDescription);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -224,10 +233,10 @@ return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescripti
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String slug,  String title,  String? subtitle, @JsonKey(name: 'og_description')  String ogDescription, @JsonKey(name: 'hero_image')  HeroImage? heroImage, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'category_set')  List<CategorySet> categorySet, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'is_external')  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  String? htmlContent)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String slug,  String title,  String? subtitle, @JsonKey(name: 'og_description')  String ogDescription, @JsonKey(name: 'hero_image')  HeroImage? heroImage, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'category_set')  List<CategorySet> categorySet, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'is_external')  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  Map<String, dynamic>? content,  List<Author>? writers,  List<Author>? photographers,  List<Author>? designers, @JsonKey(name: 'extend_byline')  String? extendByline,  Map<String, dynamic>? brief,  List<String>? relateds, @JsonKey(name: 'updated_at')  DateTime? updatedAt,  String? copyright, @JsonKey(name: 'leading_image_description')  String? leadingImageDescription)?  $default,) {final _that = this;
 switch (_that) {
 case _Article() when $default != null:
-return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescription,_that.heroImage,_that.ogImage,_that.categorySet,_that.publishedDate,_that.isExternal,_that.tags,_that.style,_that.htmlContent);case _:
+return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescription,_that.heroImage,_that.ogImage,_that.categorySet,_that.publishedDate,_that.isExternal,_that.tags,_that.style,_that.content,_that.writers,_that.photographers,_that.designers,_that.extendByline,_that.brief,_that.relateds,_that.updatedAt,_that.copyright,_that.leadingImageDescription);case _:
   return null;
 
 }
@@ -239,7 +248,7 @@ return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescripti
 @JsonSerializable()
 
 class _Article implements Article {
-  const _Article({required this.id, required this.slug, required this.title, this.subtitle, @JsonKey(name: 'og_description') required this.ogDescription, @JsonKey(name: 'hero_image') this.heroImage, @JsonKey(name: 'og_image') this.ogImage, @JsonKey(name: 'category_set') required final  List<CategorySet> categorySet, @JsonKey(name: 'published_date') required this.publishedDate, @JsonKey(name: 'is_external') required this.isExternal, final  List<Tag>? tags, this.style, @JsonKey(name: 'content') this.htmlContent}): _categorySet = categorySet,_tags = tags;
+  const _Article({required this.id, required this.slug, required this.title, this.subtitle, @JsonKey(name: 'og_description') required this.ogDescription, @JsonKey(name: 'hero_image') this.heroImage, @JsonKey(name: 'og_image') this.ogImage, @JsonKey(name: 'category_set') required final  List<CategorySet> categorySet, @JsonKey(name: 'published_date') required this.publishedDate, @JsonKey(name: 'is_external') required this.isExternal, final  List<Tag>? tags, this.style, @JsonKey(name: 'content') final  Map<String, dynamic>? content, final  List<Author>? writers, final  List<Author>? photographers, final  List<Author>? designers, @JsonKey(name: 'extend_byline') this.extendByline, final  Map<String, dynamic>? brief, final  List<String>? relateds, @JsonKey(name: 'updated_at') this.updatedAt, this.copyright, @JsonKey(name: 'leading_image_description') this.leadingImageDescription}): _categorySet = categorySet,_tags = tags,_content = content,_writers = writers,_photographers = photographers,_designers = designers,_brief = brief,_relateds = relateds;
   factory _Article.fromJson(Map<String, dynamic> json) => _$ArticleFromJson(json);
 
 @override final  String id;
@@ -268,7 +277,64 @@ class _Article implements Article {
 }
 
 @override final  String? style;
-@override@JsonKey(name: 'content') final  String? htmlContent;
+ final  Map<String, dynamic>? _content;
+@override@JsonKey(name: 'content') Map<String, dynamic>? get content {
+  final value = _content;
+  if (value == null) return null;
+  if (_content is EqualUnmodifiableMapView) return _content;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
+ final  List<Author>? _writers;
+@override List<Author>? get writers {
+  final value = _writers;
+  if (value == null) return null;
+  if (_writers is EqualUnmodifiableListView) return _writers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
+ final  List<Author>? _photographers;
+@override List<Author>? get photographers {
+  final value = _photographers;
+  if (value == null) return null;
+  if (_photographers is EqualUnmodifiableListView) return _photographers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
+ final  List<Author>? _designers;
+@override List<Author>? get designers {
+  final value = _designers;
+  if (value == null) return null;
+  if (_designers is EqualUnmodifiableListView) return _designers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
+@override@JsonKey(name: 'extend_byline') final  String? extendByline;
+ final  Map<String, dynamic>? _brief;
+@override Map<String, dynamic>? get brief {
+  final value = _brief;
+  if (value == null) return null;
+  if (_brief is EqualUnmodifiableMapView) return _brief;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(value);
+}
+
+ final  List<String>? _relateds;
+@override List<String>? get relateds {
+  final value = _relateds;
+  if (value == null) return null;
+  if (_relateds is EqualUnmodifiableListView) return _relateds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
+@override@JsonKey(name: 'updated_at') final  DateTime? updatedAt;
+@override final  String? copyright;
+@override@JsonKey(name: 'leading_image_description') final  String? leadingImageDescription;
 
 /// Create a copy of Article
 /// with the given fields replaced by the non-null parameter values.
@@ -283,16 +349,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Article&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.ogDescription, ogDescription) || other.ogDescription == ogDescription)&&(identical(other.heroImage, heroImage) || other.heroImage == heroImage)&&(identical(other.ogImage, ogImage) || other.ogImage == ogImage)&&const DeepCollectionEquality().equals(other._categorySet, _categorySet)&&(identical(other.publishedDate, publishedDate) || other.publishedDate == publishedDate)&&(identical(other.isExternal, isExternal) || other.isExternal == isExternal)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.style, style) || other.style == style)&&(identical(other.htmlContent, htmlContent) || other.htmlContent == htmlContent));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Article&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.ogDescription, ogDescription) || other.ogDescription == ogDescription)&&(identical(other.heroImage, heroImage) || other.heroImage == heroImage)&&(identical(other.ogImage, ogImage) || other.ogImage == ogImage)&&const DeepCollectionEquality().equals(other._categorySet, _categorySet)&&(identical(other.publishedDate, publishedDate) || other.publishedDate == publishedDate)&&(identical(other.isExternal, isExternal) || other.isExternal == isExternal)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.style, style) || other.style == style)&&const DeepCollectionEquality().equals(other._content, _content)&&const DeepCollectionEquality().equals(other._writers, _writers)&&const DeepCollectionEquality().equals(other._photographers, _photographers)&&const DeepCollectionEquality().equals(other._designers, _designers)&&(identical(other.extendByline, extendByline) || other.extendByline == extendByline)&&const DeepCollectionEquality().equals(other._brief, _brief)&&const DeepCollectionEquality().equals(other._relateds, _relateds)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.copyright, copyright) || other.copyright == copyright)&&(identical(other.leadingImageDescription, leadingImageDescription) || other.leadingImageDescription == leadingImageDescription));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,slug,title,subtitle,ogDescription,heroImage,ogImage,const DeepCollectionEquality().hash(_categorySet),publishedDate,isExternal,const DeepCollectionEquality().hash(_tags),style,htmlContent);
+int get hashCode => Object.hashAll([runtimeType,id,slug,title,subtitle,ogDescription,heroImage,ogImage,const DeepCollectionEquality().hash(_categorySet),publishedDate,isExternal,const DeepCollectionEquality().hash(_tags),style,const DeepCollectionEquality().hash(_content),const DeepCollectionEquality().hash(_writers),const DeepCollectionEquality().hash(_photographers),const DeepCollectionEquality().hash(_designers),extendByline,const DeepCollectionEquality().hash(_brief),const DeepCollectionEquality().hash(_relateds),updatedAt,copyright,leadingImageDescription]);
 
 @override
 String toString() {
-  return 'Article(id: $id, slug: $slug, title: $title, subtitle: $subtitle, ogDescription: $ogDescription, heroImage: $heroImage, ogImage: $ogImage, categorySet: $categorySet, publishedDate: $publishedDate, isExternal: $isExternal, tags: $tags, style: $style, htmlContent: $htmlContent)';
+  return 'Article(id: $id, slug: $slug, title: $title, subtitle: $subtitle, ogDescription: $ogDescription, heroImage: $heroImage, ogImage: $ogImage, categorySet: $categorySet, publishedDate: $publishedDate, isExternal: $isExternal, tags: $tags, style: $style, content: $content, writers: $writers, photographers: $photographers, designers: $designers, extendByline: $extendByline, brief: $brief, relateds: $relateds, updatedAt: $updatedAt, copyright: $copyright, leadingImageDescription: $leadingImageDescription)';
 }
 
 
@@ -303,7 +369,7 @@ abstract mixin class _$ArticleCopyWith<$Res> implements $ArticleCopyWith<$Res> {
   factory _$ArticleCopyWith(_Article value, $Res Function(_Article) _then) = __$ArticleCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String slug, String title, String? subtitle,@JsonKey(name: 'og_description') String ogDescription,@JsonKey(name: 'hero_image') HeroImage? heroImage,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'category_set') List<CategorySet> categorySet,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'is_external') bool isExternal, List<Tag>? tags, String? style,@JsonKey(name: 'content') String? htmlContent
+ String id, String slug, String title, String? subtitle,@JsonKey(name: 'og_description') String ogDescription,@JsonKey(name: 'hero_image') HeroImage? heroImage,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'category_set') List<CategorySet> categorySet,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'is_external') bool isExternal, List<Tag>? tags, String? style,@JsonKey(name: 'content') Map<String, dynamic>? content, List<Author>? writers, List<Author>? photographers, List<Author>? designers,@JsonKey(name: 'extend_byline') String? extendByline, Map<String, dynamic>? brief, List<String>? relateds,@JsonKey(name: 'updated_at') DateTime? updatedAt, String? copyright,@JsonKey(name: 'leading_image_description') String? leadingImageDescription
 });
 
 
@@ -320,7 +386,7 @@ class __$ArticleCopyWithImpl<$Res>
 
 /// Create a copy of Article
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? slug = null,Object? title = null,Object? subtitle = freezed,Object? ogDescription = null,Object? heroImage = freezed,Object? ogImage = freezed,Object? categorySet = null,Object? publishedDate = null,Object? isExternal = null,Object? tags = freezed,Object? style = freezed,Object? htmlContent = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? slug = null,Object? title = null,Object? subtitle = freezed,Object? ogDescription = null,Object? heroImage = freezed,Object? ogImage = freezed,Object? categorySet = null,Object? publishedDate = null,Object? isExternal = null,Object? tags = freezed,Object? style = freezed,Object? content = freezed,Object? writers = freezed,Object? photographers = freezed,Object? designers = freezed,Object? extendByline = freezed,Object? brief = freezed,Object? relateds = freezed,Object? updatedAt = freezed,Object? copyright = freezed,Object? leadingImageDescription = freezed,}) {
   return _then(_Article(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non_nullable
@@ -334,7 +400,16 @@ as List<CategorySet>,publishedDate: null == publishedDate ? _self.publishedDate 
 as DateTime,isExternal: null == isExternal ? _self.isExternal : isExternal // ignore: cast_nullable_to_non_nullable
 as bool,tags: freezed == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
 as List<Tag>?,style: freezed == style ? _self.style : style // ignore: cast_nullable_to_non_nullable
-as String?,htmlContent: freezed == htmlContent ? _self.htmlContent : htmlContent // ignore: cast_nullable_to_non_nullable
+as String?,content: freezed == content ? _self._content : content // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,writers: freezed == writers ? _self._writers : writers // ignore: cast_nullable_to_non_nullable
+as List<Author>?,photographers: freezed == photographers ? _self._photographers : photographers // ignore: cast_nullable_to_non_nullable
+as List<Author>?,designers: freezed == designers ? _self._designers : designers // ignore: cast_nullable_to_non_nullable
+as List<Author>?,extendByline: freezed == extendByline ? _self.extendByline : extendByline // ignore: cast_nullable_to_non_nullable
+as String?,brief: freezed == brief ? _self._brief : brief // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>?,relateds: freezed == relateds ? _self._relateds : relateds // ignore: cast_nullable_to_non_nullable
+as List<String>?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,copyright: freezed == copyright ? _self.copyright : copyright // ignore: cast_nullable_to_non_nullable
+as String?,leadingImageDescription: freezed == leadingImageDescription ? _self.leadingImageDescription : leadingImageDescription // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

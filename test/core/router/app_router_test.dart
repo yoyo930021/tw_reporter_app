@@ -13,8 +13,8 @@ void main() {
     test('should have routes configured', () {
       // Assert
       expect(router.routes, isNotEmpty);
-      // 現在有 3 個頂層路由: MainShellRoute, ArticleRoute, CategoryRoute
-      expect(router.routes, hasLength(3));
+      // 現在有 5 個頂層路由: MainShellRoute, ArticleRoute, TopicDetailRoute, CategoryRoute, SettingsRoute
+      expect(router.routes, hasLength(5));
     });
 
     test('should have MainShellRoute as initial route', () {
@@ -37,7 +37,7 @@ void main() {
 
       // Assert
       expect(mainShellRoute.children, isNotNull);
-      expect(mainShellRoute.children, hasLength(5));
+      expect(mainShellRoute.children, hasLength(4));
     });
 
     test('should generate type-safe route for HomePage', () {
@@ -89,18 +89,9 @@ void main() {
       expect(TopicsRoute.name, equals('TopicsRoute'));
     });
 
-    test('should generate type-safe route for SearchPage', () {
-      // Act
-      final PageRouteInfo<dynamic> route = SearchRoute();
-
-      // Assert
-      expect(route.routeName, equals('SearchRoute'));
-      expect(SearchRoute.name, equals('SearchRoute'));
-    });
-
     test('should generate type-safe route for MyReadingPage', () {
       // Act
-      const PageRouteInfo<dynamic> route = MyReadingRoute();
+      final PageRouteInfo<dynamic> route = MyReadingRoute();
 
       // Assert
       expect(route.routeName, equals('MyReadingRoute'));
@@ -168,11 +159,6 @@ void main() {
         (AutoRoute route) => route.page.name == 'TopicsRoute',
       );
       expect(topicsRoute.path, equals('topics'));
-
-      final AutoRoute searchRoute = childRoutes.firstWhere(
-        (AutoRoute route) => route.page.name == 'SearchRoute',
-      );
-      expect(searchRoute.path, equals('search'));
 
       final AutoRoute myReadingRoute = childRoutes.firstWhere(
         (AutoRoute route) => route.page.name == 'MyReadingRoute',

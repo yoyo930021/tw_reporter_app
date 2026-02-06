@@ -42,7 +42,40 @@ _Article _$ArticleFromJson(Map<String, dynamic> json) => $checkedCreate(
             .toList(),
       ),
       style: $checkedConvert('style', (v) => v as String?),
-      htmlContent: $checkedConvert('content', (v) => v as String?),
+      content: $checkedConvert('content', (v) => v as Map<String, dynamic>?),
+      writers: $checkedConvert(
+        'writers',
+        (v) => (v as List<dynamic>?)
+            ?.map((e) => Author.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      ),
+      photographers: $checkedConvert(
+        'photographers',
+        (v) => (v as List<dynamic>?)
+            ?.map((e) => Author.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      ),
+      designers: $checkedConvert(
+        'designers',
+        (v) => (v as List<dynamic>?)
+            ?.map((e) => Author.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      ),
+      extendByline: $checkedConvert('extend_byline', (v) => v as String?),
+      brief: $checkedConvert('brief', (v) => v as Map<String, dynamic>?),
+      relateds: $checkedConvert(
+        'relateds',
+        (v) => (v as List<dynamic>?)?.map((e) => e as String).toList(),
+      ),
+      updatedAt: $checkedConvert(
+        'updated_at',
+        (v) => v == null ? null : DateTime.parse(v as String),
+      ),
+      copyright: $checkedConvert('copyright', (v) => v as String?),
+      leadingImageDescription: $checkedConvert(
+        'leading_image_description',
+        (v) => v as String?,
+      ),
     );
     return val;
   },
@@ -53,7 +86,9 @@ _Article _$ArticleFromJson(Map<String, dynamic> json) => $checkedCreate(
     'categorySet': 'category_set',
     'publishedDate': 'published_date',
     'isExternal': 'is_external',
-    'htmlContent': 'content',
+    'extendByline': 'extend_byline',
+    'updatedAt': 'updated_at',
+    'leadingImageDescription': 'leading_image_description',
   },
 );
 
@@ -70,5 +105,14 @@ Map<String, dynamic> _$ArticleToJson(_Article instance) => <String, dynamic>{
   'is_external': instance.isExternal,
   'tags': instance.tags?.map((e) => e.toJson()).toList(),
   'style': instance.style,
-  'content': instance.htmlContent,
+  'content': instance.content,
+  'writers': instance.writers?.map((e) => e.toJson()).toList(),
+  'photographers': instance.photographers?.map((e) => e.toJson()).toList(),
+  'designers': instance.designers?.map((e) => e.toJson()).toList(),
+  'extend_byline': instance.extendByline,
+  'brief': instance.brief,
+  'relateds': instance.relateds,
+  'updated_at': instance.updatedAt?.toIso8601String(),
+  'copyright': instance.copyright,
+  'leading_image_description': instance.leadingImageDescription,
 };

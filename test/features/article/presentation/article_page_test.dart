@@ -32,7 +32,7 @@ void main() {
   group('ArticlePage', () {
     testWidgets('should display app bar with title', (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchPost('test-article'))
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full')))
           .thenAnswer((_) async => createMockArticleResponse(
                 Article(
                   id: '1',
@@ -53,8 +53,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('文章'), findsOneWidget);
+      expect(find.byType(SliverAppBar), findsOneWidget);
     });
 
     testWidgets('should display article title and content after loading',
@@ -68,10 +67,20 @@ void main() {
         categorySet: <CategorySet>[],
         publishedDate: DateTime(2024, 1, 1),
         isExternal: false,
-        htmlContent: '<p>這是文章的 HTML 內容</p>',
+        content: <String, dynamic>{
+          'api_data': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'type': 'unstyled',
+              'content': <String>['這是文章的內容'],
+              'id': '1',
+              'styles': <String, dynamic>{},
+              'alignment': 'center',
+            },
+          ],
+        },
       );
 
-      when(() => mockApi.fetchPost('test-article'))
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full')))
           .thenAnswer((_) async => createMockArticleResponse(mockArticle));
 
       // Act
@@ -82,15 +91,15 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('測試文章標題'), findsOneWidget);
-      expect(find.textContaining('這是文章的 HTML 內容'), findsOneWidget);
+      expect(find.text('測試文章標題'), findsAtLeast(1));
+      expect(find.textContaining('這是文章的內容'), findsOneWidget);
     });
 
     testWidgets('should display loading indicator when loading',
         (WidgetTester tester) async {
       // Arrange
       bool requestStarted = false;
-      when(() => mockApi.fetchPost('test-article')).thenAnswer((_) async {
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full'))).thenAnswer((_) async {
         requestStarted = true;
         await Future<void>.delayed(const Duration(milliseconds: 50));
         return createMockArticleResponse(Article(
@@ -126,7 +135,7 @@ void main() {
     testWidgets('should display error message when loading fails',
         (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchPost('test-article'))
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full')))
           .thenThrow(Exception('Network error'));
 
       // Act
@@ -145,7 +154,7 @@ void main() {
       // Arrange
       int callCount = 0;
 
-      when(() => mockApi.fetchPost('test-article')).thenAnswer((_) async {
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full'))).thenAnswer((_) async {
         callCount++;
         if (callCount == 1) {
           throw Exception('Network error');
@@ -177,7 +186,7 @@ void main() {
       // Assert - 應該成功載入
       expect(callCount, equals(2));
       expect(find.textContaining('發生錯誤'), findsNothing);
-      expect(find.text('測試文章'), findsOneWidget);
+      expect(find.text('測試文章'), findsAtLeast(1));
     });
 
     testWidgets('should display published date', (WidgetTester tester) async {
@@ -192,7 +201,7 @@ void main() {
         isExternal: false,
       );
 
-      when(() => mockApi.fetchPost('test-article'))
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full')))
           .thenAnswer((_) async => createMockArticleResponse(mockArticle));
 
       // Act
@@ -217,10 +226,10 @@ void main() {
         categorySet: <CategorySet>[],
         publishedDate: DateTime(2024, 1, 1),
         isExternal: false,
-        // htmlContent is null
+        // content is null
       );
 
-      when(() => mockApi.fetchPost('test-article'))
+      when(() => mockApi.fetchPost('test-article', full: any(named: 'full')))
           .thenAnswer((_) async => createMockArticleResponse(mockArticle));
 
       // Act
@@ -231,7 +240,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert - 應該顯示描述而不是內容
-      expect(find.text('測試文章'), findsOneWidget);
+      expect(find.text('測試文章'), findsAtLeast(1));
       expect(find.text('這是描述'), findsOneWidget);
     });
   });

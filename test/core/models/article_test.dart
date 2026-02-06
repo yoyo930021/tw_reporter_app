@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
+import 'package:tw_reporter_app/core/models/author.dart';
 import 'package:tw_reporter_app/core/models/category.dart';
 import 'package:tw_reporter_app/core/models/image_size.dart';
 import 'package:tw_reporter_app/core/models/tag.dart';
@@ -56,7 +57,17 @@ void main() {
           },
         ],
         'style': 'article:v2:default',
-        'content': '<p>文章內容</p>',
+        'content': <String, dynamic>{
+          'api_data': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'type': 'unstyled',
+              'content': <String>['文章內容'],
+              'id': '1',
+              'styles': <String, dynamic>{},
+              'alignment': 'center',
+            },
+          ],
+        },
       };
 
       // Act
@@ -72,7 +83,7 @@ void main() {
       expect(article.heroImage?.id, equals('img123'));
       expect(article.ogImage, isNotNull);
       expect(article.categorySet, hasLength(1));
-      expect(article.categorySet.first.category.name, equals('國際兩岸'));
+      expect(article.categorySet.first.category?.name, equals('國際兩岸'));
       expect(
         article.publishedDate,
         equals(DateTime.parse('2026-01-28T16:00:00Z')),
@@ -81,7 +92,8 @@ void main() {
       expect(article.tags, hasLength(1));
       expect(article.tags?.first.name, equals('中國'));
       expect(article.style, equals('article:v2:default'));
-      expect(article.htmlContent, equals('<p>文章內容</p>'));
+      expect(article.content, isNotNull);
+      expect(article.content!['api_data'], isNotNull);
     });
 
     test('should create Article with minimal required fields', () {
@@ -108,7 +120,7 @@ void main() {
       expect(article.categorySet, isEmpty);
       expect(article.tags, isNull);
       expect(article.style, isNull);
-      expect(article.htmlContent, isNull);
+      expect(article.content, isNull);
     });
 
     test('should convert Article to JSON', () {
@@ -144,7 +156,7 @@ void main() {
       expect(json['id'], equals('123'));
       expect(json['slug'], equals('test-slug'));
       expect(json['title'], equals('測試標題'));
-      expect(json['categorySet'], isA<List<dynamic>>());
+      expect(json['category_set'], isA<List<dynamic>>());
       expect(json['tags'], isA<List<dynamic>>());
     });
 
@@ -206,10 +218,10 @@ void main() {
         'id': '123',
         'slug': 'external-link',
         'title': '外部連結',
-        'ogDescription': '描述',
-        'categorySet': <Map<String, dynamic>>[],
-        'publishedDate': '2026-01-01T00:00:00Z',
-        'isExternal': true,
+        'og_description': '描述',
+        'category_set': <Map<String, dynamic>>[],
+        'published_date': '2026-01-01T00:00:00Z',
+        'is_external': true,
       };
 
       // Act
@@ -217,6 +229,87 @@ void main() {
 
       // Assert
       expect(article.isExternal, isTrue);
+    });
+
+    test('should parse new fields (writers, brief, relateds, etc.)', () {
+      // Arrange
+      final Map<String, dynamic> json = <String, dynamic>{
+        'id': '1',
+        'slug': 'full-article',
+        'title': '完整文章',
+        'og_description': '描述',
+        'category_set': <Map<String, dynamic>>[],
+        'published_date': '2026-01-01T00:00:00Z',
+        'is_external': false,
+        'writers': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'id': 'w1',
+            'name': '張三',
+            'job_title': '記者',
+          },
+        ],
+        'photographers': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'id': 'p1',
+            'name': '李四',
+          },
+        ],
+        'designers': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'id': 'd1',
+            'name': '王五',
+            'job_title': '設計師',
+          },
+        ],
+        'extend_byline': '共同採訪/方君竹',
+        'brief': <String, dynamic>{
+          'api_data': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'type': 'unstyled',
+              'content': <String>['前言內容'],
+            },
+          ],
+        },
+        'relateds': <String>['id1', 'id2', 'id3'],
+        'updated_at': '2026-01-15T00:00:00Z',
+        'copyright': 'Creative-Commons',
+        'leading_image_description': '這是主圖描述',
+      };
+
+      // Act
+      final Article article = Article.fromJson(json);
+
+      // Assert
+      expect(article.writers, hasLength(1));
+      expect(article.writers!.first.name, equals('張三'));
+      expect(article.writers!.first.jobTitle, equals('記者'));
+      expect(article.photographers, hasLength(1));
+      expect(article.photographers!.first.name, equals('李四'));
+      expect(article.designers, hasLength(1));
+      expect(article.designers!.first.name, equals('王五'));
+      expect(article.extendByline, equals('共同採訪/方君竹'));
+      expect(article.brief, isNotNull);
+      expect(article.relateds, equals(<String>['id1', 'id2', 'id3']));
+      expect(
+        article.updatedAt,
+        equals(DateTime.parse('2026-01-15T00:00:00Z')),
+      );
+      expect(article.copyright, equals('Creative-Commons'));
+      expect(article.leadingImageDescription, equals('這是主圖描述'));
+    });
+
+    test('should create Author from JSON', () {
+      final Map<String, dynamic> json = <String, dynamic>{
+        'id': 'a1',
+        'name': '測試作者',
+        'job_title': '記者',
+      };
+
+      final Author author = Author.fromJson(json);
+
+      expect(author.id, equals('a1'));
+      expect(author.name, equals('測試作者'));
+      expect(author.jobTitle, equals('記者'));
     });
   });
 }

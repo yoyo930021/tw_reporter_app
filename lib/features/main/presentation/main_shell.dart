@@ -15,8 +15,7 @@ class MainShellPage extends StatelessWidget {
         HomeRoute(),
         LatestRoute(),
         TopicsRoute(),
-        SearchRoute(),
-        const MyReadingRoute(),
+        MyReadingRoute(),
       ],
       bottomNavigationBuilder: (_, TabsRouter tabsRouter) {
         return BottomNavigationBar(
@@ -35,10 +34,6 @@ class MainShellPage extends StatelessWidget {
             BottomNavigationBarItem(
               icon: Icon(Icons.topic),
               label: '專題',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: '搜尋',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.bookmark),

@@ -544,7 +544,7 @@ as int?,
 /// @nodoc
 mixin _$CategorySet {
 
- Category get category; Subcategory? get subcategory;
+ Category? get category; Subcategory? get subcategory;
 /// Create a copy of CategorySet
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -577,11 +577,11 @@ abstract mixin class $CategorySetCopyWith<$Res>  {
   factory $CategorySetCopyWith(CategorySet value, $Res Function(CategorySet) _then) = _$CategorySetCopyWithImpl;
 @useResult
 $Res call({
- Category category, Subcategory? subcategory
+ Category? category, Subcategory? subcategory
 });
 
 
-$CategoryCopyWith<$Res> get category;$SubcategoryCopyWith<$Res>? get subcategory;
+$CategoryCopyWith<$Res>? get category;$SubcategoryCopyWith<$Res>? get subcategory;
 
 }
 /// @nodoc
@@ -594,10 +594,10 @@ class _$CategorySetCopyWithImpl<$Res>
 
 /// Create a copy of CategorySet
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? category = null,Object? subcategory = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? category = freezed,Object? subcategory = freezed,}) {
   return _then(_self.copyWith(
-category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
-as Category,subcategory: freezed == subcategory ? _self.subcategory : subcategory // ignore: cast_nullable_to_non_nullable
+category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as Category?,subcategory: freezed == subcategory ? _self.subcategory : subcategory // ignore: cast_nullable_to_non_nullable
 as Subcategory?,
   ));
 }
@@ -605,9 +605,12 @@ as Subcategory?,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$CategoryCopyWith<$Res> get category {
-  
-  return $CategoryCopyWith<$Res>(_self.category, (value) {
+$CategoryCopyWith<$Res>? get category {
+    if (_self.category == null) {
+    return null;
+  }
+
+  return $CategoryCopyWith<$Res>(_self.category!, (value) {
     return _then(_self.copyWith(category: value));
   });
 }/// Create a copy of CategorySet
@@ -701,7 +704,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Category category,  Subcategory? subcategory)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Category? category,  Subcategory? subcategory)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CategorySet() when $default != null:
 return $default(_that.category,_that.subcategory);case _:
@@ -722,7 +725,7 @@ return $default(_that.category,_that.subcategory);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Category category,  Subcategory? subcategory)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Category? category,  Subcategory? subcategory)  $default,) {final _that = this;
 switch (_that) {
 case _CategorySet():
 return $default(_that.category,_that.subcategory);}
@@ -739,7 +742,7 @@ return $default(_that.category,_that.subcategory);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Category category,  Subcategory? subcategory)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Category? category,  Subcategory? subcategory)?  $default,) {final _that = this;
 switch (_that) {
 case _CategorySet() when $default != null:
 return $default(_that.category,_that.subcategory);case _:
@@ -754,10 +757,10 @@ return $default(_that.category,_that.subcategory);case _:
 @JsonSerializable()
 
 class _CategorySet implements CategorySet {
-  const _CategorySet({required this.category, this.subcategory});
+  const _CategorySet({this.category, this.subcategory});
   factory _CategorySet.fromJson(Map<String, dynamic> json) => _$CategorySetFromJson(json);
 
-@override final  Category category;
+@override final  Category? category;
 @override final  Subcategory? subcategory;
 
 /// Create a copy of CategorySet
@@ -793,11 +796,11 @@ abstract mixin class _$CategorySetCopyWith<$Res> implements $CategorySetCopyWith
   factory _$CategorySetCopyWith(_CategorySet value, $Res Function(_CategorySet) _then) = __$CategorySetCopyWithImpl;
 @override @useResult
 $Res call({
- Category category, Subcategory? subcategory
+ Category? category, Subcategory? subcategory
 });
 
 
-@override $CategoryCopyWith<$Res> get category;@override $SubcategoryCopyWith<$Res>? get subcategory;
+@override $CategoryCopyWith<$Res>? get category;@override $SubcategoryCopyWith<$Res>? get subcategory;
 
 }
 /// @nodoc
@@ -810,10 +813,10 @@ class __$CategorySetCopyWithImpl<$Res>
 
 /// Create a copy of CategorySet
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? category = null,Object? subcategory = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? category = freezed,Object? subcategory = freezed,}) {
   return _then(_CategorySet(
-category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
-as Category,subcategory: freezed == subcategory ? _self.subcategory : subcategory // ignore: cast_nullable_to_non_nullable
+category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as Category?,subcategory: freezed == subcategory ? _self.subcategory : subcategory // ignore: cast_nullable_to_non_nullable
 as Subcategory?,
   ));
 }
@@ -822,9 +825,12 @@ as Subcategory?,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$CategoryCopyWith<$Res> get category {
-  
-  return $CategoryCopyWith<$Res>(_self.category, (value) {
+$CategoryCopyWith<$Res>? get category {
+    if (_self.category == null) {
+    return null;
+  }
+
+  return $CategoryCopyWith<$Res>(_self.category!, (value) {
     return _then(_self.copyWith(category: value));
   });
 }/// Create a copy of CategorySet

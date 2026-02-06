@@ -9,6 +9,9 @@ class AppColors {
   /// 報導者主色 - 深藍色
   static const Color primary = Color(0xFF04295E);
 
+  /// 報導者主色（暗色主題用）- 亮藍色，確保在深色背景上可讀
+  static const Color primaryLight = Color(0xFF7AACDF);
+
   /// 報導者次要色 - 橘色
   static const Color secondary = Color(0xFFE67E22);
 

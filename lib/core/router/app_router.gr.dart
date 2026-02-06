@@ -15,12 +15,20 @@ part of 'app_router.dart';
 class ArticleRoute extends PageRouteInfo<ArticleRouteArgs> {
   ArticleRoute({
     TwReporterApi? api,
+    ReadingStorage? storage,
     Key? key,
     required String slug,
+    String? heroImageUrl,
     List<PageRouteInfo>? children,
   }) : super(
          ArticleRoute.name,
-         args: ArticleRouteArgs(api: api, key: key, slug: slug),
+         args: ArticleRouteArgs(
+           api: api,
+           storage: storage,
+           key: key,
+           slug: slug,
+           heroImageUrl: heroImageUrl,
+         ),
          rawPathParams: {'slug': slug},
          initialChildren: children,
        );
@@ -34,34 +42,59 @@ class ArticleRoute extends PageRouteInfo<ArticleRouteArgs> {
       final args = data.argsAs<ArticleRouteArgs>(
         orElse: () => ArticleRouteArgs(slug: pathParams.getString('slug')),
       );
-      return ArticlePage(api: args.api, key: args.key, slug: args.slug);
+      return ArticlePage(
+        api: args.api,
+        storage: args.storage,
+        key: args.key,
+        slug: args.slug,
+        heroImageUrl: args.heroImageUrl,
+      );
     },
   );
 }
 
 class ArticleRouteArgs {
-  const ArticleRouteArgs({this.api, this.key, required this.slug});
+  const ArticleRouteArgs({
+    this.api,
+    this.storage,
+    this.key,
+    required this.slug,
+    this.heroImageUrl,
+  });
 
   final TwReporterApi? api;
+
+  final ReadingStorage? storage;
 
   final Key? key;
 
   final String slug;
 
+  final String? heroImageUrl;
+
   @override
   String toString() {
-    return 'ArticleRouteArgs{api: $api, key: $key, slug: $slug}';
+    return 'ArticleRouteArgs{api: $api, storage: $storage, key: $key, slug: $slug, heroImageUrl: $heroImageUrl}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! ArticleRouteArgs) return false;
-    return api == other.api && key == other.key && slug == other.slug;
+    return api == other.api &&
+        storage == other.storage &&
+        key == other.key &&
+        slug == other.slug &&
+        heroImageUrl == other.heroImageUrl;
   }
 
   @override
-  int get hashCode => api.hashCode ^ key.hashCode ^ slug.hashCode;
+  int get hashCode =>
+      api.hashCode ^
+      storage.hashCode ^
+      key.hashCode ^
+      slug.hashCode ^
+      heroImageUrl.hashCode;
 }
 
 /// generated route for
@@ -233,18 +266,51 @@ class MainShellRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [MyReadingPage]
-class MyReadingRoute extends PageRouteInfo<void> {
-  const MyReadingRoute({List<PageRouteInfo>? children})
-    : super(MyReadingRoute.name, initialChildren: children);
+class MyReadingRoute extends PageRouteInfo<MyReadingRouteArgs> {
+  MyReadingRoute({
+    ReadingStorage? storage,
+    Key? key,
+    List<PageRouteInfo>? children,
+  }) : super(
+         MyReadingRoute.name,
+         args: MyReadingRouteArgs(storage: storage, key: key),
+         initialChildren: children,
+       );
 
   static const String name = 'MyReadingRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const MyReadingPage();
+      final args = data.argsAs<MyReadingRouteArgs>(
+        orElse: () => const MyReadingRouteArgs(),
+      );
+      return MyReadingPage(storage: args.storage, key: args.key);
     },
   );
+}
+
+class MyReadingRouteArgs {
+  const MyReadingRouteArgs({this.storage, this.key});
+
+  final ReadingStorage? storage;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'MyReadingRouteArgs{storage: $storage, key: $key}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! MyReadingRouteArgs) return false;
+    return storage == other.storage && key == other.key;
+  }
+
+  @override
+  int get hashCode => storage.hashCode ^ key.hashCode;
 }
 
 /// generated route for
@@ -291,6 +357,129 @@ class SearchRouteArgs {
 
   @override
   int get hashCode => api.hashCode ^ key.hashCode;
+}
+
+/// generated route for
+/// [SettingsPage]
+class SettingsRoute extends PageRouteInfo<SettingsRouteArgs> {
+  SettingsRoute({
+    required ThemeNotifier themeNotifier,
+    Key? key,
+    List<PageRouteInfo>? children,
+  }) : super(
+         SettingsRoute.name,
+         args: SettingsRouteArgs(themeNotifier: themeNotifier, key: key),
+         initialChildren: children,
+       );
+
+  static const String name = 'SettingsRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<SettingsRouteArgs>();
+      return SettingsPage(themeNotifier: args.themeNotifier, key: args.key);
+    },
+  );
+}
+
+class SettingsRouteArgs {
+  const SettingsRouteArgs({required this.themeNotifier, this.key});
+
+  final ThemeNotifier themeNotifier;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'SettingsRouteArgs{themeNotifier: $themeNotifier, key: $key}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! SettingsRouteArgs) return false;
+    return themeNotifier == other.themeNotifier && key == other.key;
+  }
+
+  @override
+  int get hashCode => themeNotifier.hashCode ^ key.hashCode;
+}
+
+/// generated route for
+/// [TopicDetailPage]
+class TopicDetailRoute extends PageRouteInfo<TopicDetailRouteArgs> {
+  TopicDetailRoute({
+    TwReporterApi? api,
+    required String slug,
+    Topic? topic,
+    Key? key,
+    List<PageRouteInfo>? children,
+  }) : super(
+         TopicDetailRoute.name,
+         args: TopicDetailRouteArgs(
+           api: api,
+           slug: slug,
+           topic: topic,
+           key: key,
+         ),
+         rawPathParams: {'slug': slug},
+         initialChildren: children,
+       );
+
+  static const String name = 'TopicDetailRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final pathParams = data.inheritedPathParams;
+      final args = data.argsAs<TopicDetailRouteArgs>(
+        orElse: () => TopicDetailRouteArgs(slug: pathParams.getString('slug')),
+      );
+      return TopicDetailPage(
+        api: args.api,
+        slug: args.slug,
+        topic: args.topic,
+        key: args.key,
+      );
+    },
+  );
+}
+
+class TopicDetailRouteArgs {
+  const TopicDetailRouteArgs({
+    this.api,
+    required this.slug,
+    this.topic,
+    this.key,
+  });
+
+  final TwReporterApi? api;
+
+  final String slug;
+
+  final Topic? topic;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'TopicDetailRouteArgs{api: $api, slug: $slug, topic: $topic, key: $key}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! TopicDetailRouteArgs) return false;
+    return api == other.api &&
+        slug == other.slug &&
+        topic == other.topic &&
+        key == other.key;
+  }
+
+  @override
+  int get hashCode =>
+      api.hashCode ^ slug.hashCode ^ topic.hashCode ^ key.hashCode;
 }
 
 /// generated route for

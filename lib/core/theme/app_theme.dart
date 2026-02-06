@@ -29,14 +29,14 @@ class AppTheme {
 
       // AppBar 主題
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        backgroundColor: Color(0xFFF1F1F1),
+        foregroundColor: AppColors.textPrimary,
         elevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.white,
+          color: AppColors.textPrimary,
           letterSpacing: 0.15,
         ),
       ),
@@ -146,6 +146,24 @@ class AppTheme {
           textStyle: AppTextStyles.button,
         ),
       ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.grey300),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+
+      // TabBar 主題
+      tabBarTheme: const TabBarThemeData(
+        labelColor: AppColors.primary,
+        unselectedLabelColor: AppColors.textSecondary,
+        indicatorColor: AppColors.primary,
+      ),
     );
   }
 
@@ -157,11 +175,11 @@ class AppTheme {
 
       // 顏色方案
       colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
+        primary: AppColors.primaryLight,
         secondary: AppColors.secondary,
         error: AppColors.error,
         surface: AppColors.surfaceDark,
-        onPrimary: Colors.white,
+        onPrimary: Color(0xFF00172E),
         onSecondary: Colors.white,
         onSurface: AppColors.textPrimaryDark,
         onError: Colors.white,
@@ -342,6 +360,24 @@ class AppTheme {
           ),
           textStyle: AppTextStyles.button,
         ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.textPrimaryDark,
+          side: const BorderSide(color: AppColors.grey600),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+
+      // TabBar 主題
+      tabBarTheme: const TabBarThemeData(
+        labelColor: AppColors.secondary,
+        unselectedLabelColor: AppColors.textSecondaryDark,
+        indicatorColor: AppColors.secondary,
       ),
     );
   }
