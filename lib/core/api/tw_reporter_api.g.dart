@@ -12,7 +12,7 @@ part of 'tw_reporter_api.dart';
 
 class _TwReporterApi implements TwReporterApi {
   _TwReporterApi(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://www.twreporter.org';
+    baseUrl ??= 'https://go-api.twreporter.org/v2';
   }
 
   final Dio _dio;
@@ -22,57 +22,34 @@ class _TwReporterApi implements TwReporterApi {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<List<Article>> fetchLatestArticles({
-    int page = 1,
+  Future<ListResponse<Article>> fetchPosts({
     int limit = 10,
+    int offset = 0,
   }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'page': page, r'limit': limit};
+    final queryParameters = <String, dynamic>{
+      r'limit': limit,
+      r'offset': offset,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Article>>(
+    final _options = _setStreamType<ListResponse<Article>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/articles',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Article> _value;
-    try {
-      _value = _result.data!
-          .map((dynamic i) => Article.fromJson(i as Map<String, dynamic>))
-          .toList();
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<Article> fetchArticle(String slug) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Article>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/articles/${slug}',
+            '/posts',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Article _value;
+    late ListResponse<Article> _value;
     try {
-      _value = Article.fromJson(_result.data!);
+      _value = ListResponse<Article>.fromJson(
+        _result.data!,
+        (json) => Article.fromJson(json as Map<String, dynamic>),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -81,64 +58,28 @@ class _TwReporterApi implements TwReporterApi {
   }
 
   @override
-  Future<List<Article>> fetchCategoryArticles({
-    required String category,
-    int page = 1,
-    int limit = 10,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'category': category,
-      r'page': page,
-      r'limit': limit,
-    };
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Article>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/articles',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Article> _value;
-    try {
-      _value = _result.data!
-          .map((dynamic i) => Article.fromJson(i as Map<String, dynamic>))
-          .toList();
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<List<Article>> fetchFeaturedArticles() async {
+  Future<ApiResponse<Article>> fetchPost(String slug) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Article>>(
+    final _options = _setStreamType<ApiResponse<Article>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/featured',
+            '/posts/${slug}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Article> _value;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<Article> _value;
     try {
-      _value = _result.data!
-          .map((dynamic i) => Article.fromJson(i as Map<String, dynamic>))
-          .toList();
+      _value = ApiResponse<Article>.fromJson(
+        _result.data!,
+        (json) => Article.fromJson(json as Map<String, dynamic>),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
@@ -147,59 +88,64 @@ class _TwReporterApi implements TwReporterApi {
   }
 
   @override
-  Future<List<Topic>> fetchTopics({int page = 1}) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'page': page};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Topic>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/api/topics',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Topic> _value;
-    try {
-      _value = _result.data!
-          .map((dynamic i) => Topic.fromJson(i as Map<String, dynamic>))
-          .toList();
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<List<Article>> searchArticles({
-    required String query,
-    int page = 1,
+  Future<ListResponse<Topic>> fetchTopics({
+    int limit = 10,
+    int offset = 0,
   }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'q': query, r'page': page};
+    final queryParameters = <String, dynamic>{
+      r'limit': limit,
+      r'offset': offset,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Article>>(
+    final _options = _setStreamType<ListResponse<Topic>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/api/search',
+            '/topics',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Article> _value;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ListResponse<Topic> _value;
     try {
-      _value = _result.data!
-          .map((dynamic i) => Article.fromJson(i as Map<String, dynamic>))
-          .toList();
+      _value = ListResponse<Topic>.fromJson(
+        _result.data!,
+        (json) => Topic.fromJson(json as Map<String, dynamic>),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<IndexPageData>> fetchIndexPage() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ApiResponse<IndexPageData>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/index_page',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<IndexPageData> _value;
+    try {
+      _value = ApiResponse<IndexPageData>.fromJson(
+        _result.data!,
+        (json) => IndexPageData.fromJson(json as Map<String, dynamic>),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;
