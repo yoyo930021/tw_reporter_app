@@ -8,7 +8,7 @@ sealed class Category with _$Category {
   const factory Category({
     required String id,
     required String name,
-    int? sortOrder,
+    @JsonKey(name: 'sort_order') int? sortOrder,
   }) = _Category;
 
   factory Category.fromJson(Map<String, dynamic> json) =>
@@ -21,7 +21,7 @@ sealed class Subcategory with _$Subcategory {
     required String id,
     required String key,
     required String name,
-    int? latestOrder,
+    @JsonKey(name: 'latest_order') int? latestOrder,
   }) = _Subcategory;
 
   factory Subcategory.fromJson(Map<String, dynamic> json) =>

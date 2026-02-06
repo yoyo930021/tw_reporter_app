@@ -31,17 +31,30 @@ class ApiProvider extends InheritedWidget {
 }
 
 @RoutePage()
-class HomePage extends CompositionWidget {
+class HomePage extends StatelessWidget {
   const HomePage({this.api, super.key});
 
   // API - 可選參數，用於測試注入或從 context 獲取
   final TwReporterApi? api;
 
   @override
+  Widget build(BuildContext context) {
+    // 從 context 獲取 API（如果未提供）
+    final apiInstance = api ?? ApiProvider.of(context).api;
+
+    return _HomePageContent(api: apiInstance);
+  }
+}
+
+class _HomePageContent extends CompositionWidget {
+  const _HomePageContent({required this.api});
+
+  final TwReporterApi api;
+
+  @override
   Widget Function(BuildContext) setup() {
     // 使用 useHomeData composable 取得首頁資料
-    // API 從構造函數參數獲取（測試時），或稍後從 context 獲取（生產環境）
-    final HomeDataResult homeData = useHomeData(api!);
+    final HomeDataResult homeData = useHomeData(api);
 
     return (BuildContext context) => Scaffold(
           appBar: AppBar(
@@ -61,18 +74,15 @@ class HomePage extends CompositionWidget {
     }
 
     // 載入中狀態
-    if (homeData.isLoadingFeatured.value) {
+    if (homeData.isLoading.value) {
       return const Center(
         child: CircularProgressIndicator(),
       );
     }
 
     // 空狀態
-    final bool hasFeatured = homeData.featuredArticles.value.isNotEmpty;
-    final bool hasCategories = homeData.categoryArticles.value.values
-        .any((List<Article> articles) => articles.isNotEmpty);
-
-    if (!hasFeatured && !hasCategories) {
+    final indexData = homeData.indexData.value;
+    if (indexData == null) {
       return const Center(
         child: Text('目前沒有文章'),
       );
@@ -82,27 +92,41 @@ class HomePage extends CompositionWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: <Widget>[
-        // 精選文章區塊
-        if (hasFeatured) ...<Widget>[
-          const Text(
-            '精選報導',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+        // 編輯精選區塊
+        if (indexData.editorPicksSection?.isNotEmpty ?? false) ...<Widget>[
+          _buildSectionTitle('編輯精選'),
           const SizedBox(height: 12),
-          ...homeData.featuredArticles.value.map(
+          ...indexData.editorPicksSection!.map(
+            (Article article) => _buildArticleCard(article),
+          ),
+          const SizedBox(height: 24),
+        ],
+
+        // 最新文章區塊
+        if (indexData.latestSection?.isNotEmpty ?? false) ...<Widget>[
+          _buildSectionTitle('最新報導'),
+          const SizedBox(height: 12),
+          ...indexData.latestSection!.map(
             (Article article) => _buildArticleCard(article),
           ),
           const SizedBox(height: 24),
         ],
 
         // 分類文章區塊
-        ...homeData.categoryArticles.value.entries.map(
-          (MapEntry<String, List<Article>> entry) =>
-              _buildCategorySection(entry.key, entry.value),
-        ),
+        if (indexData.culture?.isNotEmpty ?? false)
+          _buildCategorySection('文化', indexData.culture!),
+        if (indexData.econ?.isNotEmpty ?? false)
+          _buildCategorySection('經濟產業', indexData.econ!),
+        if (indexData.environment?.isNotEmpty ?? false)
+          _buildCategorySection('環境', indexData.environment!),
+        if (indexData.health?.isNotEmpty ?? false)
+          _buildCategorySection('健康', indexData.health!),
+        if (indexData.humanrights?.isNotEmpty ?? false)
+          _buildCategorySection('人權司法', indexData.humanrights!),
+        if (indexData.politicsAndSociety?.isNotEmpty ?? false)
+          _buildCategorySection('政治社會', indexData.politicsAndSociety!),
+        if (indexData.world?.isNotEmpty ?? false)
+          _buildCategorySection('國際', indexData.world!),
       ],
     );
   }
@@ -137,6 +161,16 @@ class HomePage extends CompositionWidget {
             child: const Text('重試'),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
       ),
     );
   }

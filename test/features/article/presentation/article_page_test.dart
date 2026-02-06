@@ -8,6 +8,14 @@ import 'package:tw_reporter_app/features/article/presentation/article_page.dart'
 
 class MockTwReporterApi extends Mock implements TwReporterApi {}
 
+// Helper function to create mock ApiResponse
+ApiResponse<Article> createMockArticleResponse(Article article) {
+  return ApiResponse<Article>(
+    data: article,
+    status: 'success',
+  );
+}
+
 void main() {
   late MockTwReporterApi mockApi;
 
@@ -24,15 +32,17 @@ void main() {
   group('ArticlePage', () {
     testWidgets('should display app bar with title', (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchArticle('test-article'))
-          .thenAnswer((_) async => Article(
-                id: '1',
-                slug: 'test-article',
-                title: '測試文章',
-                ogDescription: '描述',
-                categorySet: <CategorySet>[],
-                publishedDate: DateTime(2024, 1, 1),
-                isExternal: false,
+      when(() => mockApi.fetchPost('test-article'))
+          .thenAnswer((_) async => createMockArticleResponse(
+                Article(
+                  id: '1',
+                  slug: 'test-article',
+                  title: '測試文章',
+                  ogDescription: '描述',
+                  categorySet: <CategorySet>[],
+                  publishedDate: DateTime(2024, 1, 1),
+                  isExternal: false,
+                ),
               ));
 
       // Act
@@ -61,8 +71,8 @@ void main() {
         htmlContent: '<p>這是文章的 HTML 內容</p>',
       );
 
-      when(() => mockApi.fetchArticle('test-article'))
-          .thenAnswer((_) async => mockArticle);
+      when(() => mockApi.fetchPost('test-article'))
+          .thenAnswer((_) async => createMockArticleResponse(mockArticle));
 
       // Act
       await tester.pumpWidget(
@@ -80,10 +90,10 @@ void main() {
         (WidgetTester tester) async {
       // Arrange
       bool requestStarted = false;
-      when(() => mockApi.fetchArticle('test-article')).thenAnswer((_) async {
+      when(() => mockApi.fetchPost('test-article')).thenAnswer((_) async {
         requestStarted = true;
         await Future<void>.delayed(const Duration(milliseconds: 50));
-        return Article(
+        return createMockArticleResponse(Article(
           id: '1',
           slug: 'test-article',
           title: '測試文章',
@@ -91,7 +101,7 @@ void main() {
           categorySet: <CategorySet>[],
           publishedDate: DateTime.now(),
           isExternal: false,
-        );
+        ));
       });
 
       // Act
@@ -116,7 +126,7 @@ void main() {
     testWidgets('should display error message when loading fails',
         (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchArticle('test-article'))
+      when(() => mockApi.fetchPost('test-article'))
           .thenThrow(Exception('Network error'));
 
       // Act
@@ -135,12 +145,12 @@ void main() {
       // Arrange
       int callCount = 0;
 
-      when(() => mockApi.fetchArticle('test-article')).thenAnswer((_) async {
+      when(() => mockApi.fetchPost('test-article')).thenAnswer((_) async {
         callCount++;
         if (callCount == 1) {
           throw Exception('Network error');
         }
-        return Article(
+        return createMockArticleResponse(Article(
           id: '1',
           slug: 'test-article',
           title: '測試文章',
@@ -148,7 +158,7 @@ void main() {
           categorySet: <CategorySet>[],
           publishedDate: DateTime.now(),
           isExternal: false,
-        );
+        ));
       });
 
       // Act
@@ -182,8 +192,8 @@ void main() {
         isExternal: false,
       );
 
-      when(() => mockApi.fetchArticle('test-article'))
-          .thenAnswer((_) async => mockArticle);
+      when(() => mockApi.fetchPost('test-article'))
+          .thenAnswer((_) async => createMockArticleResponse(mockArticle));
 
       // Act
       await tester.pumpWidget(
@@ -210,8 +220,8 @@ void main() {
         // htmlContent is null
       );
 
-      when(() => mockApi.fetchArticle('test-article'))
-          .thenAnswer((_) async => mockArticle);
+      when(() => mockApi.fetchPost('test-article'))
+          .thenAnswer((_) async => createMockArticleResponse(mockArticle));
 
       // Act
       await tester.pumpWidget(

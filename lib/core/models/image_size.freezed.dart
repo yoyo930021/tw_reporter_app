@@ -675,7 +675,7 @@ $ImageSizeCopyWith<$Res>? get desktop {
 /// @nodoc
 mixin _$HeroImage {
 
- String get id; String get filetype; String? get description; ResizedTargets get resizedTargets;
+ String get id; String get filetype; String? get description;@JsonKey(name: 'resized_targets') ResizedTargets get resizedTargets;
 /// Create a copy of HeroImage
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -708,7 +708,7 @@ abstract mixin class $HeroImageCopyWith<$Res>  {
   factory $HeroImageCopyWith(HeroImage value, $Res Function(HeroImage) _then) = _$HeroImageCopyWithImpl;
 @useResult
 $Res call({
- String id, String filetype, String? description, ResizedTargets resizedTargets
+ String id, String filetype, String? description,@JsonKey(name: 'resized_targets') ResizedTargets resizedTargets
 });
 
 
@@ -822,7 +822,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String filetype,  String? description,  ResizedTargets resizedTargets)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String filetype,  String? description, @JsonKey(name: 'resized_targets')  ResizedTargets resizedTargets)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HeroImage() when $default != null:
 return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);case _:
@@ -843,7 +843,7 @@ return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String filetype,  String? description,  ResizedTargets resizedTargets)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String filetype,  String? description, @JsonKey(name: 'resized_targets')  ResizedTargets resizedTargets)  $default,) {final _that = this;
 switch (_that) {
 case _HeroImage():
 return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);}
@@ -860,7 +860,7 @@ return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String filetype,  String? description,  ResizedTargets resizedTargets)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String filetype,  String? description, @JsonKey(name: 'resized_targets')  ResizedTargets resizedTargets)?  $default,) {final _that = this;
 switch (_that) {
 case _HeroImage() when $default != null:
 return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);case _:
@@ -875,13 +875,13 @@ return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);
 @JsonSerializable()
 
 class _HeroImage implements HeroImage {
-  const _HeroImage({required this.id, required this.filetype, this.description, required this.resizedTargets});
+  const _HeroImage({required this.id, required this.filetype, this.description, @JsonKey(name: 'resized_targets') required this.resizedTargets});
   factory _HeroImage.fromJson(Map<String, dynamic> json) => _$HeroImageFromJson(json);
 
 @override final  String id;
 @override final  String filetype;
 @override final  String? description;
-@override final  ResizedTargets resizedTargets;
+@override@JsonKey(name: 'resized_targets') final  ResizedTargets resizedTargets;
 
 /// Create a copy of HeroImage
 /// with the given fields replaced by the non-null parameter values.
@@ -916,7 +916,7 @@ abstract mixin class _$HeroImageCopyWith<$Res> implements $HeroImageCopyWith<$Re
   factory _$HeroImageCopyWith(_HeroImage value, $Res Function(_HeroImage) _then) = __$HeroImageCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String filetype, String? description, ResizedTargets resizedTargets
+ String id, String filetype, String? description,@JsonKey(name: 'resized_targets') ResizedTargets resizedTargets
 });
 
 

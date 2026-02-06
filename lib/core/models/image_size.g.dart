@@ -71,17 +71,17 @@ _HeroImage _$HeroImageFromJson(Map<String, dynamic> json) =>
         filetype: $checkedConvert('filetype', (v) => v as String),
         description: $checkedConvert('description', (v) => v as String?),
         resizedTargets: $checkedConvert(
-          'resizedTargets',
+          'resized_targets',
           (v) => ResizedTargets.fromJson(v as Map<String, dynamic>),
         ),
       );
       return val;
-    });
+    }, fieldKeyMap: const {'resizedTargets': 'resized_targets'});
 
 Map<String, dynamic> _$HeroImageToJson(_HeroImage instance) =>
     <String, dynamic>{
       'id': instance.id,
       'filetype': instance.filetype,
       'description': instance.description,
-      'resizedTargets': instance.resizedTargets.toJson(),
+      'resized_targets': instance.resizedTargets.toJson(),
     };

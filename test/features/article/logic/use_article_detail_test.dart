@@ -9,6 +9,14 @@ import 'package:tw_reporter_app/features/article/logic/use_article_detail.dart';
 
 class MockTwReporterApi extends Mock implements TwReporterApi {}
 
+// Helper function to create mock ApiResponse
+ApiResponse<Article> createMockArticleResponse(Article article) {
+  return ApiResponse<Article>(
+    data: article,
+    status: 'success',
+  );
+}
+
 // 測試用的 Composition Widget
 class TestWidget extends CompositionWidget {
   TestWidget({
@@ -43,8 +51,8 @@ void main() {
         htmlContent: '<p>文章內容</p>',
       );
 
-      when(() => mockApi.fetchArticle('test-article'))
-          .thenAnswer((_) async => mockArticle);
+      when(() => mockApi.fetchPost('test-article'))
+          .thenAnswer((_) async => createMockArticleResponse(mockArticle));
 
       // Act
       await tester.pumpWidget(
@@ -79,12 +87,12 @@ void main() {
       expect(find.text('Loading: false'), findsOneWidget);
       expect(find.text('Title: 測試文章標題'), findsOneWidget);
       expect(find.text('Content: <p>文章內容</p>'), findsOneWidget);
-      verify(() => mockApi.fetchArticle('test-article')).called(1);
+      verify(() => mockApi.fetchPost('test-article')).called(1);
     });
 
     testWidgets('should handle article fetch error', (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchArticle('test-article'))
+      when(() => mockApi.fetchPost('test-article'))
           .thenThrow(Exception('Network error'));
 
       // Act
@@ -123,16 +131,18 @@ void main() {
       // Arrange
       int callCount = 0;
 
-      when(() => mockApi.fetchArticle('test-article')).thenAnswer((_) async {
+      when(() => mockApi.fetchPost('test-article')).thenAnswer((_) async {
         callCount++;
-        return Article(
-          id: '$callCount',
-          slug: 'test-article',
-          title: '文章 $callCount',
-          ogDescription: '描述',
-          categorySet: <CategorySet>[],
-          publishedDate: DateTime.now(),
-          isExternal: false,
+        return createMockArticleResponse(
+          Article(
+            id: '$callCount',
+            slug: 'test-article',
+            title: '文章 $callCount',
+            ogDescription: '描述',
+            categorySet: <CategorySet>[],
+            publishedDate: DateTime.now(),
+            isExternal: false,
+          ),
         );
       });
 
@@ -182,17 +192,19 @@ void main() {
       // Arrange
       int fetchCallCount = 0;
 
-      when(() => mockApi.fetchArticle('test-article')).thenAnswer((_) async {
+      when(() => mockApi.fetchPost('test-article')).thenAnswer((_) async {
         fetchCallCount++;
         await Future<void>.delayed(const Duration(milliseconds: 100));
-        return Article(
-          id: '1',
-          slug: 'test-article',
-          title: '測試文章',
-          ogDescription: '描述',
-          categorySet: <CategorySet>[],
-          publishedDate: DateTime.now(),
-          isExternal: false,
+        return createMockArticleResponse(
+          Article(
+            id: '1',
+            slug: 'test-article',
+            title: '測試文章',
+            ogDescription: '描述',
+            categorySet: <CategorySet>[],
+            publishedDate: DateTime.now(),
+            isExternal: false,
+          ),
         );
       });
 
@@ -259,10 +271,10 @@ void main() {
         isExternal: false,
       );
 
-      when(() => mockApi.fetchArticle('article-1'))
-          .thenAnswer((_) async => article1);
-      when(() => mockApi.fetchArticle('article-2'))
-          .thenAnswer((_) async => article2);
+      when(() => mockApi.fetchPost('article-1'))
+          .thenAnswer((_) async => createMockArticleResponse(article1));
+      when(() => mockApi.fetchPost('article-2'))
+          .thenAnswer((_) async => createMockArticleResponse(article2));
 
       // Act - 載入 article-1
       await tester.pumpWidget(
@@ -291,7 +303,7 @@ void main() {
 
       // Assert
       expect(find.text('Title: 文章 1'), findsOneWidget);
-      verify(() => mockApi.fetchArticle('article-1')).called(1);
+      verify(() => mockApi.fetchPost('article-1')).called(1);
     });
   });
 }

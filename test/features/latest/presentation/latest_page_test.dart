@@ -8,6 +8,17 @@ import 'package:tw_reporter_app/features/latest/presentation/latest_page.dart';
 
 class MockTwReporterApi extends Mock implements TwReporterApi {}
 
+// Helper function to create mock ListResponse
+ListResponse<Article> createMockListResponse(List<Article> articles, int offset) {
+  return ListResponse<Article>(
+    data: ListData<Article>(
+      meta: ListMeta(limit: articles.length > 0 ? articles.length : 10, offset: offset, total: 100),
+      records: articles,
+    ),
+    status: 'success',
+  );
+}
+
 void main() {
   late MockTwReporterApi mockApi;
 
@@ -24,8 +35,8 @@ void main() {
   group('LatestPage', () {
     testWidgets('should display app bar with title', (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
-          .thenAnswer((_) async => <Article>[]);
+      when(() => mockApi.fetchPosts(limit: 10, offset: 0))
+          .thenAnswer((_) async => createMockListResponse(<Article>[], 0));
 
       // Act
       await tester.pumpWidget(
@@ -55,8 +66,8 @@ void main() {
         ),
       );
 
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
-          .thenAnswer((_) async => mockArticles);
+      when(() => mockApi.fetchPosts(limit: 10, offset: 0))
+          .thenAnswer((_) async => createMockListResponse(mockArticles, 0));
 
       // Act
       await tester.pumpWidget(
@@ -74,10 +85,10 @@ void main() {
     testWidgets('should display loading indicator on initial load',
         (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10)).thenAnswer(
+      when(() => mockApi.fetchPosts(limit: 10, offset: 0)).thenAnswer(
         (_) async {
           await Future<void>.delayed(const Duration(milliseconds: 50));
-          return <Article>[];
+          return createMockListResponse(<Article>[], 0);
         },
       );
 
@@ -100,8 +111,8 @@ void main() {
     testWidgets('should display empty state when no articles',
         (WidgetTester tester) async {
       // Arrange
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
-          .thenAnswer((_) async => <Article>[]);
+      when(() => mockApi.fetchPosts(limit: 10, offset: 0))
+          .thenAnswer((_) async => createMockListResponse(<Article>[], 0));
 
       // Act
       await tester.pumpWidget(
@@ -145,23 +156,27 @@ void main() {
     testWidgets('should load more articles when scrolling to bottom',
         (WidgetTester tester) async {
       // Arrange
-      int currentPage = 1;
-      when(() => mockApi.fetchLatestArticles(
-            page: any(named: 'page'),
+      int currentPage = 0;
+      when(() => mockApi.fetchPosts(
             limit: 10,
-          )).thenAnswer((_) async {
-        final int page = currentPage++;
-        return List<Article>.generate(
-          10,
-          (int index) => Article(
-            id: 'page${page}_$index',
-            slug: 'article-page${page}_$index',
-            title: '文章 $page-$index',
-            ogDescription: '描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime.now(),
-            isExternal: false,
+            offset: any(named: 'offset'),
+          )).thenAnswer((Invocation invocation) async {
+        currentPage++;
+        final int offset = invocation.namedArguments[const Symbol('offset')] as int;
+        return createMockListResponse(
+          List<Article>.generate(
+            10,
+            (int index) => Article(
+              id: 'page${currentPage}_$index',
+              slug: 'article-page${currentPage}_$index',
+              title: '文章 $currentPage-$index',
+              ogDescription: '描述',
+              categorySet: <CategorySet>[],
+              publishedDate: DateTime.now(),
+              isExternal: false,
+            ),
           ),
+          offset,
         );
       });
 

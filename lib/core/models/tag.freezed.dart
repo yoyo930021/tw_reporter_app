@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Tag {
 
- String get id; String get key; String get name; int? get latestOrder; Category? get category;
+ String get id; String get key; String get name;@JsonKey(name: 'latest_order') int? get latestOrder; Category? get category;
 /// Create a copy of Tag
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $TagCopyWith<$Res>  {
   factory $TagCopyWith(Tag value, $Res Function(Tag) _then) = _$TagCopyWithImpl;
 @useResult
 $Res call({
- String id, String key, String name, int? latestOrder, Category? category
+ String id, String key, String name,@JsonKey(name: 'latest_order') int? latestOrder, Category? category
 });
 
 
@@ -166,7 +166,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String key,  String name,  int? latestOrder,  Category? category)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String key,  String name, @JsonKey(name: 'latest_order')  int? latestOrder,  Category? category)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Tag() when $default != null:
 return $default(_that.id,_that.key,_that.name,_that.latestOrder,_that.category);case _:
@@ -187,7 +187,7 @@ return $default(_that.id,_that.key,_that.name,_that.latestOrder,_that.category);
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String key,  String name,  int? latestOrder,  Category? category)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String key,  String name, @JsonKey(name: 'latest_order')  int? latestOrder,  Category? category)  $default,) {final _that = this;
 switch (_that) {
 case _Tag():
 return $default(_that.id,_that.key,_that.name,_that.latestOrder,_that.category);}
@@ -204,7 +204,7 @@ return $default(_that.id,_that.key,_that.name,_that.latestOrder,_that.category);
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String key,  String name,  int? latestOrder,  Category? category)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String key,  String name, @JsonKey(name: 'latest_order')  int? latestOrder,  Category? category)?  $default,) {final _that = this;
 switch (_that) {
 case _Tag() when $default != null:
 return $default(_that.id,_that.key,_that.name,_that.latestOrder,_that.category);case _:
@@ -219,13 +219,13 @@ return $default(_that.id,_that.key,_that.name,_that.latestOrder,_that.category);
 @JsonSerializable()
 
 class _Tag implements Tag {
-  const _Tag({required this.id, required this.key, required this.name, this.latestOrder, this.category});
+  const _Tag({required this.id, required this.key, required this.name, @JsonKey(name: 'latest_order') this.latestOrder, this.category});
   factory _Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
 
 @override final  String id;
 @override final  String key;
 @override final  String name;
-@override final  int? latestOrder;
+@override@JsonKey(name: 'latest_order') final  int? latestOrder;
 @override final  Category? category;
 
 /// Create a copy of Tag
@@ -261,7 +261,7 @@ abstract mixin class _$TagCopyWith<$Res> implements $TagCopyWith<$Res> {
   factory _$TagCopyWith(_Tag value, $Res Function(_Tag) _then) = __$TagCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String key, String name, int? latestOrder, Category? category
+ String id, String key, String name,@JsonKey(name: 'latest_order') int? latestOrder, Category? category
 });
 
 

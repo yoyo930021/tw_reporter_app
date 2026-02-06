@@ -11,15 +11,15 @@ _Category _$CategoryFromJson(Map<String, dynamic> json) =>
       final val = _Category(
         id: $checkedConvert('id', (v) => v as String),
         name: $checkedConvert('name', (v) => v as String),
-        sortOrder: $checkedConvert('sortOrder', (v) => (v as num?)?.toInt()),
+        sortOrder: $checkedConvert('sort_order', (v) => (v as num?)?.toInt()),
       );
       return val;
-    });
+    }, fieldKeyMap: const {'sortOrder': 'sort_order'});
 
 Map<String, dynamic> _$CategoryToJson(_Category instance) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
-  'sortOrder': instance.sortOrder,
+  'sort_order': instance.sortOrder,
 };
 
 _Subcategory _$SubcategoryFromJson(Map<String, dynamic> json) => $checkedCreate(
@@ -30,10 +30,11 @@ _Subcategory _$SubcategoryFromJson(Map<String, dynamic> json) => $checkedCreate(
       id: $checkedConvert('id', (v) => v as String),
       key: $checkedConvert('key', (v) => v as String),
       name: $checkedConvert('name', (v) => v as String),
-      latestOrder: $checkedConvert('latestOrder', (v) => (v as num?)?.toInt()),
+      latestOrder: $checkedConvert('latest_order', (v) => (v as num?)?.toInt()),
     );
     return val;
   },
+  fieldKeyMap: const {'latestOrder': 'latest_order'},
 );
 
 Map<String, dynamic> _$SubcategoryToJson(_Subcategory instance) =>
@@ -41,7 +42,7 @@ Map<String, dynamic> _$SubcategoryToJson(_Subcategory instance) =>
       'id': instance.id,
       'key': instance.key,
       'name': instance.name,
-      'latestOrder': instance.latestOrder,
+      'latest_order': instance.latestOrder,
     };
 
 _CategorySet _$CategorySetFromJson(Map<String, dynamic> json) => $checkedCreate(

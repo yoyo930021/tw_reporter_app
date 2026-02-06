@@ -1,0 +1,873 @@
+{
+  "data": {
+    "meta": {
+      "limit": 10,
+      "offset": 0,
+      "total": 216
+    },
+    "records": [
+      {
+        "id": "6968c8dff7e6ab070044a4b9",
+        "slug": "taiwan-donor-conceived-people-right-to-know-their-origins",
+        "title": "精卵捐贈子女的身世告知與追尋",
+        "short_title": "《人工生殖法》修法最後拼圖：身世／血緣知悉權",
+        "published_date": "2026-01-20T16:00:00Z",
+        "og_description": "《人工生殖法》正迎向立法以來幅度最大的修法，回應國際趨勢、國民的生育自主權，首度將「身世告知」概念納入制度設計。面對這道愛的課題，台灣的過往顧慮是什麼？未來又該如何思考親子關係？",
+        "og_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 534,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1334,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-w400.jpg"
+            }
+          },
+          "id": "6968d776f7e6ab070044a4ba",
+          "description": "精卵捐贈子女的身世、告知與追尋"
+        },
+        "leading_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 534,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1334,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20260115200302-16c19b4cdd0c323a6f140051bd2c6402-w400.jpg"
+            }
+          },
+          "id": "6968d776f7e6ab070044a4ba",
+          "description": "精卵捐贈子女的身世、告知與追尋"
+        },
+        "leading_image_portrait": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 1199,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20260115202853-934d5f1f05def99deeff91f806c9f3fa-mobile.jpg"
+            },
+            "tiny": {
+              "height": 225,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20260115202853-934d5f1f05def99deeff91f806c9f3fa-tiny.jpg"
+            },
+            "desktop": {
+              "height": 2998,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20260115202853-934d5f1f05def99deeff91f806c9f3fa-desktop.jpg"
+            },
+            "tablet": {
+              "height": 1799,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20260115202853-934d5f1f05def99deeff91f806c9f3fa-tablet.jpg"
+            },
+            "w400": {
+              "height": 600,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20260115202853-934d5f1f05def99deeff91f806c9f3fa-w400.jpg"
+            }
+          },
+          "id": "6968dd85f7e6ab070044a4c1",
+          "description": "精卵捐贈子女的身世、告知與追尋"
+        },
+        "relateds": [
+          "69692172f7e6ab070044a4c5",
+          "696a47f6f7e6ab070044a4f6",
+          "696ddf29f7e6ab070044a512",
+          "6970c386f7e6ab070044a632"
+        ],
+        "full": false
+      },
+      {
+        "id": "694b8b7af7e6ab0700449f50",
+        "slug": "massive-fraud-cases-overwhelm-judicial-system",
+        "title": "詐欺案海嘯，如何侵蝕司法防線？",
+        "short_title": "詐欺海嘯侵蝕司法防線",
+        "published_date": "2025-12-28T16:00:00Z",
+        "og_description": "曾以打擊犯罪為榮的檢察官，在詐騙洪流中沒頂、出走；被賦予維護人權使命的律師，則因為少數跨越職業倫理的同業，使白袍蒙上「詐團共犯」陰影。詐騙犯罪除威脅民眾身家財產，也正在侵蝕法治制度的根基。",
+        "og_image": {
+          "filetype": "image/png",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-mobile.png"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-tiny.png"
+            },
+            "desktop": {
+              "height": 1280,
+              "width": 1920,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-desktop.png"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-tablet.png"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-w400.png"
+            }
+          },
+          "id": "694b8d91f7e6ab0700449f52",
+          "description": "蔓延的詐騙案如何使司法防線面臨潰堤"
+        },
+        "leading_image": {
+          "filetype": "image/png",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-mobile.png"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-tiny.png"
+            },
+            "desktop": {
+              "height": 1280,
+              "width": 1920,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-desktop.png"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-tablet.png"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251224145201-e38bd2dc9fa64b36943d85ea4d18f416-w400.png"
+            }
+          },
+          "id": "694b8d91f7e6ab0700449f52",
+          "description": "蔓延的詐騙案如何使司法防線面臨潰堤"
+        },
+        "relateds": [
+          "6948e4c4f7e6ab0700449e3d",
+          "6948e7ecf7e6ab0700449e3f",
+          "69392e66f7e6ab0700449c73"
+        ],
+        "full": false
+      },
+      {
+        "id": "692415a2f7e6ab07004498d8",
+        "slug": "long-term-care-plan-3",
+        "title": "給下個長照十年的備忘錄",
+        "short_title": "給下個長照十年的備忘錄",
+        "published_date": "2025-11-25T16:00:00Z",
+        "og_description": "長照2.0原本存在的問題，不會因「AI生成照顧計畫」等炫亮科技辭彙，就讓人移開目光；在長照2.0與3.0之間，還有多少未竟事宜與制度斷裂？在加入醫療與智慧科技助攻之後，又該如何磨合與補綴？",
+        "og_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-w400.jpg"
+            }
+          },
+          "id": "69241618f7e6ab07004498da",
+          "description": "長照3.0來了"
+        },
+        "leading_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251124162352-1398791bc701b8f6e22164956cac694c-w400.jpg"
+            }
+          },
+          "id": "69241618f7e6ab07004498da",
+          "description": "長照3.0來了"
+        },
+        "relateds": [
+          "6916e1cff7e6ab07004496f3",
+          "69217272f7e6ab070044982f",
+          "691f4f2ff7e6ab0700449804",
+          "6911992cf7e6ab07004495f9",
+          "690b1a17f7e6ab070044955c"
+        ],
+        "full": false
+      },
+      {
+        "id": "691fd34ef7e6ab0700449808",
+        "slug": "2025-taipei-golden-horse-film-festival",
+        "title": "金馬62│不只是說自己的故事",
+        "short_title": "第62屆金馬獎系列報導",
+        "published_date": "2025-11-20T16:00:00Z",
+        "og_description": "第62屆金馬獎，不約而同有多位耕耘許久的電影工作者，拍出源自個人經驗的「半自傳」電影，半實半虛，連結他人經驗與社會環境。來自自己，又不只是自己⋯⋯",
+        "og_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1242,
+              "width": 1863,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-w400.jpg"
+            }
+          },
+          "id": "692016c9f7e6ab0700449822",
+          "description": "金馬62│不只是說自己的故事"
+        },
+        "leading_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1242,
+              "width": 1863,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251121153758-e28c57cc41ee64eb32d73a9c20161001-w400.jpg"
+            }
+          },
+          "id": "692016c9f7e6ab0700449822",
+          "description": "金馬62│不只是說自己的故事"
+        },
+        "relateds": [
+          "691e970af7e6ab07004497cb",
+          "6911c1a3f7e6ab0700449602",
+          "691be934f7e6ab0700449762",
+          "691ac442f7e6ab070044971b",
+          "69158000f7e6ab0700449698",
+          "69153f8ef7e6ab0700449671",
+          "6847d9892c9d3e060044a38a",
+          "6914504af7e6ab0700449644",
+          "6921c42cf7e6ab070044987c",
+          "692eb00af7e6ab0700449a73"
+        ],
+        "full": false
+      },
+      {
+        "id": "6913ea92f7e6ab070044963b",
+        "slug": "formosat-8-satellite",
+        "title": "福衛八號，任重高飛！",
+        "short_title": "福衛八號．任重高飛",
+        "published_date": "2025-11-12T16:00:00Z",
+        "og_description": "這不僅是一次太空科技的雪恥任務，還背負著無可言說的國安任務，更展現打造本土衛星產業鏈的野心。「福衛八號」是否能成為台灣航太發展的關鍵樞紐、化為產業界的一張漂亮飛行履歷？",
+        "og_image": {
+          "filetype": "image/png",
+          "resized_targets": {
+            "mobile": {
+              "height": 450,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-mobile.png"
+            },
+            "tiny": {
+              "height": 84,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-tiny.png"
+            },
+            "desktop": {
+              "height": 1080,
+              "width": 1920,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-desktop.png"
+            },
+            "tablet": {
+              "height": 675,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-tablet.png"
+            },
+            "w400": {
+              "height": 225,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-w400.png"
+            }
+          },
+          "id": "69159f71f7e6ab07004496b0",
+          "description": "福衛八號，任重高飛！"
+        },
+        "leading_image": {
+          "filetype": "image/png",
+          "resized_targets": {
+            "mobile": {
+              "height": 450,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-mobile.png"
+            },
+            "tiny": {
+              "height": 84,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-tiny.png"
+            },
+            "desktop": {
+              "height": 1080,
+              "width": 1920,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-desktop.png"
+            },
+            "tablet": {
+              "height": 675,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-tablet.png"
+            },
+            "w400": {
+              "height": 225,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251113170553-45df3b988a2eb6335fe754f15c3217ef-w400.png"
+            }
+          },
+          "id": "69159f71f7e6ab07004496b0",
+          "description": "福衛八號，任重高飛！"
+        },
+        "leading_image_portrait": {
+          "filetype": "image/png",
+          "resized_targets": {
+            "mobile": {
+              "height": 1421,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251113170607-bdaff7f73023134df97c57c68357cf56-mobile.png"
+            },
+            "tiny": {
+              "height": 266,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251113170607-bdaff7f73023134df97c57c68357cf56-tiny.png"
+            },
+            "desktop": {
+              "height": 2160,
+              "width": 1216,
+              "url": "https://www.twreporter.org/images/20251113170607-bdaff7f73023134df97c57c68357cf56-desktop.png"
+            },
+            "tablet": {
+              "height": 2132,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251113170607-bdaff7f73023134df97c57c68357cf56-tablet.png"
+            },
+            "w400": {
+              "height": 711,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251113170607-bdaff7f73023134df97c57c68357cf56-w400.png"
+            }
+          },
+          "id": "69159f7ff7e6ab07004496b1",
+          "description": "福衛八號，任重高飛！"
+        },
+        "relateds": [
+          "690bd881f7e6ab0700449560",
+          "6912fd71f7e6ab0700449624",
+          "690c53baf7e6ab0700449577"
+        ],
+        "full": false
+      },
+      {
+        "id": "68edf8b9f7e6ab0700449126",
+        "slug": "statute-of-limitations-on-child-sex-crimes",
+        "title": "不向時間低頭",
+        "short_title": "挑戰兒少性侵追訴期高牆",
+        "published_date": "2025-10-20T16:00:00Z",
+        "og_description": "由於兒少性侵案件從偵查到審理皆不公開，外界對其背後的結構性問題諱莫如深。《報導者》以橫跨一年的時間追蹤調查，從微觀個案與體制結構，深入挖掘與揭開兒少性侵事件被社會、制度、司法掩蓋下的黑幕。",
+        "og_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-w400.jpg"
+            }
+          },
+          "id": "68f1e9ddf7e6ab07004491dd",
+          "description": "【獨家追蹤】回到9歲那年的河灘，找回遺落的真相"
+        },
+        "leading_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251017150149-1a183b7dfeba7de72844a3a39b7f1cc1-w400.jpg"
+            }
+          },
+          "id": "68f1e9ddf7e6ab07004491dd",
+          "description": "【獨家追蹤】回到9歲那年的河灘，找回遺落的真相"
+        },
+        "relateds": [
+          "67f628692c9d3e060044952f",
+          "67f664a52c9d3e0600449558",
+          "68f1ae92f7e6ab07004491c1",
+          "67347ff98b998c0700b9f846",
+          "68652aa52c9d3e060044a97d"
+        ],
+        "full": false
+      },
+      {
+        "id": "68ef6576f7e6ab0700449156",
+        "slug": "resident-physician-shortages",
+        "title": "消失的住院醫師",
+        "short_title": "消失的住院醫師",
+        "published_date": "2025-10-15T16:00:00Z",
+        "og_description": "醫療人力持續失血，各大醫院困難科的住院醫師招收仍在下滑。哪些科別是人力極度缺乏的紅區？不以專科發展為目標的年輕住院醫師，不進入醫院的選擇是什麼？長年留守艱困科別的醫師又為何留下或離不開？",
+        "og_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-w400.jpg"
+            }
+          },
+          "id": "68efb389f7e6ab0700449163",
+          "description": "消失的住院醫師"
+        },
+        "leading_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20251015224529-316c82e7bf2dbae3cf3e765b9be2e7a4-w400.jpg"
+            }
+          },
+          "id": "68efb389f7e6ab0700449163",
+          "description": "消失的住院醫師"
+        },
+        "relateds": [
+          "6891cd832c9d3e060044b41b",
+          "68e5cb95f7e6ab0700449067",
+          "68e5d5edf7e6ab0700449069",
+          "68df7c21aa130b07003a477d",
+          "68dd144caa130b07003a46ef",
+          "68ef6958f7e6ab0700449157"
+        ],
+        "full": false
+      },
+      {
+        "id": "68db6151aa130b07003a461c",
+        "slug": "espionage-and-the-cracks-of-democracy",
+        "title": "潛台諜影",
+        "short_title": "潛台諜影",
+        "published_date": "2025-09-30T16:00:00Z",
+        "og_description": "中國目的不再只鎖定高階將領收集關鍵軍事機密，而是往基層軍警、政黨人士和民間單位布網；面對這場隱形灰色戰爭，台灣尚需在法律上克服「人權保障」與「國家安全」間諸多困難糾結的矛盾，甚至溢流到社會整體的信任不安⋯⋯",
+        "og_image": {
+          "filetype": "image/png",
+          "resized_targets": {
+            "mobile": {
+              "height": 564,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-mobile.png"
+            },
+            "tiny": {
+              "height": 106,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-tiny.png"
+            },
+            "desktop": {
+              "height": 1411,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-desktop.png"
+            },
+            "tablet": {
+              "height": 847,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-tablet.png"
+            },
+            "w400": {
+              "height": 282,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-w400.png"
+            }
+          },
+          "id": "68dba4b7aa130b07003a464e",
+          "description": "潛台諜影"
+        },
+        "leading_image": {
+          "filetype": "image/png",
+          "resized_targets": {
+            "mobile": {
+              "height": 564,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-mobile.png"
+            },
+            "tiny": {
+              "height": 106,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-tiny.png"
+            },
+            "desktop": {
+              "height": 1411,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-desktop.png"
+            },
+            "tablet": {
+              "height": 847,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-tablet.png"
+            },
+            "w400": {
+              "height": 282,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20250930173655-eab214e51ff6ede88a81fcff03fb3505-w400.png"
+            }
+          },
+          "id": "68dba4b7aa130b07003a464e",
+          "description": "潛台諜影"
+        },
+        "relateds": [
+          "68d3c01caa130b07003a450f",
+          "68d65a23aa130b07003a45d8",
+          "68d3bca2aa130b07003a450e"
+        ],
+        "full": false
+      },
+      {
+        "id": "68c7c359aa130b07003a42c6",
+        "slug": "challenges-for-transport-sector-to-achieve-net-zero",
+        "title": "2,700億推不動運輸減碳轉型",
+        "short_title": "2,700億推不動運輸減碳轉型",
+        "published_date": "2025-09-15T16:00:00Z",
+        "og_description": "因應氣候危機，8年來政府投注大量預算實施減碳計畫，其中運輸部門預算約2,700億，但幾乎未見成效。《報導者》從整體政策、與民眾息息相關的公車與計程車電動化目標，盤點政策失能的原因。",
+        "og_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-w400.jpg"
+            }
+          },
+          "id": "68c7d5eeaa130b07003a42cc",
+          "description": "2,700億轉不動運輸減碳轉型"
+        },
+        "leading_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20250915170134-93b09aeb5b8d9cbc3c426a1470dc49f2-w400.jpg"
+            }
+          },
+          "id": "68c7d5eeaa130b07003a42cc",
+          "description": "2,700億轉不動運輸減碳轉型"
+        },
+        "relateds": [
+          "68bfdd3baa130b07003a414c",
+          "68b6ffc6aa130b07003a3fc3",
+          "68afed74aa130b07003a3f2a",
+          "68ba4818aa130b07003a4039"
+        ],
+        "full": false
+      },
+      {
+        "id": "68baa8b5aa130b07003a405d",
+        "slug": "post-traumatic-reconstruction-of-suicide-loss-survivors",
+        "title": "淚痕下的尋道者",
+        "short_title": "淚痕下的尋道者",
+        "published_date": "2025-09-09T16:00:00Z",
+        "og_description": "遺族如何能真正坦露自己？又該從何學習與失落共處？借鏡國際做法、追蹤台灣當前的遺族自助團體發展，從個人到國家，對自殺者遺族才能有更立體的看見，知曉真正有幫助的做法和政策。",
+        "og_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 534,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1334,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-w400.jpg"
+            }
+          },
+          "id": "68bb1c41aa130b07003a4068",
+          "description": "淚痕下的尋道者"
+        },
+        "leading_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 534,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1334,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20250906012209-3ce89634d74ce5692234d3dc8c04c328-w400.jpg"
+            }
+          },
+          "id": "68bb1c41aa130b07003a4068",
+          "description": "淚痕下的尋道者"
+        },
+        "relateds": [
+          "68b94063aa130b07003a4019",
+          "68b94320aa130b07003a401b",
+          "68be42e3aa130b07003a4092",
+          "68b94460aa130b07003a401e"
+        ],
+        "full": false
+      }
+    ]
+  },
+  "status": "success"
+}

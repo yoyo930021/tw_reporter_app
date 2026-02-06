@@ -1,0 +1,270 @@
+{
+  "data": {
+    "meta": {
+      "limit": 2,
+      "offset": 0,
+      "total": 5652
+    },
+    "records": [
+      {
+        "id": "6981b4dba87dd006007e5805",
+        "style": "article:v2:default",
+        "slug": "taiwan-news-media-faces-survival-battle-against-generative-ai-wave",
+        "hero_image": {
+          "filetype": "image/gif",
+          "resized_targets": {
+            "mobile": {
+              "height": 600,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-mobile.gif"
+            },
+            "tiny": {
+              "height": 113,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-tiny.gif"
+            },
+            "desktop": {
+              "height": 768,
+              "width": 1024,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-desktop.gif"
+            },
+            "tablet": {
+              "height": 768,
+              "width": 1024,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-tablet.gif"
+            },
+            "w400": {
+              "height": 300,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-w400.gif"
+            }
+          },
+          "id": "698331c6a87dd006007e5823",
+          "description": "ai-newsmedia_landing"
+        },
+        "og_image": {
+          "filetype": "image/gif",
+          "resized_targets": {
+            "mobile": {
+              "height": 600,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-mobile.gif"
+            },
+            "tiny": {
+              "height": 113,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-tiny.gif"
+            },
+            "desktop": {
+              "height": 768,
+              "width": 1024,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-desktop.gif"
+            },
+            "tablet": {
+              "height": 768,
+              "width": 1024,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-tablet.gif"
+            },
+            "w400": {
+              "height": 300,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20260204194718-c4c75fbe20344f2e7ae80bc748bd64a7-w400.gif"
+            }
+          },
+          "id": "698331c6a87dd006007e5823",
+          "description": "ai-newsmedia_landing"
+        },
+        "og_description": "當新聞業正同時被數位平台與創作者經濟高牆擠壓，唯一能突圍的，仍是一份人工智慧無法代勞的品牌信任。",
+        "title": "告別流量成癮：生成式AI浪潮下，台灣新聞媒體的生存保衛戰",
+        "subtitle": "當AI摘要取代搜尋和點閱",
+        "category_set": [
+          {
+            "category": {
+              "id": "63206383207bf7c5f8716254",
+              "sort_order": 22,
+              "name": "經濟產業"
+            },
+            "subcategory": null
+          }
+        ],
+        "published_date": "2026-02-04T16:00:00Z",
+        "is_external": false,
+        "tags": [
+          {
+            "id": "577b45db1667571000c584b6",
+            "key": "577b45db1667571000c584b6",
+            "latest_order": 0,
+            "name": "產業",
+            "category": null
+          },
+          {
+            "id": "57bd8b811373330f00a1e3f6",
+            "key": "57bd8b811373330f00a1e3f6",
+            "latest_order": 0,
+            "name": "科技",
+            "category": null
+          },
+          {
+            "id": "57f603b561fdfb0f009f87f5",
+            "key": "ai",
+            "latest_order": 0,
+            "name": "AI人工智慧",
+            "category": null
+          },
+          {
+            "id": "5ab215958d9ce917004051c6",
+            "key": "5ab215958d9ce917004051c6",
+            "latest_order": 0,
+            "name": "社群媒體",
+            "category": null
+          },
+          {
+            "id": "5bab6de47ee5431b00e8fc7f",
+            "key": "5bab6de47ee5431b00e8fc7f",
+            "latest_order": 0,
+            "name": "行銷",
+            "category": null
+          },
+          {
+            "id": "5e78176225f19e06008e7d1a",
+            "key": "5e78176225f19e06008e7d1a",
+            "latest_order": 0,
+            "name": "媒體",
+            "category": null
+          }
+        ],
+        "full": false,
+        "bookmarkId": ""
+      },
+      {
+        "id": "6983528ea87dd006007e583f",
+        "style": "article:v2:default",
+        "slug": "podcast-2026-02-04",
+        "hero_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-w400.jpg"
+            }
+          },
+          "id": "69835276a87dd006007e583e",
+          "description": "一份站在倫理刀鋒上的工作、一雙好命的手，《人間》雜誌攝影記者關曉榮與他蹲點記錄的台灣故事"
+        },
+        "og_image": {
+          "filetype": "image/jpeg",
+          "resized_targets": {
+            "mobile": {
+              "height": 533,
+              "width": 800,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-mobile.jpg"
+            },
+            "tiny": {
+              "height": 100,
+              "width": 150,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-tiny.jpg"
+            },
+            "desktop": {
+              "height": 1333,
+              "width": 2000,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-desktop.jpg"
+            },
+            "tablet": {
+              "height": 800,
+              "width": 1200,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-tablet.jpg"
+            },
+            "w400": {
+              "height": 267,
+              "width": 400,
+              "url": "https://www.twreporter.org/images/20260204220646-8c502ba833a7544fdefc633b470a7980-w400.jpg"
+            }
+          },
+          "id": "69835276a87dd006007e583e",
+          "description": "一份站在倫理刀鋒上的工作、一雙好命的手，《人間》雜誌攝影記者關曉榮與他蹲點記錄的台灣故事"
+        },
+        "og_description": "台灣解嚴前創辦的《人間》雜誌，至今仍不斷被提起。攝影記者之一的關曉榮將在這集節目聊攝影者角色、談工作方法，對於現代有志投入紀實攝影工作者，他有什麼話想說？一起思索「為什麼人間？人間為了什麼？」 ",
+        "title": "一份站在倫理刀鋒上的工作、一雙好命的手，《人間》雜誌攝影記者關曉榮與他蹲點記錄的台灣故事",
+        "subtitle": "The Real Story【S5EP90】",
+        "category_set": [
+          {
+            "category": {
+              "id": "63206383207bf7c5f8716266",
+              "sort_order": 25,
+              "name": "Podcast"
+            },
+            "subcategory": {
+              "id": "63206383207bf7c5f8716267",
+              "key": "63206383207bf7c5f8716267",
+              "latest_order": 0,
+              "name": "The Real Story"
+            }
+          }
+        ],
+        "published_date": "2026-02-03T16:00:00Z",
+        "is_external": false,
+        "tags": [
+          {
+            "id": "575fc6bbe2a07b1000e8852a",
+            "key": "575fc6bbe2a07b1000e8852a",
+            "latest_order": 0,
+            "name": "環境",
+            "category": null
+          },
+          {
+            "id": "5768ed19406be01000c69077",
+            "key": "5768ed19406be01000c69077",
+            "latest_order": 0,
+            "name": "人權",
+            "category": null
+          },
+          {
+            "id": "5db16b7b4f8a11180072c092",
+            "key": "5db16b7b4f8a11180072c092",
+            "latest_order": 0,
+            "name": "攝影",
+            "category": null
+          },
+          {
+            "id": "5e42510106a3d10600e110dc",
+            "key": "5e42510106a3d10600e110dc",
+            "latest_order": 0,
+            "name": "歷史",
+            "category": null
+          },
+          {
+            "id": "5e78176225f19e06008e7d1a",
+            "key": "5e78176225f19e06008e7d1a",
+            "latest_order": 0,
+            "name": "媒體",
+            "category": null
+          }
+        ],
+        "full": false,
+        "bookmarkId": ""
+      }
+    ]
+  },
+  "status": "success"
+}

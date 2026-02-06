@@ -75,11 +75,13 @@ ArticleDetailResult useArticleDetail(
     error.value = null;
 
     try {
-      final Article fetchedArticle = await api.fetchArticle(slug);
-      article.value = fetchedArticle;
-    } catch (e) {
+      final ApiResponse<Article> response = await api.fetchPost(slug);
+      article.value = response.data;
+    } catch (e, stackTrace) {
       hasError.value = true;
       error.value = e.toString();
+      print('載入文章詳情失敗: $e');
+      print('堆疊追蹤: $stackTrace');
     } finally {
       isLoading.value = false;
     }

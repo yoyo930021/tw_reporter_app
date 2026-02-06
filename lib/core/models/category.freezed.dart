@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Category {
 
- String get id; String get name; int? get sortOrder;
+ String get id; String get name;@JsonKey(name: 'sort_order') int? get sortOrder;
 /// Create a copy of Category
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $CategoryCopyWith<$Res>  {
   factory $CategoryCopyWith(Category value, $Res Function(Category) _then) = _$CategoryCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, int? sortOrder
+ String id, String name,@JsonKey(name: 'sort_order') int? sortOrder
 });
 
 
@@ -152,7 +152,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  int? sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'sort_order')  int? sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Category() when $default != null:
 return $default(_that.id,_that.name,_that.sortOrder);case _:
@@ -173,7 +173,7 @@ return $default(_that.id,_that.name,_that.sortOrder);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  int? sortOrder)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'sort_order')  int? sortOrder)  $default,) {final _that = this;
 switch (_that) {
 case _Category():
 return $default(_that.id,_that.name,_that.sortOrder);}
@@ -190,7 +190,7 @@ return $default(_that.id,_that.name,_that.sortOrder);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  int? sortOrder)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name, @JsonKey(name: 'sort_order')  int? sortOrder)?  $default,) {final _that = this;
 switch (_that) {
 case _Category() when $default != null:
 return $default(_that.id,_that.name,_that.sortOrder);case _:
@@ -205,12 +205,12 @@ return $default(_that.id,_that.name,_that.sortOrder);case _:
 @JsonSerializable()
 
 class _Category implements Category {
-  const _Category({required this.id, required this.name, this.sortOrder});
+  const _Category({required this.id, required this.name, @JsonKey(name: 'sort_order') this.sortOrder});
   factory _Category.fromJson(Map<String, dynamic> json) => _$CategoryFromJson(json);
 
 @override final  String id;
 @override final  String name;
-@override final  int? sortOrder;
+@override@JsonKey(name: 'sort_order') final  int? sortOrder;
 
 /// Create a copy of Category
 /// with the given fields replaced by the non-null parameter values.
@@ -245,7 +245,7 @@ abstract mixin class _$CategoryCopyWith<$Res> implements $CategoryCopyWith<$Res>
   factory _$CategoryCopyWith(_Category value, $Res Function(_Category) _then) = __$CategoryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, int? sortOrder
+ String id, String name,@JsonKey(name: 'sort_order') int? sortOrder
 });
 
 
@@ -278,7 +278,7 @@ as int?,
 /// @nodoc
 mixin _$Subcategory {
 
- String get id; String get key; String get name; int? get latestOrder;
+ String get id; String get key; String get name;@JsonKey(name: 'latest_order') int? get latestOrder;
 /// Create a copy of Subcategory
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -311,7 +311,7 @@ abstract mixin class $SubcategoryCopyWith<$Res>  {
   factory $SubcategoryCopyWith(Subcategory value, $Res Function(Subcategory) _then) = _$SubcategoryCopyWithImpl;
 @useResult
 $Res call({
- String id, String key, String name, int? latestOrder
+ String id, String key, String name,@JsonKey(name: 'latest_order') int? latestOrder
 });
 
 
@@ -416,7 +416,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String key,  String name,  int? latestOrder)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String key,  String name, @JsonKey(name: 'latest_order')  int? latestOrder)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Subcategory() when $default != null:
 return $default(_that.id,_that.key,_that.name,_that.latestOrder);case _:
@@ -437,7 +437,7 @@ return $default(_that.id,_that.key,_that.name,_that.latestOrder);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String key,  String name,  int? latestOrder)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String key,  String name, @JsonKey(name: 'latest_order')  int? latestOrder)  $default,) {final _that = this;
 switch (_that) {
 case _Subcategory():
 return $default(_that.id,_that.key,_that.name,_that.latestOrder);}
@@ -454,7 +454,7 @@ return $default(_that.id,_that.key,_that.name,_that.latestOrder);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String key,  String name,  int? latestOrder)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String key,  String name, @JsonKey(name: 'latest_order')  int? latestOrder)?  $default,) {final _that = this;
 switch (_that) {
 case _Subcategory() when $default != null:
 return $default(_that.id,_that.key,_that.name,_that.latestOrder);case _:
@@ -469,13 +469,13 @@ return $default(_that.id,_that.key,_that.name,_that.latestOrder);case _:
 @JsonSerializable()
 
 class _Subcategory implements Subcategory {
-  const _Subcategory({required this.id, required this.key, required this.name, this.latestOrder});
+  const _Subcategory({required this.id, required this.key, required this.name, @JsonKey(name: 'latest_order') this.latestOrder});
   factory _Subcategory.fromJson(Map<String, dynamic> json) => _$SubcategoryFromJson(json);
 
 @override final  String id;
 @override final  String key;
 @override final  String name;
-@override final  int? latestOrder;
+@override@JsonKey(name: 'latest_order') final  int? latestOrder;
 
 /// Create a copy of Subcategory
 /// with the given fields replaced by the non-null parameter values.
@@ -510,7 +510,7 @@ abstract mixin class _$SubcategoryCopyWith<$Res> implements $SubcategoryCopyWith
   factory _$SubcategoryCopyWith(_Subcategory value, $Res Function(_Subcategory) _then) = __$SubcategoryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String key, String name, int? latestOrder
+ String id, String key, String name,@JsonKey(name: 'latest_order') int? latestOrder
 });
 
 

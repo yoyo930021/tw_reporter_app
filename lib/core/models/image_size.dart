@@ -35,7 +35,7 @@ sealed class HeroImage with _$HeroImage {
     required String id,
     required String filetype,
     String? description,
-    required ResizedTargets resizedTargets,
+    @JsonKey(name: 'resized_targets') required ResizedTargets resizedTargets,
   }) = _HeroImage;
 
   factory HeroImage.fromJson(Map<String, dynamic> json) =>

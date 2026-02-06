@@ -10,7 +10,7 @@ sealed class Tag with _$Tag {
     required String id,
     required String key,
     required String name,
-    int? latestOrder,
+    @JsonKey(name: 'latest_order') int? latestOrder,
     Category? category,
   }) = _Tag;
 

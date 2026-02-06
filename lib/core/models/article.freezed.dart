@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Article {
 
- String get id; String get slug; String get title; String? get subtitle; String get ogDescription; HeroImage? get heroImage; HeroImage? get ogImage; List<CategorySet> get categorySet; DateTime get publishedDate; bool get isExternal; List<Tag>? get tags; String? get style;@JsonKey(name: 'content') String? get htmlContent;
+ String get id; String get slug; String get title; String? get subtitle;@JsonKey(name: 'og_description') String get ogDescription;@JsonKey(name: 'hero_image') HeroImage? get heroImage;@JsonKey(name: 'og_image') HeroImage? get ogImage;@JsonKey(name: 'category_set') List<CategorySet> get categorySet;@JsonKey(name: 'published_date') DateTime get publishedDate;@JsonKey(name: 'is_external') bool get isExternal; List<Tag>? get tags; String? get style;@JsonKey(name: 'content') String? get htmlContent;
 /// Create a copy of Article
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $ArticleCopyWith<$Res>  {
   factory $ArticleCopyWith(Article value, $Res Function(Article) _then) = _$ArticleCopyWithImpl;
 @useResult
 $Res call({
- String id, String slug, String title, String? subtitle, String ogDescription, HeroImage? heroImage, HeroImage? ogImage, List<CategorySet> categorySet, DateTime publishedDate, bool isExternal, List<Tag>? tags, String? style,@JsonKey(name: 'content') String? htmlContent
+ String id, String slug, String title, String? subtitle,@JsonKey(name: 'og_description') String ogDescription,@JsonKey(name: 'hero_image') HeroImage? heroImage,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'category_set') List<CategorySet> categorySet,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'is_external') bool isExternal, List<Tag>? tags, String? style,@JsonKey(name: 'content') String? htmlContent
 });
 
 
@@ -186,7 +186,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String slug,  String title,  String? subtitle,  String ogDescription,  HeroImage? heroImage,  HeroImage? ogImage,  List<CategorySet> categorySet,  DateTime publishedDate,  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  String? htmlContent)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String slug,  String title,  String? subtitle, @JsonKey(name: 'og_description')  String ogDescription, @JsonKey(name: 'hero_image')  HeroImage? heroImage, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'category_set')  List<CategorySet> categorySet, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'is_external')  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  String? htmlContent)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Article() when $default != null:
 return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescription,_that.heroImage,_that.ogImage,_that.categorySet,_that.publishedDate,_that.isExternal,_that.tags,_that.style,_that.htmlContent);case _:
@@ -207,7 +207,7 @@ return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescripti
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String slug,  String title,  String? subtitle,  String ogDescription,  HeroImage? heroImage,  HeroImage? ogImage,  List<CategorySet> categorySet,  DateTime publishedDate,  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  String? htmlContent)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String slug,  String title,  String? subtitle, @JsonKey(name: 'og_description')  String ogDescription, @JsonKey(name: 'hero_image')  HeroImage? heroImage, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'category_set')  List<CategorySet> categorySet, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'is_external')  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  String? htmlContent)  $default,) {final _that = this;
 switch (_that) {
 case _Article():
 return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescription,_that.heroImage,_that.ogImage,_that.categorySet,_that.publishedDate,_that.isExternal,_that.tags,_that.style,_that.htmlContent);}
@@ -224,7 +224,7 @@ return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescripti
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String slug,  String title,  String? subtitle,  String ogDescription,  HeroImage? heroImage,  HeroImage? ogImage,  List<CategorySet> categorySet,  DateTime publishedDate,  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  String? htmlContent)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String slug,  String title,  String? subtitle, @JsonKey(name: 'og_description')  String ogDescription, @JsonKey(name: 'hero_image')  HeroImage? heroImage, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'category_set')  List<CategorySet> categorySet, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'is_external')  bool isExternal,  List<Tag>? tags,  String? style, @JsonKey(name: 'content')  String? htmlContent)?  $default,) {final _that = this;
 switch (_that) {
 case _Article() when $default != null:
 return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescription,_that.heroImage,_that.ogImage,_that.categorySet,_that.publishedDate,_that.isExternal,_that.tags,_that.style,_that.htmlContent);case _:
@@ -239,25 +239,25 @@ return $default(_that.id,_that.slug,_that.title,_that.subtitle,_that.ogDescripti
 @JsonSerializable()
 
 class _Article implements Article {
-  const _Article({required this.id, required this.slug, required this.title, this.subtitle, required this.ogDescription, this.heroImage, this.ogImage, required final  List<CategorySet> categorySet, required this.publishedDate, required this.isExternal, final  List<Tag>? tags, this.style, @JsonKey(name: 'content') this.htmlContent}): _categorySet = categorySet,_tags = tags;
+  const _Article({required this.id, required this.slug, required this.title, this.subtitle, @JsonKey(name: 'og_description') required this.ogDescription, @JsonKey(name: 'hero_image') this.heroImage, @JsonKey(name: 'og_image') this.ogImage, @JsonKey(name: 'category_set') required final  List<CategorySet> categorySet, @JsonKey(name: 'published_date') required this.publishedDate, @JsonKey(name: 'is_external') required this.isExternal, final  List<Tag>? tags, this.style, @JsonKey(name: 'content') this.htmlContent}): _categorySet = categorySet,_tags = tags;
   factory _Article.fromJson(Map<String, dynamic> json) => _$ArticleFromJson(json);
 
 @override final  String id;
 @override final  String slug;
 @override final  String title;
 @override final  String? subtitle;
-@override final  String ogDescription;
-@override final  HeroImage? heroImage;
-@override final  HeroImage? ogImage;
+@override@JsonKey(name: 'og_description') final  String ogDescription;
+@override@JsonKey(name: 'hero_image') final  HeroImage? heroImage;
+@override@JsonKey(name: 'og_image') final  HeroImage? ogImage;
  final  List<CategorySet> _categorySet;
-@override List<CategorySet> get categorySet {
+@override@JsonKey(name: 'category_set') List<CategorySet> get categorySet {
   if (_categorySet is EqualUnmodifiableListView) return _categorySet;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_categorySet);
 }
 
-@override final  DateTime publishedDate;
-@override final  bool isExternal;
+@override@JsonKey(name: 'published_date') final  DateTime publishedDate;
+@override@JsonKey(name: 'is_external') final  bool isExternal;
  final  List<Tag>? _tags;
 @override List<Tag>? get tags {
   final value = _tags;
@@ -303,7 +303,7 @@ abstract mixin class _$ArticleCopyWith<$Res> implements $ArticleCopyWith<$Res> {
   factory _$ArticleCopyWith(_Article value, $Res Function(_Article) _then) = __$ArticleCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String slug, String title, String? subtitle, String ogDescription, HeroImage? heroImage, HeroImage? ogImage, List<CategorySet> categorySet, DateTime publishedDate, bool isExternal, List<Tag>? tags, String? style,@JsonKey(name: 'content') String? htmlContent
+ String id, String slug, String title, String? subtitle,@JsonKey(name: 'og_description') String ogDescription,@JsonKey(name: 'hero_image') HeroImage? heroImage,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'category_set') List<CategorySet> categorySet,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'is_external') bool isExternal, List<Tag>? tags, String? style,@JsonKey(name: 'content') String? htmlContent
 });
 
 

@@ -7,6 +7,17 @@ import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/category.dart';
 import 'package:tw_reporter_app/features/latest/logic/use_latest_articles.dart';
 
+// Helper function to create mock ListResponse
+ListResponse<Article> createMockListResponse(List<Article> articles, int offset) {
+  return ListResponse<Article>(
+    data: ListData<Article>(
+      meta: ListMeta(limit: articles.length, offset: offset, total: 100),
+      records: articles,
+    ),
+    status: 'success',
+  );
+}
+
 class MockTwReporterApi extends Mock implements TwReporterApi {}
 
 // 測試用的 Composition Widget
@@ -45,8 +56,8 @@ void main() {
         ),
       );
 
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
-          .thenAnswer((_) async => mockArticles);
+      when(() => mockApi.fetchPosts(limit: 10, offset: 0))
+          .thenAnswer((_) async => createMockListResponse(mockArticles, 0));
 
       // Act
       await tester.pumpWidget(
@@ -76,27 +87,32 @@ void main() {
       expect(find.text('Count: 10'), findsOneWidget);
       expect(find.text('Loading: false'), findsOneWidget);
       expect(find.text('HasMore: true'), findsOneWidget);
-      verify(() => mockApi.fetchLatestArticles(page: 1, limit: 10)).called(1);
+      verify(() => mockApi.fetchPosts(limit: 10, offset: 0)).called(1);
     });
 
     testWidgets('should load more articles when loadMore is called',
         (WidgetTester tester) async {
       // Arrange
-      int currentPage = 1;
-      when(() => mockApi.fetchLatestArticles(page: any(named: 'page'), limit: 10))
-          .thenAnswer((_) async {
-        return List<Article>.generate(
-          10,
-          (int index) => Article(
-            id: 'page${currentPage}_$index',
-            slug: 'article-page${currentPage}_$index',
-            title: '文章 $currentPage-$index',
-            ogDescription: '描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime.now(),
-            isExternal: false,
+      int currentPage = 0;
+      when(() => mockApi.fetchPosts(limit: 10, offset: any(named: 'offset')))
+          .thenAnswer((Invocation invocation) async {
+        currentPage++;
+        final int offset = invocation.namedArguments[const Symbol('offset')] as int;
+        return createMockListResponse(
+          List<Article>.generate(
+            10,
+            (int index) => Article(
+              id: 'page${currentPage}_$index',
+              slug: 'article-page${currentPage}_$index',
+              title: '文章 $currentPage-$index',
+              ogDescription: '描述',
+              categorySet: <CategorySet>[],
+              publishedDate: DateTime.now(),
+              isExternal: false,
+            ),
           ),
-        )..forEach((_) => currentPage++);
+          offset,
+        );
       });
 
       // Act
@@ -150,8 +166,8 @@ void main() {
         ),
       );
 
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
-          .thenAnswer((_) async => mockArticles);
+      when(() => mockApi.fetchPosts(limit: 10, offset: 0))
+          .thenAnswer((_) async => createMockListResponse(mockArticles, 0));
 
       // Act
       await tester.pumpWidget(
@@ -184,20 +200,23 @@ void main() {
     testWidgets('should refresh and reset articles', (WidgetTester tester) async {
       // Arrange
       int callCount = 0;
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
+      when(() => mockApi.fetchPosts(limit: 10, offset: 0))
           .thenAnswer((_) async {
         callCount++;
-        return List<Article>.generate(
-          10,
-          (int index) => Article(
-            id: 'call${callCount}_$index',
-            slug: 'article-call${callCount}_$index',
-            title: '文章 $callCount-$index',
-            ogDescription: '描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime.now(),
-            isExternal: false,
+        return createMockListResponse(
+          List<Article>.generate(
+            10,
+            (int index) => Article(
+              id: 'call${callCount}_$index',
+              slug: 'article-call${callCount}_$index',
+              title: '文章 $callCount-$index',
+              ogDescription: '描述',
+              categorySet: <CategorySet>[],
+              publishedDate: DateTime.now(),
+              isExternal: false,
+            ),
           ),
+          0,
         );
       });
 
@@ -255,8 +274,8 @@ void main() {
         ),
       );
 
-      when(() => mockApi.fetchLatestArticles(page: 1, limit: 10))
-          .thenAnswer((_) async => mockArticles);
+      when(() => mockApi.fetchPosts(limit: 10, offset: 0))
+          .thenAnswer((_) async => createMockListResponse(mockArticles, 0));
 
       // Act
       await tester.pumpWidget(
@@ -277,7 +296,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert - 驗證 API 被正確調用
-      verify(() => mockApi.fetchLatestArticles(page: 1, limit: 10)).called(1);
+      verify(() => mockApi.fetchPosts(limit: 10, offset: 0)).called(1);
       expect(find.text('Count: 10'), findsOneWidget);
     });
   });
