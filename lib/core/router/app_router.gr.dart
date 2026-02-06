@@ -216,6 +216,22 @@ class LatestRouteArgs {
 }
 
 /// generated route for
+/// [MainShellPage]
+class MainShellRoute extends PageRouteInfo<void> {
+  const MainShellRoute({List<PageRouteInfo>? children})
+    : super(MainShellRoute.name, initialChildren: children);
+
+  static const String name = 'MainShellRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const MainShellPage();
+    },
+  );
+}
+
+/// generated route for
 /// [MyReadingPage]
 class MyReadingRoute extends PageRouteInfo<void> {
   const MyReadingRoute({List<PageRouteInfo>? children})

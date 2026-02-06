@@ -13,10 +13,11 @@ void main() {
     test('should have routes configured', () {
       // Assert
       expect(router.routes, isNotEmpty);
-      expect(router.routes, hasLength(7));
+      // 現在有 3 個頂層路由: MainShellRoute, ArticleRoute, CategoryRoute
+      expect(router.routes, hasLength(3));
     });
 
-    test('should have HomeRoute as initial route', () {
+    test('should have MainShellRoute as initial route', () {
       // Act
       final List<AutoRoute> routes = router.routes;
       final AutoRoute initialRoute = routes.firstWhere(
@@ -24,7 +25,19 @@ void main() {
       );
 
       // Assert
-      expect(initialRoute.page.name, equals('HomeRoute'));
+      expect(initialRoute.page.name, equals('MainShellRoute'));
+    });
+
+    test('should have child routes in MainShellRoute', () {
+      // Act
+      final List<AutoRoute> routes = router.routes;
+      final AutoRoute mainShellRoute = routes.firstWhere(
+        (AutoRoute route) => route.page.name == 'MainShellRoute',
+      );
+
+      // Assert
+      expect(mainShellRoute.children, isNotNull);
+      expect(mainShellRoute.children, hasLength(5));
     });
 
     test('should generate type-safe route for HomePage', () {
@@ -121,16 +134,11 @@ void main() {
       // Arrange
       final List<AutoRoute> routes = router.routes;
 
-      // Act & Assert
-      final AutoRoute homeRoute = routes.firstWhere(
-        (AutoRoute route) => route.page.name == 'HomeRoute',
+      // Act & Assert - 檢查頂層路由
+      final AutoRoute mainShellRoute = routes.firstWhere(
+        (AutoRoute route) => route.page.name == 'MainShellRoute',
       );
-      expect(homeRoute.path, equals('/'));
-
-      final AutoRoute latestRoute = routes.firstWhere(
-        (AutoRoute route) => route.page.name == 'LatestRoute',
-      );
-      expect(latestRoute.path, equals('/latest'));
+      expect(mainShellRoute.path, equals('/'));
 
       final AutoRoute articleRoute = routes.firstWhere(
         (AutoRoute route) => route.page.name == 'ArticleRoute',
@@ -142,20 +150,34 @@ void main() {
       );
       expect(categoryRoute.path, equals('/categories/:category'));
 
-      final AutoRoute topicsRoute = routes.firstWhere(
+      // 檢查 MainShellRoute 的子路由
+      final List<AutoRoute>? childRoutes = mainShellRoute.children;
+      expect(childRoutes, isNotNull);
+
+      final AutoRoute homeRoute = childRoutes!.firstWhere(
+        (AutoRoute route) => route.page.name == 'HomeRoute',
+      );
+      expect(homeRoute.path, equals(''));
+
+      final AutoRoute latestRoute = childRoutes.firstWhere(
+        (AutoRoute route) => route.page.name == 'LatestRoute',
+      );
+      expect(latestRoute.path, equals('latest'));
+
+      final AutoRoute topicsRoute = childRoutes.firstWhere(
         (AutoRoute route) => route.page.name == 'TopicsRoute',
       );
-      expect(topicsRoute.path, equals('/topics'));
+      expect(topicsRoute.path, equals('topics'));
 
-      final AutoRoute searchRoute = routes.firstWhere(
+      final AutoRoute searchRoute = childRoutes.firstWhere(
         (AutoRoute route) => route.page.name == 'SearchRoute',
       );
-      expect(searchRoute.path, equals('/search'));
+      expect(searchRoute.path, equals('search'));
 
-      final AutoRoute myReadingRoute = routes.firstWhere(
+      final AutoRoute myReadingRoute = childRoutes.firstWhere(
         (AutoRoute route) => route.page.name == 'MyReadingRoute',
       );
-      expect(myReadingRoute.path, equals('/myreading'));
+      expect(myReadingRoute.path, equals('myreading'));
     });
   });
 }
