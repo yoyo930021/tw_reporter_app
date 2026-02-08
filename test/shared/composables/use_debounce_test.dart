@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
@@ -7,7 +6,7 @@ import 'package:tw_reporter_app/shared/composables/use_debounce.dart';
 
 // 測試用的 Composition Widget
 class TestWidget extends CompositionWidget {
-  TestWidget({
+  const TestWidget({
     required this.setupFn,
     super.key,
   });
@@ -20,9 +19,9 @@ class TestWidget extends CompositionWidget {
 
 void main() {
   group('useDebounce', () {
-    testWidgets('should delay execution by specified duration', (WidgetTester tester) async {
+    testWidgets('should delay execution by specified duration', (tester) async {
       // Arrange
-      int callCount = 0;
+      var callCount = 0;
       void callback() {
         callCount++;
       }
@@ -32,9 +31,8 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final void Function() debouncedFn = useDebounce(
+              final debouncedFn = useDebounce(
                 callback,
-                delay: const Duration(milliseconds: 500),
               );
 
               return (BuildContext context) => Scaffold(
@@ -64,9 +62,9 @@ void main() {
       expect(callCount, equals(1));
     });
 
-    testWidgets('should cancel previous timer on rapid calls', (WidgetTester tester) async {
+    testWidgets('should cancel previous timer on rapid calls', (tester) async {
       // Arrange
-      int callCount = 0;
+      var callCount = 0;
       void callback() {
         callCount++;
       }
@@ -76,9 +74,8 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final void Function() debouncedFn = useDebounce(
+              final debouncedFn = useDebounce(
                 callback,
-                delay: const Duration(milliseconds: 500),
               );
 
               return (BuildContext context) => Scaffold(
@@ -114,9 +111,11 @@ void main() {
       expect(callCount, equals(1));
     });
 
-    testWidgets('should execute multiple times if calls are spaced apart', (WidgetTester tester) async {
+    testWidgets(
+        'should execute multiple times if calls are spaced apart',
+        (tester) async {
       // Arrange
-      int callCount = 0;
+      var callCount = 0;
       void callback() {
         callCount++;
       }
@@ -126,9 +125,8 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final void Function() debouncedFn = useDebounce(
+              final debouncedFn = useDebounce(
                 callback,
-                delay: const Duration(milliseconds: 500),
               );
 
               return (BuildContext context) => Scaffold(
@@ -155,9 +153,9 @@ void main() {
       expect(callCount, equals(2));
     });
 
-    testWidgets('should cancel timer on dispose', (WidgetTester tester) async {
+    testWidgets('should cancel timer on dispose', (tester) async {
       // Arrange
-      int callCount = 0;
+      var callCount = 0;
       void callback() {
         callCount++;
       }
@@ -167,9 +165,8 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final void Function() debouncedFn = useDebounce(
+              final debouncedFn = useDebounce(
                 callback,
-                delay: const Duration(milliseconds: 500),
               );
 
               return (BuildContext context) => Scaffold(
@@ -197,9 +194,9 @@ void main() {
       expect(callCount, equals(0));
     });
 
-    testWidgets('should work with different delay durations', (WidgetTester tester) async {
+    testWidgets('should work with different delay durations', (tester) async {
       // Arrange
-      int callCount = 0;
+      var callCount = 0;
       void callback() {
         callCount++;
       }
@@ -209,7 +206,7 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final void Function() debouncedFn = useDebounce(
+              final debouncedFn = useDebounce(
                 callback,
                 delay: const Duration(milliseconds: 100),
               );

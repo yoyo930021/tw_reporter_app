@@ -1,17 +1,17 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
-import 'package:tw_reporter_app/core/storage/reading_storage.dart';
-import 'package:tw_reporter_app/core/theme/theme_notifier.dart';
 import 'package:tw_reporter_app/features/article/presentation/article_page.dart';
+import 'package:tw_reporter_app/features/author/presentation/author_detail_page.dart';
 import 'package:tw_reporter_app/features/category/presentation/category_page.dart';
 import 'package:tw_reporter_app/features/home/presentation/home_page.dart';
 import 'package:tw_reporter_app/features/latest/presentation/latest_page.dart';
 import 'package:tw_reporter_app/features/main/presentation/main_shell.dart';
+import 'package:tw_reporter_app/features/menu/presentation/menu_page.dart';
 import 'package:tw_reporter_app/features/my_reading/presentation/my_reading_page.dart';
 import 'package:tw_reporter_app/features/search/presentation/search_page.dart';
 import 'package:tw_reporter_app/features/settings/presentation/settings_page.dart';
+import 'package:tw_reporter_app/features/tag/presentation/tag_detail_page.dart';
 import 'package:tw_reporter_app/features/topics/presentation/topic_detail_page.dart';
 import 'package:tw_reporter_app/features/topics/presentation/topics_page.dart';
 
@@ -29,48 +29,57 @@ class AppRouter extends RootStackRouter {
           path: '/',
           initial: true,
           children: <AutoRoute>[
-            // 首頁
             AutoRoute(
               page: HomeRoute.page,
               path: '',
             ),
-
-            // 最新文章
             AutoRoute(
               page: LatestRoute.page,
               path: 'latest',
             ),
-
-            // 專題列表
             AutoRoute(
               page: TopicsRoute.page,
               path: 'topics',
             ),
-
-            // 我的閱讀
             AutoRoute(
               page: MyReadingRoute.page,
               path: 'myreading',
             ),
+            AutoRoute(
+              page: MenuRoute.page,
+              path: 'menu',
+            ),
           ],
         ),
 
-        // 文章詳情 - 不在底部導航列中
+        // 文章詳情
         AutoRoute(
           page: ArticleRoute.page,
           path: '/a/:slug',
         ),
 
-        // 專題詳情 - 不在底部導航列中
+        // 專題詳情
         AutoRoute(
           page: TopicDetailRoute.page,
           path: '/topics/:slug',
         ),
 
-        // 分類頁面 - 不在底部導航列中
+        // 分類頁面
         AutoRoute(
           page: CategoryRoute.page,
           path: '/categories/:category',
+        ),
+
+        // 標籤詳情
+        AutoRoute(
+          page: TagDetailRoute.page,
+          path: '/tags/:id',
+        ),
+
+        // 作者詳情
+        AutoRoute(
+          page: AuthorDetailRoute.page,
+          path: '/authors/:id',
         ),
 
         // 設定頁面
@@ -80,4 +89,3 @@ class AppRouter extends RootStackRouter {
         ),
       ];
 }
-

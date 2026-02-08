@@ -9,7 +9,8 @@ part 'async_value.freezed.dart';
 /// - data: Operation completed successfully with data
 /// - error: Operation failed with an error
 ///
-/// This class is used for UI state management and does NOT require JSON serialization.
+/// This class is used for UI state management and does
+/// NOT require JSON serialization.
 @freezed
 sealed class AsyncValue<T> with _$AsyncValue<T> {
   const factory AsyncValue.idle() = AsyncIdle<T>;

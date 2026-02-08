@@ -5,7 +5,7 @@ import 'package:tw_reporter_app/shared/widgets/horizontal_carousel.dart';
 void main() {
   group('HorizontalCarousel', () {
     testWidgets('should render correct number of items',
-        (WidgetTester tester) async {
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -13,7 +13,7 @@ void main() {
               itemWidth: 200,
               height: 150,
               itemCount: 5,
-              itemBuilder: (BuildContext context, int index) {
+              itemBuilder: (context, index) {
                 return Text('Item $index');
               },
             ),
@@ -27,7 +27,7 @@ void main() {
     });
 
     testWidgets('should use horizontal scroll direction',
-        (WidgetTester tester) async {
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -35,7 +35,7 @@ void main() {
               itemWidth: 200,
               height: 150,
               itemCount: 3,
-              itemBuilder: (BuildContext context, int index) {
+              itemBuilder: (context, index) {
                 return Text('Item $index');
               },
             ),
@@ -50,7 +50,7 @@ void main() {
     });
 
     testWidgets('should handle empty item count',
-        (WidgetTester tester) async {
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -58,7 +58,7 @@ void main() {
               itemWidth: 200,
               height: 150,
               itemCount: 0,
-              itemBuilder: (BuildContext context, int index) {
+              itemBuilder: (context, index) {
                 return Text('Item $index');
               },
             ),
@@ -72,7 +72,7 @@ void main() {
     });
 
     testWidgets('should apply custom padding',
-        (WidgetTester tester) async {
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -81,7 +81,7 @@ void main() {
               height: 150,
               itemCount: 1,
               padding: const EdgeInsets.symmetric(horizontal: 32),
-              itemBuilder: (BuildContext context, int index) {
+              itemBuilder: (context, index) {
                 return Text('Item $index');
               },
             ),

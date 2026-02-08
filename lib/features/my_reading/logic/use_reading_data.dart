@@ -1,4 +1,5 @@
 import 'package:flutter_compositions/flutter_compositions.dart';
+import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
 import 'package:tw_reporter_app/core/storage/reading_storage.dart';
 
 /// 閱讀數據結果類型
@@ -12,43 +13,40 @@ typedef ReadingDataResult = ({
 });
 
 /// 閱讀數據 Composable
-///
-/// 管理閱讀記錄和收藏列表的載入與操作
-ReadingDataResult useReadingData({ReadingStorage? storage}) {
-  final Ref<List<ReadingRecord>> history =
+ReadingDataResult useReadingData(ReadingRepository repo) {
+  final history =
       ref<List<ReadingRecord>>(<ReadingRecord>[]);
-  final Ref<List<ReadingRecord>> bookmarks =
+  final bookmarks =
       ref<List<ReadingRecord>>(<ReadingRecord>[]);
-  final Ref<bool> isLoading = ref<bool>(true);
-  final Ref<ReadingStorage?> storageRef = ref<ReadingStorage?>(storage);
+  final isLoading = ref<bool>(true);
 
-  Future<void> loadData() async {
-    if (storageRef.value == null) {
-      storageRef.value = await ReadingStorage.create();
-    }
-    final s = storageRef.value!;
-    history.value = s.getHistory();
-    bookmarks.value = s.getBookmarks();
+  void loadData() {
+    history.value = repo.getHistory();
+    bookmarks.value = repo.getBookmarks();
     isLoading.value = false;
   }
 
   Future<void> refresh() async {
     isLoading.value = true;
-    await loadData();
+    loadData();
   }
 
   void clearHistory() {
-    storageRef.value?.clearHistory();
-    history.value = <ReadingRecord>[];
+    repo.clearHistory();
   }
 
   void removeBookmark(String slug) {
-    storageRef.value?.removeBookmark(slug);
-    bookmarks.value = bookmarks.value.where((r) => r.slug != slug).toList();
+    repo.removeBookmark(slug);
   }
 
   onMounted(() {
     loadData();
+    // 監聽 repository 變更（例如從文章頁面新增閱讀記錄/收藏）
+    repo.addListener(loadData);
+  });
+
+  onUnmounted(() {
+    repo.removeListener(loadData);
   });
 
   return (

@@ -5,14 +5,14 @@ import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
 void main() async {
   print('測試報導者 API 整合\n${'=' * 60}');
 
-  final Dio dio = Dio(
+  final dio = Dio(
     BaseOptions(
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
   );
 
-  final TwReporterApi api = TwReporterApi(dio);
+  final api = TwReporterApi(dio);
 
   // 1. 測試文章列表
   await testFetchPosts(api);
@@ -84,12 +84,12 @@ Future<void> testFetchIndexPage(TwReporterApi api) async {
   print('-' * 60);
 
   try {
-    final ApiResponse<IndexPageData> response = await api.fetchIndexPage();
+    final response = await api.fetchIndexPage();
 
     print('✓ 成功獲取首頁內容');
     print('  狀態: ${response.status}');
 
-    final IndexPageData data = response.data;
+    final data = response.data;
     print('\n  內容區塊:');
     print('    編輯精選: ${data.editorPicksSection?.length ?? 0} 篇');
     print('    最新文章: ${data.latestSection?.length ?? 0} 篇');
@@ -119,7 +119,7 @@ Future<void> testFetchPost(TwReporterApi api) async {
     }
 
     final dynamic firstArticle = listResponse.data.records.first;
-    final String slug = firstArticle.slug as String;
+    final slug = firstArticle.slug as String;
 
     print('  測試文章 Slug: $slug');
 

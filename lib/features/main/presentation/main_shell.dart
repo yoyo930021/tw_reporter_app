@@ -11,13 +11,14 @@ class MainShellPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AutoTabsScaffold(
-      routes: [
+      routes: const <PageRouteInfo<Object?>>[
         HomeRoute(),
         LatestRoute(),
         TopicsRoute(),
         MyReadingRoute(),
+        MenuRoute(),
       ],
-      bottomNavigationBuilder: (_, TabsRouter tabsRouter) {
+      bottomNavigationBuilder: (_, tabsRouter) {
         return BottomNavigationBar(
           currentIndex: tabsRouter.activeIndex,
           onTap: tabsRouter.setActiveIndex,
@@ -38,6 +39,10 @@ class MainShellPage extends StatelessWidget {
             BottomNavigationBarItem(
               icon: Icon(Icons.bookmark),
               label: '我的閱讀',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.menu),
+              label: '選單',
             ),
           ],
         );

@@ -5,7 +5,7 @@ void main() {
   group('AsyncValue', () {
     test('should create AsyncIdle state', () {
       // Act
-      final AsyncValue<String> state = AsyncValue<String>.idle();
+      const state = AsyncValue<String>.idle();
 
       // Assert
       expect(state, isA<AsyncIdle<String>>());
@@ -14,7 +14,7 @@ void main() {
           idle: () => 'idle',
           loading: () => 'loading',
           data: (_) => 'data',
-          error: (_, __) => 'error',
+          error: (_, _) => 'error',
         ),
         equals('idle'),
       );
@@ -22,7 +22,7 @@ void main() {
 
     test('should create AsyncLoading state', () {
       // Act
-      final AsyncValue<String> state = AsyncValue<String>.loading();
+      const state = AsyncValue<String>.loading();
 
       // Assert
       expect(state, isA<AsyncLoading<String>>());
@@ -31,7 +31,7 @@ void main() {
           idle: () => 'idle',
           loading: () => 'loading',
           data: (_) => 'data',
-          error: (_, __) => 'error',
+          error: (_, _) => 'error',
         ),
         equals('loading'),
       );
@@ -39,7 +39,7 @@ void main() {
 
     test('should create AsyncData state with value', () {
       // Act
-      final AsyncValue<String> state = AsyncValue<String>.data('test data');
+      const state = AsyncValue<String>.data('test data');
 
       // Assert
       expect(state, isA<AsyncData<String>>());
@@ -47,8 +47,8 @@ void main() {
         state.when(
           idle: () => 'idle',
           loading: () => 'loading',
-          data: (String value) => value,
-          error: (_, __) => 'error',
+          data: (value) => value,
+          error: (_, _) => 'error',
         ),
         equals('test data'),
       );
@@ -56,11 +56,11 @@ void main() {
 
     test('should create AsyncError state with error', () {
       // Arrange
-      final Exception error = Exception('test error');
-      final StackTrace stackTrace = StackTrace.current;
+      final error = Exception('test error');
+      final stackTrace = StackTrace.current;
 
       // Act
-      final AsyncValue<String> state = AsyncValue<String>.error(
+      final state = AsyncValue<String>.error(
         error,
         stackTrace,
       );
@@ -72,7 +72,7 @@ void main() {
           idle: () => 'idle',
           loading: () => 'loading',
           data: (_) => 'data',
-          error: (Object e, StackTrace? st) => e.toString(),
+          error: (e, st) => e.toString(),
         ),
         equals(error.toString()),
       );
@@ -80,13 +80,13 @@ void main() {
 
     test('should support pattern matching with map', () {
       // Arrange
-      final AsyncValue<int> state = AsyncValue<int>.data(42);
+      const state = AsyncValue<int>.data(42);
 
       // Act
-      final String result = state.map(
+      final result = state.map(
         idle: (_) => 'is idle',
         loading: (_) => 'is loading',
-        data: (AsyncData<int> data) => 'value: ${data.value}',
+        data: (data) => 'value: ${data.value}',
         error: (_) => 'is error',
       );
 
@@ -96,8 +96,8 @@ void main() {
 
     test('should support maybeWhen with orElse', () {
       // Arrange
-      final AsyncValue<String> loadingState = AsyncValue<String>.loading();
-      final AsyncValue<String> dataState = AsyncValue<String>.data('test');
+      const loadingState = AsyncValue<String>.loading();
+      const dataState = AsyncValue<String>.data('test');
 
       // Act & Assert
       expect(
@@ -119,9 +119,9 @@ void main() {
 
     test('should support equality comparison', () {
       // Arrange
-      final AsyncValue<String> state1 = AsyncValue<String>.data('test');
-      final AsyncValue<String> state2 = AsyncValue<String>.data('test');
-      final AsyncValue<String> state3 = AsyncValue<String>.data('different');
+      const state1 = AsyncValue<String>.data('test');
+      const state2 = AsyncValue<String>.data('test');
+      const state3 = AsyncValue<String>.data('different');
 
       // Assert
       expect(state1, equals(state2));
@@ -130,8 +130,8 @@ void main() {
 
     test('should support different types', () {
       // Act
-      final AsyncValue<int> intState = AsyncValue<int>.data(42);
-      final AsyncValue<List<String>> listState = AsyncValue<List<String>>.data(
+      const intState = AsyncValue<int>.data(42);
+      const listState = AsyncValue<List<String>>.data(
         <String>['a', 'b'],
       );
 
@@ -140,8 +140,8 @@ void main() {
         intState.when(
           idle: () => 0,
           loading: () => 0,
-          data: (int value) => value,
-          error: (_, __) => 0,
+          data: (value) => value,
+          error: (_, _) => 0,
         ),
         equals(42),
       );
@@ -150,8 +150,8 @@ void main() {
         listState.when(
           idle: () => <String>[],
           loading: () => <String>[],
-          data: (List<String> value) => value,
-          error: (_, __) => <String>[],
+          data: (value) => value,
+          error: (_, _) => <String>[],
         ),
         equals(<String>['a', 'b']),
       );
@@ -159,10 +159,10 @@ void main() {
 
     test('should handle AsyncError without stackTrace', () {
       // Arrange
-      final Exception error = Exception('test error');
+      final error = Exception('test error');
 
       // Act
-      final AsyncValue<String> state = AsyncValue<String>.error(error);
+      final state = AsyncValue<String>.error(error);
 
       // Assert
       expect(state, isA<AsyncError<String>>());
@@ -171,7 +171,7 @@ void main() {
           idle: () => false,
           loading: () => false,
           data: (_) => false,
-          error: (Object e, StackTrace? st) => st == null,
+          error: (e, st) => st == null,
         ),
         isTrue,
       );

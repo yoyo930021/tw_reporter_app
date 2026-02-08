@@ -18,7 +18,9 @@ void main() {
     });
 
     test('should add reading record', () {
-      storage.addToHistory('slug-1', '文章標題', 'http://img.jpg', DateTime(2024, 1, 1));
+      storage.addToHistory(
+        'slug-1', '文章標題', 'http://img.jpg', DateTime(2024),
+      );
 
       final history = storage.getHistory();
       expect(history, hasLength(1));
@@ -28,8 +30,11 @@ void main() {
     });
 
     test('should return history in reverse chronological order', () {
-      storage.addToHistory('slug-1', '文章1', null, DateTime(2024, 1, 1));
-      storage.addToHistory('slug-2', '文章2', null, DateTime(2024, 1, 2));
+      storage
+        ..addToHistory('slug-1', '文章1', null, DateTime(2024))
+        ..addToHistory(
+          'slug-2', '文章2', null, DateTime(2024, 1, 2),
+        );
 
       final history = storage.getHistory();
       expect(history, hasLength(2));
@@ -38,9 +43,14 @@ void main() {
     });
 
     test('should deduplicate - move existing slug to top', () {
-      storage.addToHistory('slug-1', '文章1', null, DateTime(2024, 1, 1));
-      storage.addToHistory('slug-2', '文章2', null, DateTime(2024, 1, 2));
-      storage.addToHistory('slug-1', '文章1-更新', null, DateTime(2024, 1, 3));
+      storage
+        ..addToHistory('slug-1', '文章1', null, DateTime(2024))
+        ..addToHistory(
+          'slug-2', '文章2', null, DateTime(2024, 1, 2),
+        )
+        ..addToHistory(
+          'slug-1', '文章1-更新', null, DateTime(2024, 1, 3),
+        );
 
       final history = storage.getHistory();
       expect(history, hasLength(2));
@@ -50,16 +60,18 @@ void main() {
     });
 
     test('should clear history', () {
-      storage.addToHistory('slug-1', '文章1', null, DateTime(2024, 1, 1));
-      storage.addToHistory('slug-2', '文章2', null, DateTime(2024, 1, 2));
-
-      storage.clearHistory();
+      storage
+        ..addToHistory('slug-1', '文章1', null, DateTime(2024))
+        ..addToHistory(
+          'slug-2', '文章2', null, DateTime(2024, 1, 2),
+        )
+        ..clearHistory();
 
       expect(storage.getHistory(), isEmpty);
     });
 
     test('should handle null image URL', () {
-      storage.addToHistory('slug-1', '文章1', null, DateTime(2024, 1, 1));
+      storage.addToHistory('slug-1', '文章1', null, DateTime(2024));
 
       final record = storage.getHistory().first;
       expect(record.imageUrl, isNull);
@@ -81,17 +93,18 @@ void main() {
     });
 
     test('should not add duplicate bookmark', () {
-      storage.addBookmark('slug-1', '文章1', null);
-      storage.addBookmark('slug-1', '文章1', null);
+      storage
+        ..addBookmark('slug-1', '文章1', null)
+        ..addBookmark('slug-1', '文章1', null);
 
       expect(storage.getBookmarks(), hasLength(1));
     });
 
     test('should remove bookmark', () {
-      storage.addBookmark('slug-1', '文章1', null);
-      storage.addBookmark('slug-2', '文章2', null);
-
-      storage.removeBookmark('slug-1');
+      storage
+        ..addBookmark('slug-1', '文章1', null)
+        ..addBookmark('slug-2', '文章2', null)
+        ..removeBookmark('slug-1');
 
       final bookmarks = storage.getBookmarks();
       expect(bookmarks, hasLength(1));
@@ -106,8 +119,9 @@ void main() {
     });
 
     test('isBookmarked should return false after removing', () {
-      storage.addBookmark('slug-1', '文章1', null);
-      storage.removeBookmark('slug-1');
+      storage
+        ..addBookmark('slug-1', '文章1', null)
+        ..removeBookmark('slug-1');
 
       expect(storage.isBookmarked('slug-1'), isFalse);
     });
@@ -135,7 +149,6 @@ void main() {
       final record = ReadingRecord(
         slug: 'test-slug',
         title: '測試標題',
-        imageUrl: null,
         timestamp: DateTime(2024, 6, 15),
       );
 

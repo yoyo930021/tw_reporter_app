@@ -6,7 +6,7 @@ import 'package:tw_reporter_app/core/api/interceptors/logging_interceptor.dart';
 class ApiClient {
   /// 建立並配置 Dio 實例
   static Dio createDio() {
-    final Dio dio = Dio(
+    final dio = Dio(
       BaseOptions(
         baseUrl: 'https://www.twreporter.org',
         connectTimeout: const Duration(seconds: 10),

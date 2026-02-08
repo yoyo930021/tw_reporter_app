@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
-import 'package:tw_reporter_app/core/models/article.dart';
-import 'package:tw_reporter_app/core/models/topic.dart';
 
 class MockDio extends Mock implements Dio {}
 
@@ -32,7 +30,7 @@ void main() {
     group('fetchPosts', () {
       test('should return ListResponse on success', () async {
         // Arrange
-        final Map<String, dynamic> responseData =
+        final responseData =
             <String, dynamic>{
           'data': <String, dynamic>{
             'meta': <String, dynamic>{
@@ -65,8 +63,8 @@ void main() {
         );
 
         // Act
-        final ListResponse<Article> response =
-            await api.fetchPosts(limit: 10, offset: 0);
+        final response =
+            await api.fetchPosts();
 
         // Assert
         expect(response.status, equals('success'));
@@ -87,7 +85,7 @@ void main() {
         );
 
         expect(
-          () => api.fetchPosts(limit: 10, offset: 0),
+          () => api.fetchPosts(),
           throwsA(isA<DioException>()),
         );
       });
@@ -95,7 +93,7 @@ void main() {
 
     group('fetchPost', () {
       test('should return ApiResponse on success', () async {
-        final Map<String, dynamic> responseData =
+        final responseData =
             <String, dynamic>{
           'data': <String, dynamic>{
             'id': '1',
@@ -129,7 +127,7 @@ void main() {
           ),
         );
 
-        final ApiResponse<Article> response =
+        final response =
             await api.fetchPost('test-article');
 
         expect(response.status, equals('success'));
@@ -140,7 +138,7 @@ void main() {
 
     group('fetchTopics', () {
       test('should return ListResponse on success', () async {
-        final Map<String, dynamic> responseData =
+        final responseData =
             <String, dynamic>{
           'data': <String, dynamic>{
             'meta': <String, dynamic>{
@@ -169,8 +167,8 @@ void main() {
           ),
         );
 
-        final ListResponse<Topic> response =
-            await api.fetchTopics(limit: 10, offset: 0);
+        final response =
+            await api.fetchTopics();
 
         expect(response.status, equals('success'));
         expect(response.data.records, hasLength(1));
@@ -183,7 +181,7 @@ void main() {
 
     group('fetchIndexPage', () {
       test('should return ApiResponse on success', () async {
-        final Map<String, dynamic> responseData =
+        final responseData =
             <String, dynamic>{
           'data': <String, dynamic>{
             'editor_picks_section': <Map<String, dynamic>>[
@@ -210,7 +208,7 @@ void main() {
           ),
         );
 
-        final ApiResponse<IndexPageData> response =
+        final response =
             await api.fetchIndexPage();
 
         expect(response.status, equals('success'));

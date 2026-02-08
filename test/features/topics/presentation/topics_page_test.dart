@@ -1,73 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
 import 'package:tw_reporter_app/features/topics/presentation/topics_page.dart';
 
-class MockTwReporterApi extends Mock implements TwReporterApi {}
-
-/// Helper: wrap topics in a [ListResponse].
-ListResponse<Topic> _listResponse(List<Topic> topics) {
-  return ListResponse<Topic>(
-    data: ListData<Topic>(
-      meta: ListMeta(
-        limit: topics.length,
-        offset: 0,
-        total: 100,
-      ),
-      records: topics,
-    ),
-    status: 'success',
-  );
-}
+import '../../../helpers/test_helpers.dart';
 
 /// Helper: create test topics.
 List<Topic> _topics(int count, {String prefix = ''}) {
   return List<Topic>.generate(
     count,
-    (int i) => Topic(
+    (i) => createTestTopic(
       id: '$prefix$i',
       slug: 'topic-$prefix$i',
       title: '專題 $prefix$i',
       ogDescription: '專題描述 $prefix$i',
-      publishedDate: DateTime(2024, 1, 1 + i),
     ),
   );
 }
 
-/// Setup default fetchTopics mock.
-void _mockFetchTopics(
-  MockTwReporterApi api,
-  List<Topic> topics,
-) {
-  when(() => api.fetchTopics(
-        limit: any(named: 'limit'),
-        offset: any(named: 'offset'),
-      )).thenAnswer((_) async => _listResponse(topics));
-}
-
 void main() {
-  late MockTwReporterApi mockApi;
+  late MockTopicRepository mockRepo;
 
   setUp(() {
-    mockApi = MockTwReporterApi();
+    mockRepo = MockTopicRepository();
   });
 
-  Widget wrapWithApp(TopicsPage topicsPage) {
-    return MaterialApp(home: topicsPage);
+  Widget buildPage() {
+    return wrapWithProviders(
+      const TopicsPage(),
+      topicRepository: mockRepo,
+    );
   }
 
   group('TopicsPage', () {
     testWidgets(
       'should display app bar with title',
-      (WidgetTester tester) async {
-        _mockFetchTopics(mockApi, <Topic>[]);
-
-        await tester.pumpWidget(
-          wrapWithApp(TopicsPage(api: mockApi)),
+      (tester) async {
+        when(() => mockRepo.fetchTopics(
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+            )).thenAnswer(
+          (_) async => <Topic>[],
         );
 
+        await tester.pumpWidget(buildPage());
         await tester.pumpAndSettle();
 
         expect(find.byType(AppBar), findsOneWidget);
@@ -77,40 +54,51 @@ void main() {
 
     testWidgets(
       'should display list of topics after loading',
-      (WidgetTester tester) async {
-        _mockFetchTopics(mockApi, _topics(5, prefix: '測試專題'));
-
-        await tester.pumpWidget(
-          wrapWithApp(TopicsPage(api: mockApi)),
+      (tester) async {
+        when(() => mockRepo.fetchTopics(
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+            )).thenAnswer(
+          (_) async => _topics(5, prefix: '測試專題'),
         );
 
+        await tester.pumpWidget(buildPage());
         await tester.pumpAndSettle();
 
-        expect(find.text('專題 測試專題0'), findsOneWidget);
-        expect(find.text('專題 測試專題4'), findsOneWidget);
-        expect(find.byType(ListView), findsOneWidget);
+        expect(
+          find.text('專題 測試專題0'),
+          findsOneWidget,
+        );
+        expect(
+          find.text('專題 測試專題4'),
+          findsOneWidget,
+        );
+        expect(
+          find.byType(ListView),
+          findsOneWidget,
+        );
       },
     );
 
     testWidgets(
       'should display loading indicator on initial load',
-      (WidgetTester tester) async {
-        when(() => mockApi.fetchTopics(
+      (tester) async {
+        when(() => mockRepo.fetchTopics(
+              page: any(named: 'page'),
               limit: any(named: 'limit'),
-              offset: any(named: 'offset'),
             )).thenAnswer((_) async {
           await Future<void>.delayed(
             const Duration(milliseconds: 50),
           );
-          return _listResponse(<Topic>[]);
+          return <Topic>[];
         });
 
-        await tester.pumpWidget(
-          wrapWithApp(TopicsPage(api: mockApi)),
-        );
+        await tester.pumpWidget(buildPage());
 
         await tester.pump();
-        await tester.pump(const Duration(milliseconds: 10));
+        await tester.pump(
+          const Duration(milliseconds: 10),
+        );
 
         expect(
           find.byType(CircularProgressIndicator),
@@ -123,13 +111,15 @@ void main() {
 
     testWidgets(
       'should display empty state when no topics',
-      (WidgetTester tester) async {
-        _mockFetchTopics(mockApi, <Topic>[]);
-
-        await tester.pumpWidget(
-          wrapWithApp(TopicsPage(api: mockApi)),
+      (tester) async {
+        when(() => mockRepo.fetchTopics(
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+            )).thenAnswer(
+          (_) async => <Topic>[],
         );
 
+        await tester.pumpWidget(buildPage());
         await tester.pumpAndSettle();
 
         expect(find.text('目前沒有專題'), findsOneWidget);
@@ -138,38 +128,46 @@ void main() {
 
     testWidgets(
       'should have RefreshIndicator for pull to refresh',
-      (WidgetTester tester) async {
-        _mockFetchTopics(mockApi, _topics(3));
-
-        await tester.pumpWidget(
-          wrapWithApp(TopicsPage(api: mockApi)),
+      (tester) async {
+        when(() => mockRepo.fetchTopics(
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+            )).thenAnswer(
+          (_) async => _topics(3),
         );
 
+        await tester.pumpWidget(buildPage());
         await tester.pumpAndSettle();
 
-        expect(find.byType(RefreshIndicator), findsOneWidget);
+        expect(
+          find.byType(RefreshIndicator),
+          findsOneWidget,
+        );
       },
     );
 
     testWidgets(
-      'should load more topics when scrolling to bottom',
-      (WidgetTester tester) async {
+      'should load more topics when scrolling',
+      (tester) async {
         var callCount = 0;
-        when(() => mockApi.fetchTopics(
+        when(() => mockRepo.fetchTopics(
+              page: any(named: 'page'),
               limit: any(named: 'limit'),
-              offset: any(named: 'offset'),
             )).thenAnswer((_) async {
           callCount++;
-          return _listResponse(_topics(10, prefix: 'p${callCount}_'));
+          return _topics(
+            10,
+            prefix: 'p${callCount}_',
+          );
         });
 
-        await tester.pumpWidget(
-          wrapWithApp(TopicsPage(api: mockApi)),
-        );
-
+        await tester.pumpWidget(buildPage());
         await tester.pumpAndSettle();
 
-        expect(find.text('專題 p1_0'), findsOneWidget);
+        expect(
+          find.text('專題 p1_0'),
+          findsOneWidget,
+        );
 
         await tester.drag(
           find.byType(ListView),
@@ -182,14 +180,17 @@ void main() {
     );
 
     testWidgets(
-      'should not show load more indicator when no more topics',
-      (WidgetTester tester) async {
-        _mockFetchTopics(mockApi, _topics(3));
-
-        await tester.pumpWidget(
-          wrapWithApp(TopicsPage(api: mockApi)),
+      'should not show load more indicator '
+      'when no more topics',
+      (tester) async {
+        when(() => mockRepo.fetchTopics(
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+            )).thenAnswer(
+          (_) async => _topics(3),
         );
 
+        await tester.pumpWidget(buildPage());
         await tester.pumpAndSettle();
 
         expect(find.text('載入更多...'), findsNothing);
@@ -198,50 +199,50 @@ void main() {
 
     testWidgets(
       'should display topic with formatted date',
-      (WidgetTester tester) async {
-        final List<Topic> topics = <Topic>[
-          Topic(
-            id: '1',
-            slug: 'test-topic',
-            title: '測試專題',
+      (tester) async {
+        final topics = <Topic>[
+          createTestTopic(
             ogDescription: '專題描述',
-            publishedDate: DateTime(2024, 3, 15),
           ),
         ];
-        _mockFetchTopics(mockApi, topics);
+        when(() => mockRepo.fetchTopics(
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+            )).thenAnswer((_) async => topics);
 
-        await tester.pumpWidget(
-          wrapWithApp(TopicsPage(api: mockApi)),
-        );
-
+        await tester.pumpWidget(buildPage());
         await tester.pumpAndSettle();
 
         expect(find.text('測試專題'), findsOneWidget);
-        expect(find.textContaining('2024'), findsOneWidget);
+        expect(
+          find.textContaining('2024'),
+          findsOneWidget,
+        );
       },
     );
 
     testWidgets(
       'should display topic description',
-      (WidgetTester tester) async {
-        final List<Topic> topics = <Topic>[
-          Topic(
-            id: '1',
-            slug: 'test-topic',
+      (tester) async {
+        final topics = <Topic>[
+          createTestTopic(
+            slug: 'deep-topic',
             title: '深度調查專題',
             ogDescription: '這是一個深度調查報導系列',
-            publishedDate: DateTime.now(),
           ),
         ];
-        _mockFetchTopics(mockApi, topics);
+        when(() => mockRepo.fetchTopics(
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+            )).thenAnswer((_) async => topics);
 
-        await tester.pumpWidget(
-          wrapWithApp(TopicsPage(api: mockApi)),
-        );
-
+        await tester.pumpWidget(buildPage());
         await tester.pumpAndSettle();
 
-        expect(find.text('深度調查專題'), findsOneWidget);
+        expect(
+          find.text('深度調查專題'),
+          findsOneWidget,
+        );
         expect(
           find.text('這是一個深度調查報導系列'),
           findsOneWidget,

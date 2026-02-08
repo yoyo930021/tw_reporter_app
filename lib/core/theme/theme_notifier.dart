@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -5,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// 管理使用者的主題偏好設定（跟隨系統/亮色/暗色）
 class ThemeNotifier extends ChangeNotifier {
   ThemeNotifier() {
-    _loadThemeMode();
+    unawaited(_loadThemeMode());
   }
 
   static const String _key = 'theme_mode';

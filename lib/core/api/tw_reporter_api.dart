@@ -1,14 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
+import 'package:tw_reporter_app/core/models/author.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
 
 part 'tw_reporter_api.g.dart';
 
 /// 報導者 API 響應格式
 class ApiResponse<T> {
-  final T data;
-  final String status;
 
   const ApiResponse({
     required this.data,
@@ -24,12 +23,12 @@ class ApiResponse<T> {
       status: json['status'] as String,
     );
   }
+  final T data;
+  final String status;
 }
 
 /// 列表 API 響應格式
 class ListResponse<T> {
-  final ListData<T> data;
-  final String status;
 
   const ListResponse({
     required this.data,
@@ -48,12 +47,12 @@ class ListResponse<T> {
       status: json['status'] as String,
     );
   }
+  final ListData<T> data;
+  final String status;
 }
 
 /// 列表資料格式
 class ListData<T> {
-  final ListMeta meta;
-  final List<T> records;
 
   const ListData({
     required this.meta,
@@ -71,13 +70,12 @@ class ListData<T> {
           .toList(),
     );
   }
+  final ListMeta meta;
+  final List<T> records;
 }
 
 /// 列表元資料
 class ListMeta {
-  final int limit;
-  final int offset;
-  final int total;
 
   const ListMeta({
     required this.limit,
@@ -92,25 +90,13 @@ class ListMeta {
       total: json['total'] as int,
     );
   }
+  final int limit;
+  final int offset;
+  final int total;
 }
 
 /// 首頁內容響應格式
 class IndexPageData {
-  final List<Article>? editorPicksSection;
-  final List<Article>? latestSection;
-  final List<Topic>? latestTopicSection;
-  final List<Topic>? topicsSection;
-  final List<Article>? reviewsSection;
-  final List<Article>? photosSection;
-  final List<Article>? infographicsSection;
-  final List<Article>? culture;
-  final List<Article>? econ;
-  final List<Article>? education;
-  final List<Article>? environment;
-  final List<Article>? health;
-  final List<Article>? humanrights;
-  final List<Article>? politicsAndSociety;
-  final List<Article>? world;
 
   const IndexPageData({
     this.editorPicksSection,
@@ -179,6 +165,21 @@ class IndexPageData {
           .toList(),
     );
   }
+  final List<Article>? editorPicksSection;
+  final List<Article>? latestSection;
+  final List<Topic>? latestTopicSection;
+  final List<Topic>? topicsSection;
+  final List<Article>? reviewsSection;
+  final List<Article>? photosSection;
+  final List<Article>? infographicsSection;
+  final List<Article>? culture;
+  final List<Article>? econ;
+  final List<Article>? education;
+  final List<Article>? environment;
+  final List<Article>? health;
+  final List<Article>? humanrights;
+  final List<Article>? politicsAndSociety;
+  final List<Article>? world;
 }
 
 @RestApi(baseUrl: 'https://go-api.twreporter.org/v2')
@@ -222,6 +223,28 @@ abstract class TwReporterApi {
   /// 返回包含所有首頁區塊的聚合資料
   @GET('/index_page')
   Future<ApiResponse<IndexPageData>> fetchIndexPage();
+
+  /// 獲取作者列表
+  ///
+  /// [limit] 每頁數量，預設 10
+  /// [offset] 偏移量，用於分頁
+  @GET('/authors')
+  Future<ListResponse<Author>> fetchAuthors({
+    @Query('limit') int limit = 10,
+    @Query('offset') int offset = 0,
+  });
+
+  /// 獲取作者的文章列表
+  ///
+  /// [authorId] 作者 ID
+  /// [limit] 每頁數量，預設 10
+  /// [offset] 偏移量，用於分頁
+  @GET('/authors/{id}/posts')
+  Future<ListResponse<Article>> fetchAuthorPosts(
+    @Path('id') String authorId, {
+    @Query('limit') int limit = 10,
+    @Query('offset') int offset = 0,
+  });
 }
 
 /// TwReporterApi 擴充方法：提供便利的 wrapper 方法
@@ -234,8 +257,8 @@ extension TwReporterApiExtensions on TwReporterApi {
     required int page,
     int limit = 10,
   }) async {
-    final int offset = (page - 1) * limit;
-    final ListResponse<Article> response = await fetchPosts(
+    final offset = (page - 1) * limit;
+    final response = await fetchPosts(
       limit: limit,
       offset: offset,
     );
@@ -245,7 +268,7 @@ extension TwReporterApiExtensions on TwReporterApi {
   /// 獲取分類文章列表（wrapper method）
   ///
   /// 注意：此方法使用客戶端過濾，效率較低
-  /// TODO(API): 待後端 API 支援分類過濾功能後改用伺服器端過濾
+  // TODO(API): 待後端 API 支援分類過濾功能後改用伺服器端過濾
   ///
   /// [category] 分類名稱（如 'world', 'econ' 等）
   /// [page] 頁碼（從 1 開始）
@@ -257,21 +280,21 @@ extension TwReporterApiExtensions on TwReporterApi {
   }) async {
     // 由於 API 不支援分類過濾，我們需要獲取更多文章然後客戶端過濾
     // 假設需要的文章數是請求數的 3 倍（因為有 8 個分類）
-    final int fetchLimit = limit * 8;
-    final int offset = (page - 1) * fetchLimit;
+    final fetchLimit = limit * 8;
+    final offset = (page - 1) * fetchLimit;
 
-    final ListResponse<Article> response = await fetchPosts(
+    final response = await fetchPosts(
       limit: fetchLimit,
       offset: offset,
     );
 
     // 客戶端過濾分類
-    final List<Article> filteredArticles =
-        response.data.records.where((Article article) {
+    final filteredArticles =
+        response.data.records.where((article) {
       // 檢查 category_set 中是否有匹配的分類
       return article.categorySet.any((dynamic cs) {
-        // ignore: avoid_dynamic_calls
-        final String? name = cs.category?.name as String?;
+        // ignore: avoid_dynamic_calls - categorySet contains dynamic objects from API
+        final name = cs.category?.name as String?;
         if (name == null) return false;
         return name.toLowerCase() ==
                 _mapCategoryNameToApiName(category).toLowerCase() ||
@@ -285,7 +308,7 @@ extension TwReporterApiExtensions on TwReporterApi {
   /// 搜尋文章（wrapper method）
   ///
   /// 注意：此方法使用客戶端搜尋，效率較低
-  /// TODO(API): 待後端 API 支援搜尋功能後改用伺服器端搜尋
+  // TODO(API): 待後端 API 支援搜尋功能後改用伺服器端搜尋
   ///
   /// [query] 搜尋關鍵字
   /// [page] 頁碼（從 1 開始）
@@ -294,18 +317,18 @@ extension TwReporterApiExtensions on TwReporterApi {
     required int page,
   }) async {
     // 由於 API 不支援搜尋，我們需要獲取較多文章然後客戶端搜尋
-    const int limit = 50; // 每次獲取 50 篇文章進行搜尋
-    final int offset = (page - 1) * limit;
+    const limit = 50; // 每次獲取 50 篇文章進行搜尋
+    final offset = (page - 1) * limit;
 
-    final ListResponse<Article> response = await fetchPosts(
+    final response = await fetchPosts(
       limit: limit,
       offset: offset,
     );
 
     // 客戶端搜尋
-    final String lowerQuery = query.toLowerCase();
-    final List<Article> searchResults =
-        response.data.records.where((Article article) {
+    final lowerQuery = query.toLowerCase();
+    final searchResults =
+        response.data.records.where((article) {
       return article.title.toLowerCase().contains(lowerQuery) ||
           article.ogDescription.toLowerCase().contains(lowerQuery) ||
           (article.subtitle?.toLowerCase().contains(lowerQuery) ?? false);
@@ -322,8 +345,8 @@ extension TwReporterApiExtensions on TwReporterApi {
     required int page,
     int limit = 10,
   }) async {
-    final int offset = (page - 1) * limit;
-    final ListResponse<Topic> response = await fetchTopics(
+    final offset = (page - 1) * limit;
+    final response = await fetchTopics(
       limit: limit,
       offset: offset,
     );
@@ -338,7 +361,7 @@ extension TwReporterApiExtensions on TwReporterApi {
   Future<List<Article>> fetchArticlesByIds(List<String> ids) async {
     if (ids.isEmpty) return <Article>[];
 
-    final ListResponse<Article> response = await fetchPosts(
+    final response = await fetchPosts(
       limit: ids.length,
       ids: ids,
     );
@@ -347,7 +370,7 @@ extension TwReporterApiExtensions on TwReporterApi {
 
   /// 映射分類名稱到 API 名稱
   String _mapCategoryNameToApiName(String category) {
-    const Map<String, String> categoryMap = <String, String>{
+    const categoryMap = <String, String>{
       'culture': '文化',
       'econ': '經濟產業',
       'education': '教育',

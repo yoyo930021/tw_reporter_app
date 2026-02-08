@@ -13,13 +13,17 @@ sealed class Article with _$Article {
     required String id,
     required String slug,
     required String title,
+    @JsonKey(name: 'og_description')
+    required String ogDescription,
+    @JsonKey(name: 'category_set')
+    required List<CategorySet> categorySet,
+    @JsonKey(name: 'published_date')
+    required DateTime publishedDate,
+    @JsonKey(name: 'is_external')
+    required bool isExternal,
     String? subtitle,
-    @JsonKey(name: 'og_description') required String ogDescription,
     @JsonKey(name: 'hero_image') HeroImage? heroImage,
     @JsonKey(name: 'og_image') HeroImage? ogImage,
-    @JsonKey(name: 'category_set') required List<CategorySet> categorySet,
-    @JsonKey(name: 'published_date') required DateTime publishedDate,
-    @JsonKey(name: 'is_external') required bool isExternal,
     List<Tag>? tags,
     String? style,
     @JsonKey(name: 'content') Map<String, dynamic>? content,

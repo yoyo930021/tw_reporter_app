@@ -2,14 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/author.dart';
 import 'package:tw_reporter_app/core/models/category.dart';
-import 'package:tw_reporter_app/core/models/image_size.dart';
 import 'package:tw_reporter_app/core/models/tag.dart';
 
 void main() {
   group('Article', () {
     test('should create Article from JSON with all fields', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '69787503f7e6ab070044a7ae',
         'slug': 'test-article',
         'title': '測試文章標題',
@@ -71,7 +70,7 @@ void main() {
       };
 
       // Act
-      final Article article = Article.fromJson(json);
+      final article = Article.fromJson(json);
 
       // Assert
       expect(article.id, equals('69787503f7e6ab070044a7ae'));
@@ -98,7 +97,7 @@ void main() {
 
     test('should create Article with minimal required fields', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '123',
         'slug': 'minimal-article',
         'title': '最小文章',
@@ -109,7 +108,7 @@ void main() {
       };
 
       // Act
-      final Article article = Article.fromJson(json);
+      final article = Article.fromJson(json);
 
       // Assert
       expect(article.id, equals('123'));
@@ -125,13 +124,13 @@ void main() {
 
     test('should convert Article to JSON', () {
       // Arrange
-      final Article article = Article(
+      final article = Article(
         id: '123',
         slug: 'test-slug',
         title: '測試標題',
         ogDescription: '測試描述',
         categorySet: <CategorySet>[
-          CategorySet(
+          const CategorySet(
             category: Category(
               id: 'cat1',
               name: '分類',
@@ -141,7 +140,7 @@ void main() {
         publishedDate: DateTime.parse('2026-01-01T00:00:00Z'),
         isExternal: false,
         tags: <Tag>[
-          Tag(
+          const Tag(
             id: 'tag1',
             key: 'test',
             name: '測試標籤',
@@ -150,7 +149,7 @@ void main() {
       );
 
       // Act
-      final Map<String, dynamic> json = article.toJson();
+      final json = article.toJson();
 
       // Assert
       expect(json['id'], equals('123'));
@@ -162,7 +161,7 @@ void main() {
 
     test('should support copyWith for immutability', () {
       // Arrange
-      final Article article = Article(
+      final article = Article(
         id: '123',
         slug: 'test',
         title: '原標題',
@@ -173,7 +172,7 @@ void main() {
       );
 
       // Act
-      final Article updatedArticle = article.copyWith(
+      final updatedArticle = article.copyWith(
         title: '新標題',
         subtitle: '新副標題',
       );
@@ -187,8 +186,8 @@ void main() {
 
     test('should support equality comparison', () {
       // Arrange
-      final DateTime now = DateTime.now();
-      final Article article1 = Article(
+      final now = DateTime.now();
+      final article1 = Article(
         id: '123',
         slug: 'test',
         title: '測試',
@@ -197,7 +196,7 @@ void main() {
         publishedDate: now,
         isExternal: false,
       );
-      final Article article2 = Article(
+      final article2 = Article(
         id: '123',
         slug: 'test',
         title: '測試',
@@ -214,7 +213,7 @@ void main() {
 
     test('should handle external articles', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '123',
         'slug': 'external-link',
         'title': '外部連結',
@@ -225,7 +224,7 @@ void main() {
       };
 
       // Act
-      final Article article = Article.fromJson(json);
+      final article = Article.fromJson(json);
 
       // Assert
       expect(article.isExternal, isTrue);
@@ -233,7 +232,7 @@ void main() {
 
     test('should parse new fields (writers, brief, relateds, etc.)', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '1',
         'slug': 'full-article',
         'title': '完整文章',
@@ -277,7 +276,7 @@ void main() {
       };
 
       // Act
-      final Article article = Article.fromJson(json);
+      final article = Article.fromJson(json);
 
       // Assert
       expect(article.writers, hasLength(1));
@@ -299,13 +298,13 @@ void main() {
     });
 
     test('should create Author from JSON', () {
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': 'a1',
         'name': '測試作者',
         'job_title': '記者',
       };
 
-      final Author author = Author.fromJson(json);
+      final author = Author.fromJson(json);
 
       expect(author.id, equals('a1'));
       expect(author.name, equals('測試作者'));

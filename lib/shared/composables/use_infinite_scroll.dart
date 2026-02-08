@@ -47,26 +47,26 @@ typedef InfiniteScrollResult<T> = ({
 ///
 /// ## 返回值
 ///
-/// - [items]: 已載入的所有項目列表
-/// - [isLoading]: 是否正在載入中
-/// - [hasMore]: 是否還有更多資料可載入
-/// - [loadMore]: 載入下一頁資料的函數
-/// - [refresh]: 重新載入第一頁資料的函數
+/// - `items`: 已載入的所有項目列表
+/// - `isLoading`: 是否正在載入中
+/// - `hasMore`: 是否還有更多資料可載入
+/// - `loadMore`: 載入下一頁資料的函數
+/// - `refresh`: 重新載入第一頁資料的函數
 InfiniteScrollResult<T> useInfiniteScroll<T>({
   required Future<List<T>> Function(int page) fetcher,
   int pageSize = 10,
 }) {
   // 資料列表
-  final Ref<List<T>> items = ref<List<T>>(<T>[]);
+  final items = ref<List<T>>(<T>[]);
 
   // 當前頁碼（從 1 開始）
-  final Ref<int> currentPage = ref<int>(1);
+  final currentPage = ref<int>(1);
 
   // 載入狀態
-  final Ref<bool> isLoading = ref<bool>(false);
+  final isLoading = ref<bool>(false);
 
   // 是否還有更多資料
-  final Ref<bool> hasMore = ref<bool>(true);
+  final hasMore = ref<bool>(true);
 
   /// 載入更多資料
   Future<void> loadMore() async {
@@ -77,7 +77,7 @@ InfiniteScrollResult<T> useInfiniteScroll<T>({
 
     isLoading.value = true;
     try {
-      final List<T> newItems = await fetcher(currentPage.value);
+      final newItems = await fetcher(currentPage.value);
 
       // 將新資料追加到現有列表
       items.value = <T>[...items.value, ...newItems];
@@ -88,9 +88,6 @@ InfiniteScrollResult<T> useInfiniteScroll<T>({
       // 判斷是否還有更多資料
       // 如果返回的資料少於 pageSize，表示已經到最後一頁
       hasMore.value = newItems.length >= pageSize;
-    } catch (e) {
-      // 載入失敗時重新拋出異常
-      rethrow;
     } finally {
       isLoading.value = false;
     }
@@ -107,9 +104,7 @@ InfiniteScrollResult<T> useInfiniteScroll<T>({
   }
 
   // 在組件掛載時自動載入第一頁資料
-  onMounted(() {
-    loadMore();
-  });
+  onMounted(loadMore);
 
   return (
     items: items,

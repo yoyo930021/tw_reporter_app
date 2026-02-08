@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
-import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
 
 /// A slide in the slideshow.
 typedef SlideItem = ({String url, String description});
 
 /// A slideshow viewer with prev/next buttons and page indicator.
-class SlideshowViewer extends StatefulWidget {
+class SlideshowViewer extends CompositionWidget {
   /// Creates a [SlideshowViewer].
   const SlideshowViewer({
     required this.slides,
@@ -21,114 +21,100 @@ class SlideshowViewer extends StatefulWidget {
   final List<SlideItem> slides;
 
   @override
-  State<SlideshowViewer> createState() => _SlideshowViewerState();
-}
+  Widget Function(BuildContext) setup() {
+    final currentPage = ref(0);
+    final pageControllerRef = usePageController();
+    final props = widget();
+    final theme = useTheme();
 
-class _SlideshowViewerState extends State<SlideshowViewer> {
-  late final PageController _pageController;
-  int _currentPage = 0;
+    void goToPage(int page) {
+      unawaited(pageControllerRef.value.animateToPage(
+        page,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      ));
+    }
 
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
+    return (BuildContext context) {
+      final colors = theme.value.colorScheme;
+      final textTheme = theme.value.textTheme;
+      final total = props.value.slides.length;
 
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _goToPage(int page) {
-    unawaited(_pageController.animateToPage(
-      page,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isDark =
-        Theme.of(context).brightness == Brightness.dark;
-    final int total = widget.slides.length;
-
-    return Column(
-      children: <Widget>[
-        AspectRatio(
-          aspectRatio: 16 / 10,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: total,
-            onPageChanged: (int index) {
-              setState(() => _currentPage = index);
-            },
-            itemBuilder: (_, int index) {
-              final SlideItem slide = widget.slides[index];
-              return CachedNetworkImage(
-                imageUrl: slide.url,
-                fit: BoxFit.cover,
-                placeholder: (_, _) => const ColoredBox(
-                  color: AppColors.grey200,
-                ),
-                errorWidget: (_, _, _) => const ColoredBox(
-                  color: AppColors.grey200,
-                  child: Center(
-                    child: Icon(
-                      Icons.image_not_supported,
-                      color: AppColors.grey400,
+      return Column(
+        children: <Widget>[
+          AspectRatio(
+            aspectRatio: 16 / 10,
+            child: PageView.builder(
+              controller: pageControllerRef.value,
+              itemCount: total,
+              onPageChanged: (index) {
+                currentPage.value = index;
+              },
+              itemBuilder: (_, index) {
+                final slide = props.value.slides[index];
+                return CachedNetworkImage(
+                  imageUrl: slide.url,
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => const ColoredBox(
+                    color: AppColors.grey200,
+                  ),
+                  errorWidget: (_, _, _) => const ColoredBox(
+                    color: AppColors.grey200,
+                    child: Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: AppColors.grey400,
+                      ),
                     ),
                   ),
+                );
+              },
+            ),
+          ),
+          // Description
+          if (props.value.slides[currentPage.value].description.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(
+                top: AppSpacing.xs,
+                left: AppSpacing.sm,
+                right: AppSpacing.sm,
+              ),
+              child: Text(
+                props.value.slides[currentPage.value].description,
+                style: textTheme.bodySmall!.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
-              );
-            },
-          ),
-        ),
-        // Description
-        if (widget.slides[_currentPage].description.isNotEmpty)
+              ),
+            ),
+          // Controls
           Padding(
-            padding: const EdgeInsets.only(
-              top: AppSpacing.xs,
-              left: AppSpacing.sm,
-              right: AppSpacing.sm,
+            padding: const EdgeInsets.symmetric(
+              vertical: AppSpacing.xs,
             ),
-            child: Text(
-              widget.slides[_currentPage].description,
-              style: AppTextStyles.caption.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondary,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: currentPage.value > 0
+                      ? () => goToPage(currentPage.value - 1)
+                      : null,
+                ),
+                Text(
+                  '${currentPage.value + 1} / $total',
+                  style: textTheme.bodyMedium,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: currentPage.value < total - 1
+                      ? () => goToPage(currentPage.value + 1)
+                      : null,
+                ),
+              ],
             ),
           ),
-        // Controls
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppSpacing.xs,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.chevron_left),
-                onPressed:
-                    _currentPage > 0 ? () => _goToPage(_currentPage - 1) : null,
-              ),
-              Text(
-                '${_currentPage + 1} / $total',
-                style: AppTextStyles.body2,
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right),
-                onPressed: _currentPage < total - 1
-                    ? () => _goToPage(_currentPage + 1)
-                    : null,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+        ],
+      );
+    };
   }
 }

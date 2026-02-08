@@ -8,56 +8,42 @@ environment:
   sdk: ^3.10.8
 
 dependencies:
+  auto_route: ^10.3.0
+  cached_network_image: ^3.4.1  # 圖片快取
+  cupertino_icons: ^1.0.8  # iOS 風格圖示
+  dio: ^5.7.0
   flutter:
     sdk: flutter
-
-  # 狀態管理 (Composition API)
   flutter_compositions:
     path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions
-
-  # 型別安全路由 (程式碼生成)
-  auto_route: ^10.3.0
-
-  # 型別安全 HTTP 客戶端 (程式碼生成)
-  dio: ^5.7.0
-  retrofit: ^4.9.2
-
-  # 不可變資料類別與 JSON 序列化 (程式碼生成)
-  freezed_annotation: ^3.0.0
-  json_annotation: ^4.9.0
-
-  # 其他實用套件
-  cached_network_image: ^3.4.1  # 圖片快取
-  intl: ^0.20.2  # 日期格式化
-  shared_preferences: ^2.3.2  # 本地儲存
-  url_launcher: ^6.3.1  # 外部連結
   flutter_html: ^3.0.0-beta.2  # HTML 渲染
-  share_plus: ^10.0.0  # 分享功能
-  cupertino_icons: ^1.0.8  # iOS 風格圖示
+  flutter_local_notifications: ^18.0.0  # 本地通知
   flutter_svg: ^2.0.17  # SVG 圖片顯示
+  freezed_annotation: ^3.0.0
+  intl: ^0.20.2  # 日期格式化
+  json_annotation: ^4.9.0
+  retrofit: ^4.9.2
+  share_plus: ^10.0.0  # 分享功能
+  shared_preferences: ^2.3.2  # 本地儲存
+  unifiedpush: ^6.0.1  # UnifiedPush 推播
+  url_launcher: ^6.3.1  # 外部連結
   video_player: ^2.9.2  # 原生影片播放
   webview_flutter: ^4.10.0  # 內嵌 WebView
   webview_flutter_android: ^4.10.0  # Android WebView 平台實作
   webview_flutter_wkwebview: ^3.16.0  # iOS WebView 平台實作
 
 dev_dependencies:
+  auto_route_generator: ^10.2.6
+  build_runner: ^2.4.13
   flutter_test:
     sdk: flutter
-
-  # 程式碼生成器
-  build_runner: ^2.4.13
-  auto_route_generator: ^10.2.6
-  retrofit_generator: ^10.2.1
   freezed: ^3.2.3
   json_serializable: ^6.11.2
-
-  # 嚴格 Lint 規則
+  mocktail: ^1.0.4
+  retrofit_generator: ^10.2.1
   very_good_analysis: ^10.1.0
   # flutter_compositions_lints:  # 暫時註解：與 retrofit_generator analyzer 版本衝突
   #   path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions_lints
-
-  # Mock 測試
-  mocktail: ^1.0.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

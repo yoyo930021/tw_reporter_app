@@ -5,14 +5,14 @@ void main() {
   group('Category', () {
     test('should create Category from JSON', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '63206383207bf7c5f871622c',
         'name': '國際兩岸',
         'sort_order': 17,
       };
 
       // Act
-      final Category category = Category.fromJson(json);
+      final category = Category.fromJson(json);
 
       // Assert
       expect(category.id, equals('63206383207bf7c5f871622c'));
@@ -22,13 +22,13 @@ void main() {
 
     test('should handle nullable sortOrder', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '123',
         'name': '測試分類',
       };
 
       // Act
-      final Category category = Category.fromJson(json);
+      final category = Category.fromJson(json);
 
       // Assert
       expect(category.sortOrder, isNull);
@@ -36,12 +36,12 @@ void main() {
 
     test('should support equality comparison', () {
       // Arrange
-      final Category category1 = Category(
+      const category1 = Category(
         id: '123',
         name: '測試',
         sortOrder: 1,
       );
-      final Category category2 = Category(
+      const category2 = Category(
         id: '123',
         name: '測試',
         sortOrder: 1,
@@ -55,7 +55,7 @@ void main() {
   group('Subcategory', () {
     test('should create Subcategory from JSON', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '63206383207bf7c5f8716232',
         'key': '63206383207bf7c5f8716232',
         'name': '歐洲',
@@ -63,7 +63,7 @@ void main() {
       };
 
       // Act
-      final Subcategory subcategory = Subcategory.fromJson(json);
+      final subcategory = Subcategory.fromJson(json);
 
       // Assert
       expect(subcategory.id, equals('63206383207bf7c5f8716232'));
@@ -74,14 +74,14 @@ void main() {
 
     test('should handle nullable latestOrder', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '123',
         'key': 'test-key',
         'name': '測試',
       };
 
       // Act
-      final Subcategory subcategory = Subcategory.fromJson(json);
+      final subcategory = Subcategory.fromJson(json);
 
       // Assert
       expect(subcategory.latestOrder, isNull);
@@ -91,7 +91,7 @@ void main() {
   group('CategorySet', () {
     test('should create CategorySet from JSON with subcategory', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'category': <String, dynamic>{
           'id': '63206383207bf7c5f871622c',
           'name': '國際兩岸',
@@ -106,7 +106,7 @@ void main() {
       };
 
       // Act
-      final CategorySet categorySet = CategorySet.fromJson(json);
+      final categorySet = CategorySet.fromJson(json);
 
       // Assert
       expect(categorySet.category?.name, equals('國際兩岸'));
@@ -116,7 +116,7 @@ void main() {
 
     test('should create CategorySet without subcategory', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'category': <String, dynamic>{
           'id': '123',
           'name': '測試分類',
@@ -124,7 +124,7 @@ void main() {
       };
 
       // Act
-      final CategorySet categorySet = CategorySet.fromJson(json);
+      final categorySet = CategorySet.fromJson(json);
 
       // Assert
       expect(categorySet.category?.name, equals('測試分類'));
@@ -133,7 +133,7 @@ void main() {
 
     test('should convert CategorySet to JSON', () {
       // Arrange
-      final CategorySet categorySet = CategorySet(
+      const categorySet = CategorySet(
         category: Category(
           id: '123',
           name: '測試',
@@ -146,11 +146,17 @@ void main() {
       );
 
       // Act
-      final Map<String, dynamic> json = categorySet.toJson();
+      final json = categorySet.toJson();
 
       // Assert
-      expect(json['category']['name'], equals('測試'));
-      expect(json['subcategory']['name'], equals('子分類'));
+      expect(
+        (json['category'] as Map<String, dynamic>)['name'],
+        equals('測試'),
+      );
+      expect(
+        (json['subcategory'] as Map<String, dynamic>)['name'],
+        equals('子分類'),
+      );
     });
   });
 }

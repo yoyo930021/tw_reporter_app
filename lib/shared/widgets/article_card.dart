@@ -1,9 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
-import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
-import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
+import 'package:tw_reporter_app/core/theme/app_theme.dart';
 import 'package:tw_reporter_app/shared/utils/date_formatter.dart';
 import 'package:tw_reporter_app/shared/widgets/category_badge.dart';
 
@@ -21,9 +20,9 @@ class ArticleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String? imageUrl = _getImageUrl();
-
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final imageUrl = _getImageUrl();
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Card(
       margin: const EdgeInsets.symmetric(
@@ -31,7 +30,7 @@ class ArticleCard extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       clipBehavior: Clip.antiAlias,
-      color: isDark ? null : const Color(0xFFF5F5F5),
+      color: colors.surfaceContainerHigh,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
       ),
@@ -46,20 +45,20 @@ class ArticleCard extends StatelessWidget {
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                placeholder: (BuildContext context, String url) => Container(
+                placeholder: (context, url) => Container(
                   height: 200,
-                  color: AppColors.grey200,
+                  color: colors.surfaceContainerHighest,
                   child: const Center(
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 ),
                 errorWidget:
-                    (BuildContext context, String url, Object error) =>
+                    (context, url, error) =>
                         Container(
                   height: 200,
-                  color: AppColors.grey200,
-                  child: const Icon(Icons.image_not_supported,
-                      color: AppColors.grey400),
+                  color: colors.surfaceContainerHighest,
+                  child: Icon(Icons.image_not_supported,
+                      color: colors.outline),
                 ),
               ),
             Padding(
@@ -77,15 +76,15 @@ class ArticleCard extends StatelessWidget {
                   ],
                   Text(
                     article.title,
-                    style: AppTextStyles.headline3.copyWith(fontSize: 18),
+                    style: textTheme.displaySmall!.copyWith(fontSize: 18),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   AppSpacing.verticalSpacerSm,
                   Text(
                     article.ogDescription,
-                    style: AppTextStyles.body2.copyWith(
-                      color: AppColors.textSecondary,
+                    style: textTheme.bodyMedium!.copyWith(
+                      color: colors.onSurfaceVariant,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -95,7 +94,7 @@ class ArticleCard extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         formatDate(article.publishedDate),
-                        style: AppTextStyles.timestamp,
+                        style: textTheme.timestamp,
                       ),
                       if (isRead) ...<Widget>[
                         const SizedBox(width: 8),
@@ -105,13 +104,13 @@ class ArticleCard extends StatelessWidget {
                             vertical: 1,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.grey300,
+                            color: colors.outlineVariant,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             '已讀',
-                            style: AppTextStyles.overline.copyWith(
-                              color: AppColors.grey600,
+                            style: textTheme.labelSmall!.copyWith(
+                              color: colors.onSurfaceVariant,
                             ),
                           ),
                         ),

@@ -5,14 +5,14 @@ void main() {
   group('ImageSize', () {
     test('should create ImageSize from JSON', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'url': 'https://www.twreporter.org/images/test.jpg',
         'width': 800,
         'height': 533,
       };
 
       // Act
-      final ImageSize imageSize = ImageSize.fromJson(json);
+      final imageSize = ImageSize.fromJson(json);
 
       // Assert
       expect(imageSize.url, equals('https://www.twreporter.org/images/test.jpg'));
@@ -22,14 +22,14 @@ void main() {
 
     test('should convert ImageSize to JSON', () {
       // Arrange
-      final ImageSize imageSize = ImageSize(
+      const imageSize = ImageSize(
         url: 'https://www.twreporter.org/images/test.jpg',
         width: 800,
         height: 533,
       );
 
       // Act
-      final Map<String, dynamic> json = imageSize.toJson();
+      final json = imageSize.toJson();
 
       // Assert
       expect(json['url'], equals('https://www.twreporter.org/images/test.jpg'));
@@ -39,14 +39,14 @@ void main() {
 
     test('should be immutable and support copyWith', () {
       // Arrange
-      final ImageSize imageSize = ImageSize(
+      const imageSize = ImageSize(
         url: 'https://www.twreporter.org/images/test.jpg',
         width: 800,
         height: 533,
       );
 
       // Act
-      final ImageSize updatedImageSize = imageSize.copyWith(width: 1200);
+      final updatedImageSize = imageSize.copyWith(width: 1200);
 
       // Assert
       expect(imageSize.width, equals(800));
@@ -57,17 +57,17 @@ void main() {
 
     test('should support equality comparison', () {
       // Arrange
-      final ImageSize imageSize1 = ImageSize(
+      const imageSize1 = ImageSize(
         url: 'https://www.twreporter.org/images/test.jpg',
         width: 800,
         height: 533,
       );
-      final ImageSize imageSize2 = ImageSize(
+      const imageSize2 = ImageSize(
         url: 'https://www.twreporter.org/images/test.jpg',
         width: 800,
         height: 533,
       );
-      final ImageSize imageSize3 = ImageSize(
+      const imageSize3 = ImageSize(
         url: 'https://www.twreporter.org/images/other.jpg',
         width: 800,
         height: 533,

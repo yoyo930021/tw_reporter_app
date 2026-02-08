@@ -14,16 +14,7 @@ _Article _$ArticleFromJson(Map<String, dynamic> json) => $checkedCreate(
       id: $checkedConvert('id', (v) => v as String),
       slug: $checkedConvert('slug', (v) => v as String),
       title: $checkedConvert('title', (v) => v as String),
-      subtitle: $checkedConvert('subtitle', (v) => v as String?),
       ogDescription: $checkedConvert('og_description', (v) => v as String),
-      heroImage: $checkedConvert(
-        'hero_image',
-        (v) => v == null ? null : HeroImage.fromJson(v as Map<String, dynamic>),
-      ),
-      ogImage: $checkedConvert(
-        'og_image',
-        (v) => v == null ? null : HeroImage.fromJson(v as Map<String, dynamic>),
-      ),
       categorySet: $checkedConvert(
         'category_set',
         (v) => (v as List<dynamic>)
@@ -35,6 +26,15 @@ _Article _$ArticleFromJson(Map<String, dynamic> json) => $checkedCreate(
         (v) => DateTime.parse(v as String),
       ),
       isExternal: $checkedConvert('is_external', (v) => v as bool),
+      subtitle: $checkedConvert('subtitle', (v) => v as String?),
+      heroImage: $checkedConvert(
+        'hero_image',
+        (v) => v == null ? null : HeroImage.fromJson(v as Map<String, dynamic>),
+      ),
+      ogImage: $checkedConvert(
+        'og_image',
+        (v) => v == null ? null : HeroImage.fromJson(v as Map<String, dynamic>),
+      ),
       tags: $checkedConvert(
         'tags',
         (v) => (v as List<dynamic>?)
@@ -81,11 +81,11 @@ _Article _$ArticleFromJson(Map<String, dynamic> json) => $checkedCreate(
   },
   fieldKeyMap: const {
     'ogDescription': 'og_description',
-    'heroImage': 'hero_image',
-    'ogImage': 'og_image',
     'categorySet': 'category_set',
     'publishedDate': 'published_date',
     'isExternal': 'is_external',
+    'heroImage': 'hero_image',
+    'ogImage': 'og_image',
     'extendByline': 'extend_byline',
     'updatedAt': 'updated_at',
     'leadingImageDescription': 'leading_image_description',
@@ -96,13 +96,13 @@ Map<String, dynamic> _$ArticleToJson(_Article instance) => <String, dynamic>{
   'id': instance.id,
   'slug': instance.slug,
   'title': instance.title,
-  'subtitle': instance.subtitle,
   'og_description': instance.ogDescription,
-  'hero_image': instance.heroImage?.toJson(),
-  'og_image': instance.ogImage?.toJson(),
   'category_set': instance.categorySet.map((e) => e.toJson()).toList(),
   'published_date': instance.publishedDate.toIso8601String(),
   'is_external': instance.isExternal,
+  'subtitle': instance.subtitle,
+  'hero_image': instance.heroImage?.toJson(),
+  'og_image': instance.ogImage?.toJson(),
   'tags': instance.tags?.map((e) => e.toJson()).toList(),
   'style': instance.style,
   'content': instance.content,

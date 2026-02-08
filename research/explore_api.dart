@@ -25,7 +25,7 @@ Future<void> explorePostsApi() async {
   print('\n📰 探索文章列表 API');
   print('-' * 60);
 
-  final String url = 'https://go-api.twreporter.org/v2/posts?limit=3';
+  const url = 'https://go-api.twreporter.org/v2/posts?limit=3';
   final dynamic json = await fetchJson(url);
 
   if (json != null && json is Map) {
@@ -33,7 +33,7 @@ Future<void> explorePostsApi() async {
     print('  根鍵: ${json.keys.join(', ')}');
 
     if (json['data'] is List) {
-      final List<dynamic> posts = json['data'] as List<dynamic>;
+      final posts = json['data'] as List<dynamic>;
       print('  文章數量: ${posts.length}');
 
       if (posts.isNotEmpty) {
@@ -45,8 +45,8 @@ Future<void> explorePostsApi() async {
           print('    Slug: ${firstPost['slug']}');
           print('    發佈時間: ${firstPost['published_date']}');
           if (firstPost['og_description'] != null) {
-            final String desc = firstPost['og_description'].toString();
-            print('    摘要: ${desc.length > 60 ? desc.substring(0, 60) + '...' : desc}');
+            final desc = firstPost['og_description'].toString();
+            print('    摘要: ${desc.length > 60 ? '${desc.substring(0, 60)}...' : desc}');
           }
         }
       }
@@ -58,7 +58,7 @@ Future<void> exploreTopicsApi() async {
   print('\n📚 探索主題列表 API');
   print('-' * 60);
 
-  final String url = 'https://go-api.twreporter.org/v2/topics';
+  const url = 'https://go-api.twreporter.org/v2/topics';
   final dynamic json = await fetchJson(url);
 
   if (json != null && json is Map) {
@@ -66,7 +66,7 @@ Future<void> exploreTopicsApi() async {
     print('  根鍵: ${json.keys.join(', ')}');
 
     if (json['data'] is List) {
-      final List<dynamic> topics = json['data'] as List<dynamic>;
+      final topics = json['data'] as List<dynamic>;
       print('  主題數量: ${topics.length}');
 
       if (topics.isNotEmpty) {
@@ -86,7 +86,7 @@ Future<void> exploreIndexPageApi() async {
   print('\n🏠 探索首頁 API');
   print('-' * 60);
 
-  final String url = 'https://go-api.twreporter.org/v2/index_page';
+  const url = 'https://go-api.twreporter.org/v2/index_page';
   final dynamic json = await fetchJson(url);
 
   if (json != null && json is Map) {
@@ -94,11 +94,11 @@ Future<void> exploreIndexPageApi() async {
     print('  根鍵: ${json.keys.join(', ')}');
 
     if (json['data'] is Map) {
-      final Map<String, dynamic> data = json['data'] as Map<String, dynamic>;
+      final data = json['data'] as Map<String, dynamic>;
       print('  首頁資料鍵: ${data.keys.join(', ')}');
 
       // 列出首頁各個區塊
-      for (final String key in data.keys) {
+      for (final key in data.keys) {
         final dynamic value = data[key];
         if (value is List) {
           print('    - $key: ${value.length} 項');
@@ -115,7 +115,7 @@ Future<void> explorePostDetailApi() async {
   print('-' * 60);
 
   // 先獲取一篇文章的 slug
-  final String listUrl = 'https://go-api.twreporter.org/v2/posts?limit=1';
+  const listUrl = 'https://go-api.twreporter.org/v2/posts?limit=1';
   final dynamic listJson = await fetchJson(listUrl);
 
   if (listJson != null &&
@@ -123,12 +123,12 @@ Future<void> explorePostDetailApi() async {
       listJson['data'] is List &&
       (listJson['data'] as List<dynamic>).isNotEmpty) {
     final dynamic firstPost = (listJson['data'] as List<dynamic>).first;
-    final String? slug = firstPost['slug'] as String?;
+    final slug = firstPost['slug'] as String?;
 
     if (slug != null) {
       print('  測試文章 Slug: $slug');
 
-      final String detailUrl = 'https://go-api.twreporter.org/v2/posts/$slug';
+      final detailUrl = 'https://go-api.twreporter.org/v2/posts/$slug';
       final dynamic detailJson = await fetchJson(detailUrl);
 
       if (detailJson != null && detailJson is Map) {
@@ -136,7 +136,7 @@ Future<void> explorePostDetailApi() async {
         print('  根鍵: ${detailJson.keys.join(', ')}');
 
         if (detailJson['data'] is Map) {
-          final Map<String, dynamic> post = detailJson['data'] as Map<String, dynamic>;
+          final post = detailJson['data'] as Map<String, dynamic>;
           print('  文章欄位數量: ${post.keys.length}');
           print('  主要欄位: ${post.keys.take(15).join(', ')}...');
 
@@ -153,14 +153,14 @@ Future<void> explorePostDetailApi() async {
 
 Future<dynamic> fetchJson(String url) async {
   try {
-    final HttpClient client = HttpClient();
-    final HttpClientRequest request = await client.getUrl(Uri.parse(url));
+    final client = HttpClient();
+    final request = await client.getUrl(Uri.parse(url));
     request.headers.set('Accept', 'application/json');
 
-    final HttpClientResponse response = await request.close();
+    final response = await request.close();
 
     if (response.statusCode == 200) {
-      final String body = await response.transform(utf8.decoder).join();
+      final body = await response.transform(utf8.decoder).join();
       client.close();
       return jsonDecode(body);
     } else {

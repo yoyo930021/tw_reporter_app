@@ -26,8 +26,8 @@ class HorizontalCarousel extends StatelessWidget {
         padding: padding ??
             const EdgeInsets.symmetric(horizontal: AppSpacing.md),
         itemCount: itemCount,
-        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
-        itemBuilder: (BuildContext context, int index) {
+        separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
+        itemBuilder: (context, index) {
           return SizedBox(
             width: itemWidth,
             child: itemBuilder(context, index),

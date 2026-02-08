@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tw_reporter_app/core/models/tag.dart';
 import 'package:tw_reporter_app/core/models/category.dart';
+import 'package:tw_reporter_app/core/models/tag.dart';
 
 void main() {
   group('Tag', () {
     test('should create Tag from JSON', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '5768ed08406be01000c69076',
         'key': '5768ed08406be01000c69076',
         'name': '中國',
@@ -15,7 +15,7 @@ void main() {
       };
 
       // Act
-      final Tag tag = Tag.fromJson(json);
+      final tag = Tag.fromJson(json);
 
       // Assert
       expect(tag.id, equals('5768ed08406be01000c69076'));
@@ -27,7 +27,7 @@ void main() {
 
     test('should create Tag with category', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '123',
         'key': 'test-key',
         'name': '測試標籤',
@@ -39,7 +39,7 @@ void main() {
       };
 
       // Act
-      final Tag tag = Tag.fromJson(json);
+      final tag = Tag.fromJson(json);
 
       // Assert
       expect(tag.name, equals('測試標籤'));
@@ -49,14 +49,14 @@ void main() {
 
     test('should handle nullable latestOrder and category', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '123',
         'key': 'test-key',
         'name': '測試',
       };
 
       // Act
-      final Tag tag = Tag.fromJson(json);
+      final tag = Tag.fromJson(json);
 
       // Assert
       expect(tag.latestOrder, isNull);
@@ -65,7 +65,7 @@ void main() {
 
     test('should convert Tag to JSON', () {
       // Arrange
-      final Tag tag = Tag(
+      const tag = Tag(
         id: '123',
         key: 'test-key',
         name: '測試標籤',
@@ -77,22 +77,25 @@ void main() {
       );
 
       // Act
-      final Map<String, dynamic> json = tag.toJson();
+      final json = tag.toJson();
 
       // Assert
       expect(json['name'], equals('測試標籤'));
       expect(json['latest_order'], equals(10));
-      expect(json['category']['name'], equals('分類'));
+      expect(
+        (json['category'] as Map<String, dynamic>)['name'],
+        equals('分類'),
+      );
     });
 
     test('should support equality comparison', () {
       // Arrange
-      final Tag tag1 = Tag(
+      const tag1 = Tag(
         id: '123',
         key: 'test',
         name: '測試',
       );
-      final Tag tag2 = Tag(
+      const tag2 = Tag(
         id: '123',
         key: 'test',
         name: '測試',

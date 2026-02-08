@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 /// HTTP 請求/回應日誌攔截器
 /// 用於開發階段除錯 API 呼叫
@@ -8,8 +9,8 @@ class LoggingInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) {
-    print('REQUEST[${options.method}] => PATH: ${options.path}');
-    print('REQUEST DATA: ${options.data}');
+    debugPrint('REQUEST[${options.method}] => PATH: ${options.path}');
+    debugPrint('REQUEST DATA: ${options.data}');
     super.onRequest(options, handler);
   }
 
@@ -18,19 +19,20 @@ class LoggingInterceptor extends Interceptor {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
-    print(
-      'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}',
+    debugPrint(
+      'RESPONSE[${response.statusCode}] => '
+      'PATH: ${response.requestOptions.path}',
     );
-    print('RESPONSE DATA: ${response.data}');
+    debugPrint('RESPONSE DATA: ${response.data}');
     super.onResponse(response, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    print(
+    debugPrint(
       'ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}',
     );
-    print('ERROR MESSAGE: ${err.message}');
+    debugPrint('ERROR MESSAGE: ${err.message}');
     super.onError(err, handler);
   }
 }

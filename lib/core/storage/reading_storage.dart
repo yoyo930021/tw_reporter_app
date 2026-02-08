@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,8 +8,7 @@ class ReadingRecord {
   ReadingRecord({
     required this.slug,
     required this.title,
-    this.imageUrl,
-    required this.timestamp,
+    required this.timestamp, this.imageUrl,
   });
 
   factory ReadingRecord.fromJson(Map<String, dynamic> json) {
@@ -58,21 +58,19 @@ class ReadingStorage {
     String? imageUrl,
     DateTime timestamp,
   ) {
-    final List<ReadingRecord> history = getHistory();
-
-    // 移除同一篇文章的舊記錄
-    history.removeWhere((r) => r.slug == slug);
-
-    // 在最前面新增
-    history.insert(
-      0,
-      ReadingRecord(
-        slug: slug,
-        title: title,
-        imageUrl: imageUrl,
-        timestamp: timestamp,
-      ),
-    );
+    final history = getHistory()
+      // 移除同一篇文章的舊記錄
+      ..removeWhere((r) => r.slug == slug)
+      // 在最前面新增
+      ..insert(
+        0,
+        ReadingRecord(
+          slug: slug,
+          title: title,
+          imageUrl: imageUrl,
+          timestamp: timestamp,
+        ),
+      );
 
     // 限制數量
     if (history.length > _maxHistoryItems) {
@@ -99,14 +97,14 @@ class ReadingStorage {
 
   /// 清除所有閱讀記錄
   void clearHistory() {
-    _prefs.remove(_historyKey);
+    unawaited(_prefs.remove(_historyKey));
   }
 
   // --- 收藏 ---
 
   /// 新增收藏
   void addBookmark(String slug, String title, String? imageUrl) {
-    final List<ReadingRecord> bookmarks = getBookmarks();
+    final bookmarks = getBookmarks();
 
     // 已收藏則不重複添加
     if (bookmarks.any((r) => r.slug == slug)) return;
@@ -126,8 +124,8 @@ class ReadingStorage {
 
   /// 取消收藏
   void removeBookmark(String slug) {
-    final List<ReadingRecord> bookmarks = getBookmarks();
-    bookmarks.removeWhere((r) => r.slug == slug);
+    final bookmarks = getBookmarks()
+      ..removeWhere((r) => r.slug == slug);
     _saveList(_bookmarksKey, bookmarks);
   }
 
@@ -144,23 +142,23 @@ class ReadingStorage {
   // --- 私有方法 ---
 
   List<ReadingRecord> _loadList(String key) {
-    final String? jsonStr = _prefs.getString(key);
+    final jsonStr = _prefs.getString(key);
     if (jsonStr == null || jsonStr.isEmpty) return <ReadingRecord>[];
 
     try {
-      final List<dynamic> jsonList =
+      final jsonList =
           json.decode(jsonStr) as List<dynamic>;
       return jsonList
           .map((e) => ReadingRecord.fromJson(e as Map<String, dynamic>))
           .toList();
-    } catch (_) {
+    } on Object catch (_) {
       return <ReadingRecord>[];
     }
   }
 
   void _saveList(String key, List<ReadingRecord> list) {
-    final String jsonStr =
+    final jsonStr =
         json.encode(list.map((r) => r.toJson()).toList());
-    _prefs.setString(key, jsonStr);
+    unawaited(_prefs.setString(key, jsonStr));
   }
 }

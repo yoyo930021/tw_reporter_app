@@ -5,7 +5,7 @@ void main() {
   group('Topic', () {
     test('should create Topic from JSON with all fields', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': 'topic123',
         'slug': 'test-topic',
         'title': '測試專題',
@@ -30,7 +30,7 @@ void main() {
       };
 
       // Act
-      final Topic topic = Topic.fromJson(json);
+      final topic = Topic.fromJson(json);
 
       // Assert
       expect(topic.id, equals('topic123'));
@@ -53,7 +53,7 @@ void main() {
 
     test('should create Topic with minimal required fields', () {
       // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
+      final json = <String, dynamic>{
         'id': '123',
         'slug': 'minimal-topic',
         'title': '最小專題',
@@ -61,7 +61,7 @@ void main() {
       };
 
       // Act
-      final Topic topic = Topic.fromJson(json);
+      final topic = Topic.fromJson(json);
 
       // Assert
       expect(topic.id, equals('123'));
@@ -78,7 +78,7 @@ void main() {
 
     test('should convert Topic to JSON', () {
       // Arrange
-      final Topic topic = Topic(
+      final topic = Topic(
         id: '123',
         slug: 'test-topic',
         title: '測試專題',
@@ -87,7 +87,7 @@ void main() {
       );
 
       // Act
-      final Map<String, dynamic> json = topic.toJson();
+      final json = topic.toJson();
 
       // Assert
       expect(json['id'], equals('123'));
@@ -98,14 +98,14 @@ void main() {
 
     test('should support equality comparison', () {
       // Arrange
-      final DateTime now = DateTime.now();
-      final Topic topic1 = Topic(
+      final now = DateTime.now();
+      final topic1 = Topic(
         id: '123',
         slug: 'test',
         title: '測試',
         publishedDate: now,
       );
-      final Topic topic2 = Topic(
+      final topic2 = Topic(
         id: '123',
         slug: 'test',
         title: '測試',
@@ -118,7 +118,7 @@ void main() {
 
     test('should support copyWith', () {
       // Arrange
-      final Topic topic = Topic(
+      final topic = Topic(
         id: '123',
         slug: 'test',
         title: '原標題',
@@ -126,7 +126,7 @@ void main() {
       );
 
       // Act
-      final Topic updatedTopic = topic.copyWith(
+      final updatedTopic = topic.copyWith(
         title: '新標題',
         ogDescription: '新描述',
       );
@@ -138,4 +138,3 @@ void main() {
     });
   });
 }
-

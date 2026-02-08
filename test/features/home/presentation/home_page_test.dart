@@ -3,348 +3,295 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
-import 'package:tw_reporter_app/core/models/category.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
 import 'package:tw_reporter_app/features/home/presentation/home_page.dart';
 import 'package:tw_reporter_app/shared/widgets/horizontal_carousel.dart';
 
-class MockTwReporterApi extends Mock implements TwReporterApi {}
-
-/// Helper: create a mock [ApiResponse<IndexPageData>].
-ApiResponse<IndexPageData> _indexPageResponse(IndexPageData data) {
-  return ApiResponse<IndexPageData>(
-    data: data,
-    status: 'success',
-  );
-}
+import '../../../helpers/test_helpers.dart';
 
 void main() {
-  late MockTwReporterApi mockApi;
+  late MockHomeRepository mockHomeRepo;
+  late MockArticleRepository mockArticleRepo;
 
   setUp(() {
-    mockApi = MockTwReporterApi();
+    mockHomeRepo = MockHomeRepository();
+    mockArticleRepo = MockArticleRepository();
   });
 
-  Widget wrapWithApp(HomePage homePage) {
-    return MaterialApp(
-      home: homePage,
+  Widget buildPage() {
+    return wrapWithProviders(
+      const HomePage(),
+      homeRepository: mockHomeRepo,
+      articleRepository: mockArticleRepo,
     );
   }
 
   /// Mock fetchIndexPage to return [data].
   void mockIndexPage(IndexPageData data) {
-    when(() => mockApi.fetchIndexPage())
-        .thenAnswer((_) async => _indexPageResponse(data));
+    when(() => mockHomeRepo.fetchIndexPage())
+        .thenAnswer((_) async => data);
   }
 
   group('HomePage', () {
-    testWidgets('should display app bar with title',
-        (WidgetTester tester) async {
-      // Arrange
-      mockIndexPage(const IndexPageData());
+    testWidgets(
+      'should display app bar with title',
+      (tester) async {
+        mockIndexPage(const IndexPageData());
 
-      // Act
-      await tester.pumpWidget(wrapWithApp(HomePage(api: mockApi)));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      // Assert
-      expect(find.byType(AppBar), findsOneWidget);
-      // Logo is an SvgPicture with semanticsLabel, not a Text widget
-      expect(find.bySemanticsLabel('報導者'), findsOneWidget);
-    });
+        expect(find.byType(AppBar), findsOneWidget);
+        expect(
+          find.bySemanticsLabel('報導者'),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('should display page without error when data loads',
-        (WidgetTester tester) async {
-      // Arrange
-      mockIndexPage(const IndexPageData());
+    testWidgets(
+      'should display page without error when data loads',
+      (tester) async {
+        mockIndexPage(const IndexPageData());
 
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      await tester.pumpAndSettle();
+        expect(find.byType(HomePage), findsOneWidget);
+        expect(find.byType(AppBar), findsOneWidget);
+      },
+    );
 
-      // Assert - 頁面正常載入
-      expect(find.byType(HomePage), findsOneWidget);
-      expect(find.byType(AppBar), findsOneWidget);
-    });
+    testWidgets(
+      'should display editor picks after loading',
+      (tester) async {
+        final data = IndexPageData(
+          editorPicksSection: <Article>[
+            createTestArticle(
+              slug: 'featured-1',
+              title: '精選文章標題',
+              ogDescription: '這是精選文章的描述內容',
+            ),
+          ],
+        );
+        mockIndexPage(data);
 
-    testWidgets('should display editor picks after loading',
-        (WidgetTester tester) async {
-      // Arrange
-      final IndexPageData data = IndexPageData(
-        editorPicksSection: <Article>[
-          Article(
-            id: '1',
-            slug: 'featured-1',
-            title: '精選文章標題',
-            ogDescription: '這是精選文章的描述內容',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime(2024, 1, 1),
-            isExternal: false,
-          ),
-        ],
-      );
-      mockIndexPage(data);
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
+        expect(
+          find.text('精選文章標題'),
+          findsOneWidget,
+        );
+        expect(
+          find.text('這是精選文章的描述內容'),
+          findsOneWidget,
+        );
+      },
+    );
 
-      await tester.pumpAndSettle();
+    testWidgets(
+      'should display error message when loading fails',
+      (tester) async {
+        when(() => mockHomeRepo.fetchIndexPage())
+            .thenThrow(Exception('Network error'));
 
-      // Assert
-      expect(find.text('精選文章標題'), findsOneWidget);
-      expect(find.text('這是精選文章的描述內容'), findsOneWidget);
-    });
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-    testWidgets('should display error message when loading fails',
-        (WidgetTester tester) async {
-      // Arrange
-      when(() => mockApi.fetchIndexPage())
-          .thenThrow(Exception('Network error'));
+        expect(
+          find.textContaining('發生錯誤'),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('Network error'),
+          findsOneWidget,
+        );
+      },
+    );
 
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
+    testWidgets(
+      'should display category sections with carousels',
+      (tester) async {
+        final data = IndexPageData(
+          world: <Article>[
+            createTestArticle(
+              slug: 'intl-1',
+              title: '國際新聞標題',
+            ),
+          ],
+          politicsAndSociety: <Article>[
+            createTestArticle(
+              id: '2',
+              slug: 'politics-1',
+              title: '政治新聞標題',
+              publishedDate: DateTime(2024, 1, 2),
+            ),
+          ],
+        );
+        mockIndexPage(data);
 
-      // 等待錯誤發生
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      // Assert
-      expect(find.textContaining('發生錯誤'), findsOneWidget);
-      expect(find.textContaining('Network error'), findsOneWidget);
-    });
+        expect(find.text('國際新聞標題'), findsOneWidget);
+        expect(
+          find.byType(HorizontalCarousel),
+          findsAtLeast(1),
+        );
+      },
+    );
 
-    testWidgets('should display category sections with titles and carousels',
-        (WidgetTester tester) async {
-      // Arrange
-      final IndexPageData data = IndexPageData(
-        world: <Article>[
-          Article(
-            id: '1',
-            slug: 'intl-1',
-            title: '國際新聞標題',
-            ogDescription: '描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime(2024, 1, 1),
-            isExternal: false,
-          ),
-        ],
-        politicsAndSociety: <Article>[
-          Article(
-            id: '2',
-            slug: 'politics-1',
-            title: '政治新聞標題',
-            ogDescription: '描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime(2024, 1, 2),
-            isExternal: false,
-          ),
-        ],
-      );
-      mockIndexPage(data);
+    testWidgets(
+      'should have RefreshIndicator for pull to refresh',
+      (tester) async {
+        mockIndexPage(const IndexPageData());
 
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      await tester.pumpAndSettle();
+        expect(
+          find.byType(RefreshIndicator),
+          findsOneWidget,
+        );
+      },
+    );
 
-      // Assert — 各分類標題 + 文章輪播
-      expect(find.text('國際'), findsOneWidget);
-      expect(find.text('政治社會'), findsOneWidget);
-      expect(find.text('國際新聞標題'), findsOneWidget);
-      expect(find.byType(HorizontalCarousel), findsAtLeast(1));
-    });
+    testWidgets(
+      'should display empty state when no articles',
+      (tester) async {
+        mockIndexPage(const IndexPageData());
 
-    testWidgets('should have RefreshIndicator for pull to refresh',
-        (WidgetTester tester) async {
-      // Arrange
-      mockIndexPage(const IndexPageData());
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
+        expect(find.byType(HomePage), findsOneWidget);
+      },
+    );
 
-      await tester.pumpAndSettle();
+    testWidgets(
+      'should display retry button on error',
+      (tester) async {
+        var callCount = 0;
 
-      // Assert - 頁面有 RefreshIndicator
-      expect(find.byType(RefreshIndicator), findsOneWidget);
-    });
+        when(() => mockHomeRepo.fetchIndexPage())
+            .thenAnswer((_) async {
+          callCount++;
+          if (callCount == 1) {
+            throw Exception('Network error');
+          }
+          return const IndexPageData();
+        });
 
-    testWidgets('should display empty state when no articles',
-        (WidgetTester tester) async {
-      // Arrange
-      mockIndexPage(const IndexPageData());
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
+        expect(
+          find.textContaining('發生錯誤'),
+          findsOneWidget,
+        );
 
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('重試'));
+        await tester.pumpAndSettle();
 
-      // Assert - page loads without error
-      expect(find.byType(HomePage), findsOneWidget);
-    });
+        expect(callCount, equals(2));
+        expect(
+          find.textContaining('發生錯誤'),
+          findsNothing,
+        );
+      },
+    );
 
-    testWidgets('should display retry button on error',
-        (WidgetTester tester) async {
-      // Arrange
-      var callCount = 0;
+    testWidgets(
+      'should display topics section when available',
+      (tester) async {
+        final data = IndexPageData(
+          latestTopicSection: <Topic>[
+            createTestTopic(
+              id: 't1',
+              slug: 'topic-1',
+              title: '最新專題標題',
+            ),
+          ],
+          topicsSection: <Topic>[
+            createTestTopic(
+              id: 't2',
+              slug: 'topic-2',
+              title: '精選專題標題',
+              publishedDate: DateTime(2024, 1, 2),
+            ),
+          ],
+        );
+        mockIndexPage(data);
 
-      when(() => mockApi.fetchIndexPage()).thenAnswer((_) async {
-        callCount++;
-        if (callCount == 1) {
-          throw Exception('Network error');
-        }
-        return _indexPageResponse(const IndexPageData());
-      });
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
+        expect(find.text('最新專題'), findsOneWidget);
+      },
+    );
 
-      // 等待錯誤發生
-      await tester.pumpAndSettle();
+    testWidgets(
+      'should display reviews section when available',
+      (tester) async {
+        final data = IndexPageData(
+          reviewsSection: <Article>[
+            createTestArticle(
+              slug: 'review-1',
+              title: '評論文章標題',
+              ogDescription: '評論描述',
+            ),
+          ],
+        );
+        mockIndexPage(data);
 
-      expect(find.textContaining('發生錯誤'), findsOneWidget);
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      // 點擊重試按鈕
-      await tester.tap(find.text('重試'));
-      await tester.pumpAndSettle();
+        expect(find.text('評論'), findsOneWidget);
+      },
+    );
 
-      // Assert - 應該再呼叫一次且成功
-      expect(callCount, equals(2));
-      expect(find.textContaining('發生錯誤'), findsNothing);
-    });
+    testWidgets(
+      'should display photos section when available',
+      (tester) async {
+        final data = IndexPageData(
+          photosSection: <Article>[
+            createTestArticle(
+              slug: 'photo-1',
+              title: '攝影文章標題',
+              ogDescription: '攝影描述',
+            ),
+          ],
+        );
+        mockIndexPage(data);
 
-    testWidgets('should display topics section when topics available',
-        (WidgetTester tester) async {
-      // Arrange
-      final IndexPageData data = IndexPageData(
-        latestTopicSection: <Topic>[
-          Topic(
-            id: 't1',
-            slug: 'topic-1',
-            title: '最新專題標題',
-            publishedDate: DateTime(2024, 1, 1),
-          ),
-        ],
-        topicsSection: <Topic>[
-          Topic(
-            id: 't2',
-            slug: 'topic-2',
-            title: '精選專題標題',
-            publishedDate: DateTime(2024, 1, 2),
-          ),
-        ],
-      );
-      mockIndexPage(data);
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
+        expect(find.text('攝影'), findsOneWidget);
+      },
+    );
 
-      await tester.pumpAndSettle();
+    testWidgets(
+      'should display infographics section',
+      (tester) async {
+        final data = IndexPageData(
+          infographicsSection: <Article>[
+            createTestArticle(
+              slug: 'infographic-1',
+              title: '多媒體文章標題',
+              ogDescription: '多媒體描述',
+            ),
+          ],
+        );
+        mockIndexPage(data);
 
-      // Assert
-      expect(find.text('最新專題'), findsOneWidget);
-    });
+        await tester.pumpWidget(buildPage());
+        await tester.pumpAndSettle();
 
-    testWidgets('should display reviews section when reviews available',
-        (WidgetTester tester) async {
-      // Arrange
-      final IndexPageData data = IndexPageData(
-        reviewsSection: <Article>[
-          Article(
-            id: '1',
-            slug: 'review-1',
-            title: '評論文章標題',
-            ogDescription: '評論描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime(2024, 1, 1),
-            isExternal: false,
-          ),
-        ],
-      );
-      mockIndexPage(data);
-
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Assert
-      expect(find.text('評論'), findsOneWidget);
-    });
-
-    testWidgets('should display photos section when photos available',
-        (WidgetTester tester) async {
-      // Arrange
-      final IndexPageData data = IndexPageData(
-        photosSection: <Article>[
-          Article(
-            id: '1',
-            slug: 'photo-1',
-            title: '攝影文章標題',
-            ogDescription: '攝影描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime(2024, 1, 1),
-            isExternal: false,
-          ),
-        ],
-      );
-      mockIndexPage(data);
-
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Assert
-      expect(find.text('攝影'), findsOneWidget);
-    });
-
-    testWidgets('should display infographics section',
-        (WidgetTester tester) async {
-      // Arrange
-      final IndexPageData data = IndexPageData(
-        infographicsSection: <Article>[
-          Article(
-            id: '1',
-            slug: 'infographic-1',
-            title: '多媒體文章標題',
-            ogDescription: '多媒體描述',
-            categorySet: <CategorySet>[],
-            publishedDate: DateTime(2024, 1, 1),
-            isExternal: false,
-          ),
-        ],
-      );
-      mockIndexPage(data);
-
-      // Act
-      await tester.pumpWidget(
-        wrapWithApp(HomePage(api: mockApi)),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Assert
-      expect(find.text('多媒體'), findsOneWidget);
-    });
+        expect(find.text('多媒體'), findsOneWidget);
+      },
+    );
   });
 }

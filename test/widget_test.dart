@@ -1,31 +1,106 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tw_reporter_app/main.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
+import 'package:tw_reporter_app/core/di/app_providers.dart';
+import 'package:tw_reporter_app/core/models/article.dart';
+import 'package:tw_reporter_app/core/models/topic.dart';
+import 'package:tw_reporter_app/core/router/app_router.dart';
+import 'package:tw_reporter_app/core/theme/app_theme.dart';
+import 'package:tw_reporter_app/core/theme/theme_notifier.dart';
+
+import 'helpers/test_helpers.dart';
 
 void main() {
-  testWidgets('App should start successfully', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  late MockArticleRepository mockArticleRepo;
+  late MockTopicRepository mockTopicRepo;
+  late MockHomeRepository mockHomeRepo;
+  late MockReadingRepository mockReadingRepo;
 
-    // Verify that the app starts without errors
-    // This is a basic smoke test to ensure the app can be instantiated
-    expect(find.byType(MaterialApp), findsOneWidget);
+  setUp(() {
+    mockArticleRepo = MockArticleRepository();
+    mockTopicRepo = MockTopicRepository();
+    mockHomeRepo = MockHomeRepository();
+    mockReadingRepo = MockReadingRepository();
+
+    when(() => mockHomeRepo.fetchIndexPage()).thenAnswer(
+      (_) async => const IndexPageData(
+        latestSection: <Article>[],
+        editorPicksSection: <Article>[],
+        topicsSection: <Topic>[],
+        reviewsSection: <Article>[],
+        photosSection: <Article>[],
+        infographicsSection: <Article>[],
+      ),
+    );
+    when(
+      () => mockArticleRepo.fetchLatest(
+        page: any(named: 'page'),
+        limit: any(named: 'limit'),
+      ),
+    ).thenAnswer((_) async => <Article>[]);
+    when(
+      () => mockTopicRepo.fetchTopics(
+        page: any(named: 'page'),
+        limit: any(named: 'limit'),
+      ),
+    ).thenAnswer((_) async => <Topic>[]);
+    when(() => mockReadingRepo.getHistory()).thenReturn([]);
+    when(() => mockReadingRepo.getBookmarks()).thenReturn([]);
   });
 
-  testWidgets('Bottom navigation should have 4 items',
-      (WidgetTester tester) async {
-    // Build our app
-    await tester.pumpWidget(const MyApp());
-    await tester.pumpAndSettle();
+  testWidgets(
+    'App should start successfully',
+    (tester) async {
+      final router = AppRouter();
+      await tester.pumpWidget(
+        AppProviders(
+          articleRepository: mockArticleRepo,
+          topicRepository: mockTopicRepo,
+          homeRepository: mockHomeRepo,
+          readingRepository: mockReadingRepo,
+          themeNotifier: ThemeNotifier(),
+          child: MaterialApp.router(
+            title: '報導者',
+            theme: AppTheme.lightTheme,
+            routerConfig: router.config(),
+          ),
+        ),
+      );
 
-    // Verify that bottom navigation bar exists with 4 items
-    final Finder bottomNavBar = find.byType(BottomNavigationBar);
-    expect(bottomNavBar, findsOneWidget);
+      expect(find.byType(MaterialApp), findsOneWidget);
+    },
+  );
 
-    // Verify navigation items exist
-    expect(find.text('首頁'), findsOneWidget);
-    expect(find.text('最新'), findsOneWidget);
-    expect(find.text('專題'), findsOneWidget);
-    expect(find.text('我的閱讀'), findsOneWidget);
-  });
+  testWidgets(
+    'Bottom navigation should have 5 items',
+    (tester) async {
+      final router = AppRouter();
+      await tester.pumpWidget(
+        AppProviders(
+          articleRepository: mockArticleRepo,
+          topicRepository: mockTopicRepo,
+          homeRepository: mockHomeRepo,
+          readingRepository: mockReadingRepo,
+          themeNotifier: ThemeNotifier(),
+          child: MaterialApp.router(
+            title: '報導者',
+            theme: AppTheme.lightTheme,
+            routerConfig: router.config(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final bottomNavBar =
+          find.byType(BottomNavigationBar);
+      expect(bottomNavBar, findsOneWidget);
+
+      expect(find.text('首頁'), findsOneWidget);
+      expect(find.text('最新'), findsOneWidget);
+      expect(find.text('專題'), findsOneWidget);
+      expect(find.text('我的閱讀'), findsOneWidget);
+      expect(find.text('選單'), findsOneWidget);
+    },
+  );
 }

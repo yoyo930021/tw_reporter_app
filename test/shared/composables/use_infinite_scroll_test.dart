@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
@@ -7,7 +6,7 @@ import 'package:tw_reporter_app/shared/composables/use_infinite_scroll.dart';
 
 // 測試用的 Composition Widget
 class TestWidget extends CompositionWidget {
-  TestWidget({
+  const TestWidget({
     required this.setupFn,
     super.key,
   });
@@ -20,9 +19,9 @@ class TestWidget extends CompositionWidget {
 
 void main() {
   group('useInfiniteScroll', () {
-    testWidgets('should load initial data on mount', (WidgetTester tester) async {
+    testWidgets('should load initial data on mount', (tester) async {
       // Arrange
-      int fetchCallCount = 0;
+      var fetchCallCount = 0;
 
       Future<List<String>> mockFetcher(int page) async {
         fetchCallCount++;
@@ -34,9 +33,8 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final InfiniteScrollResult<String> result = useInfiniteScroll<String>(
+              final result = useInfiniteScroll<String>(
                 fetcher: mockFetcher,
-                pageSize: 10,
               );
 
               return (BuildContext context) => Scaffold(
@@ -62,16 +60,18 @@ void main() {
       expect(find.text('Count: 1'), findsOneWidget);
     });
 
-    testWidgets('should load more data when loadMore is called', (WidgetTester tester) async {
+    testWidgets(
+        'should load more data when loadMore is called',
+        (tester) async {
       // Arrange
-      final List<List<String>> mockData = <List<String>>[
+      final mockData = <List<String>>[
         <String>['item1', 'item2'],
         <String>['item3', 'item4'],
       ];
-      int currentPage = 0;
+      var currentPage = 0;
 
       Future<List<String>> mockFetcher(int page) async {
-        final List<String> data = mockData[currentPage];
+        final data = mockData[currentPage];
         currentPage++;
         return data;
       }
@@ -81,7 +81,7 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final InfiniteScrollResult<String> result = useInfiniteScroll<String>(
+              final result = useInfiniteScroll<String>(
                 fetcher: mockFetcher,
                 pageSize: 2,
               );
@@ -117,8 +117,9 @@ void main() {
       expect(find.text('Count: 4'), findsOneWidget);
     });
 
-    testWidgets('should set hasMore to false when fetched items less than pageSize',
-        (WidgetTester tester) async {
+    testWidgets(
+        'should set hasMore to false when fetched items '
+        'less than pageSize', (tester) async {
       // Arrange
       Future<List<String>> mockFetcher(int page) async {
         return <String>['item1']; // Less than pageSize
@@ -129,9 +130,8 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final InfiniteScrollResult<String> result = useInfiniteScroll<String>(
+              final result = useInfiniteScroll<String>(
                 fetcher: mockFetcher,
-                pageSize: 10,
               );
 
               return (BuildContext context) => Scaffold(
@@ -149,9 +149,9 @@ void main() {
       expect(find.text('HasMore: false'), findsOneWidget);
     });
 
-    testWidgets('should reset data on refresh', (WidgetTester tester) async {
+    testWidgets('should reset data on refresh', (tester) async {
       // Arrange
-      int callCount = 0;
+      var callCount = 0;
 
       Future<List<String>> mockFetcher(int page) async {
         callCount++;
@@ -163,9 +163,8 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final InfiniteScrollResult<String> result = useInfiniteScroll<String>(
+              final result = useInfiniteScroll<String>(
                 fetcher: mockFetcher,
-                pageSize: 10,
               );
 
               return (BuildContext context) => Scaffold(
@@ -205,15 +204,15 @@ void main() {
       expect(find.text('First: item2'), findsOneWidget);
     });
 
-    testWidgets('should not load more when already loading', (WidgetTester tester) async {
+    testWidgets('should not load more when already loading', (tester) async {
       // Arrange
-      int fetchCallCount = 0;
+      var fetchCallCount = 0;
 
       Future<List<String>> mockFetcher(int page) async {
         fetchCallCount++;
         await Future<void>.delayed(const Duration(milliseconds: 100));
         // 返回 10 個項目以確保 hasMore 為 true
-        return List<String>.generate(10, (int index) => 'item${page}_$index');
+        return List<String>.generate(10, (index) => 'item${page}_$index');
       }
 
       // Act
@@ -221,15 +220,14 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final InfiniteScrollResult<String> result = useInfiniteScroll<String>(
+              final result = useInfiniteScroll<String>(
                 fetcher: mockFetcher,
-                pageSize: 10,
               );
 
               return (BuildContext context) => Scaffold(
                     body: Column(
                       children: <Widget>[
-                        Text('Count: ${fetchCallCount}'),
+                        Text('Count: $fetchCallCount'),
                         ElevatedButton(
                           onPressed: result.loadMore,
                           child: const Text('Load More'),
@@ -245,7 +243,10 @@ void main() {
       // 等待初始載入完成
       await tester.pump(); // 啟動 onMounted
       await tester.pump(); // 開始執行 loadMore
-      await tester.pump(const Duration(milliseconds: 100)); // 等待 fetcher 的 delay
+      // 等待 fetcher 的 delay
+      await tester.pump(
+        const Duration(milliseconds: 100),
+      );
       await tester.pump(); // 完成 loadMore 的後續操作
 
       // 確保初始載入已完成
@@ -263,9 +264,9 @@ void main() {
       expect(fetchCallCount, equals(2));
     });
 
-    testWidgets('should not load more when hasMore is false', (WidgetTester tester) async {
+    testWidgets('should not load more when hasMore is false', (tester) async {
       // Arrange
-      int fetchCallCount = 0;
+      var fetchCallCount = 0;
 
       Future<List<String>> mockFetcher(int page) async {
         fetchCallCount++;
@@ -277,9 +278,8 @@ void main() {
         MaterialApp(
           home: TestWidget(
             setupFn: () {
-              final InfiniteScrollResult<String> result = useInfiniteScroll<String>(
+              final result = useInfiniteScroll<String>(
                 fetcher: mockFetcher,
-                pageSize: 10,
               );
 
               return (BuildContext context) => Scaffold(

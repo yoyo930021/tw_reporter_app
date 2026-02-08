@@ -69,11 +69,11 @@ _HeroImage _$HeroImageFromJson(Map<String, dynamic> json) =>
       final val = _HeroImage(
         id: $checkedConvert('id', (v) => v as String),
         filetype: $checkedConvert('filetype', (v) => v as String),
-        description: $checkedConvert('description', (v) => v as String?),
         resizedTargets: $checkedConvert(
           'resized_targets',
           (v) => ResizedTargets.fromJson(v as Map<String, dynamic>),
         ),
+        description: $checkedConvert('description', (v) => v as String?),
       );
       return val;
     }, fieldKeyMap: const {'resizedTargets': 'resized_targets'});
@@ -82,6 +82,6 @@ Map<String, dynamic> _$HeroImageToJson(_HeroImage instance) =>
     <String, dynamic>{
       'id': instance.id,
       'filetype': instance.filetype,
-      'description': instance.description,
       'resized_targets': instance.resizedTargets.toJson(),
+      'description': instance.description,
     };

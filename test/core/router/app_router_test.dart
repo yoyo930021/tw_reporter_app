@@ -13,15 +13,16 @@ void main() {
     test('should have routes configured', () {
       // Assert
       expect(router.routes, isNotEmpty);
-      // 現在有 5 個頂層路由: MainShellRoute, ArticleRoute, TopicDetailRoute, CategoryRoute, SettingsRoute
-      expect(router.routes, hasLength(5));
+      // 7 個頂層路由: MainShell, Article,
+      // TopicDetail, Category, TagDetail, AuthorDetail, Settings
+      expect(router.routes, hasLength(7));
     });
 
     test('should have MainShellRoute as initial route', () {
       // Act
-      final List<AutoRoute> routes = router.routes;
-      final AutoRoute initialRoute = routes.firstWhere(
-        (AutoRoute route) => route.initial == true,
+      final routes = router.routes;
+      final initialRoute = routes.firstWhere(
+        (route) => route.initial,
       );
 
       // Assert
@@ -30,19 +31,19 @@ void main() {
 
     test('should have child routes in MainShellRoute', () {
       // Act
-      final List<AutoRoute> routes = router.routes;
-      final AutoRoute mainShellRoute = routes.firstWhere(
-        (AutoRoute route) => route.page.name == 'MainShellRoute',
+      final routes = router.routes;
+      final mainShellRoute = routes.firstWhere(
+        (route) => route.page.name == 'MainShellRoute',
       );
 
       // Assert
       expect(mainShellRoute.children, isNotNull);
-      expect(mainShellRoute.children, hasLength(4));
+      expect(mainShellRoute.children, hasLength(5));
     });
 
     test('should generate type-safe route for HomePage', () {
       // Act
-      final PageRouteInfo<dynamic> route = HomeRoute();
+      const PageRouteInfo<dynamic> route = HomeRoute();
 
       // Assert
       expect(route.routeName, equals('HomeRoute'));
@@ -51,7 +52,7 @@ void main() {
 
     test('should generate type-safe route for LatestPage', () {
       // Act
-      final PageRouteInfo<dynamic> route = LatestRoute();
+      const PageRouteInfo<dynamic> route = LatestRoute();
 
       // Assert
       expect(route.routeName, equals('LatestRoute'));
@@ -60,7 +61,8 @@ void main() {
 
     test('should generate type-safe route for ArticlePage with slug', () {
       // Act
-      final PageRouteInfo<dynamic> route = ArticleRoute(slug: 'test-article');
+      final PageRouteInfo<dynamic> route =
+          ArticleRoute(slug: 'test-article');
 
       // Assert
       expect(route.routeName, equals('ArticleRoute'));
@@ -82,7 +84,7 @@ void main() {
 
     test('should generate type-safe route for TopicsPage', () {
       // Act
-      final PageRouteInfo<dynamic> route = TopicsRoute();
+      const PageRouteInfo<dynamic> route = TopicsRoute();
 
       // Assert
       expect(route.routeName, equals('TopicsRoute'));
@@ -91,7 +93,7 @@ void main() {
 
     test('should generate type-safe route for MyReadingPage', () {
       // Act
-      final PageRouteInfo<dynamic> route = MyReadingRoute();
+      const PageRouteInfo<dynamic> route = MyReadingRoute();
 
       // Assert
       expect(route.routeName, equals('MyReadingRoute'));
@@ -100,7 +102,7 @@ void main() {
 
     test('should handle ArticleRoute path parameters correctly', () {
       // Arrange
-      const String testSlug = 'taiwan-reporter-investigation';
+      const testSlug = 'taiwan-reporter-investigation';
 
       // Act
       final PageRouteInfo<dynamic> route = ArticleRoute(slug: testSlug);
@@ -111,7 +113,7 @@ void main() {
 
     test('should handle CategoryRoute path parameters correctly', () {
       // Arrange
-      const String testCategory = 'international';
+      const testCategory = 'international';
 
       // Act
       final PageRouteInfo<dynamic> route =
@@ -123,45 +125,45 @@ void main() {
 
     test('should have correct route paths configured', () {
       // Arrange
-      final List<AutoRoute> routes = router.routes;
+      final routes = router.routes;
 
       // Act & Assert - 檢查頂層路由
-      final AutoRoute mainShellRoute = routes.firstWhere(
-        (AutoRoute route) => route.page.name == 'MainShellRoute',
+      final mainShellRoute = routes.firstWhere(
+        (route) => route.page.name == 'MainShellRoute',
       );
       expect(mainShellRoute.path, equals('/'));
 
-      final AutoRoute articleRoute = routes.firstWhere(
-        (AutoRoute route) => route.page.name == 'ArticleRoute',
+      final articleRoute = routes.firstWhere(
+        (route) => route.page.name == 'ArticleRoute',
       );
       expect(articleRoute.path, equals('/a/:slug'));
 
-      final AutoRoute categoryRoute = routes.firstWhere(
-        (AutoRoute route) => route.page.name == 'CategoryRoute',
+      final categoryRoute = routes.firstWhere(
+        (route) => route.page.name == 'CategoryRoute',
       );
       expect(categoryRoute.path, equals('/categories/:category'));
 
       // 檢查 MainShellRoute 的子路由
-      final List<AutoRoute>? childRoutes = mainShellRoute.children;
+      final childRoutes = mainShellRoute.children;
       expect(childRoutes, isNotNull);
 
-      final AutoRoute homeRoute = childRoutes!.firstWhere(
-        (AutoRoute route) => route.page.name == 'HomeRoute',
+      final homeRoute = childRoutes!.firstWhere(
+        (route) => route.page.name == 'HomeRoute',
       );
       expect(homeRoute.path, equals(''));
 
-      final AutoRoute latestRoute = childRoutes.firstWhere(
-        (AutoRoute route) => route.page.name == 'LatestRoute',
+      final latestRoute = childRoutes.firstWhere(
+        (route) => route.page.name == 'LatestRoute',
       );
       expect(latestRoute.path, equals('latest'));
 
-      final AutoRoute topicsRoute = childRoutes.firstWhere(
-        (AutoRoute route) => route.page.name == 'TopicsRoute',
+      final topicsRoute = childRoutes.firstWhere(
+        (route) => route.page.name == 'TopicsRoute',
       );
       expect(topicsRoute.path, equals('topics'));
 
-      final AutoRoute myReadingRoute = childRoutes.firstWhere(
-        (AutoRoute route) => route.page.name == 'MyReadingRoute',
+      final myReadingRoute = childRoutes.firstWhere(
+        (route) => route.page.name == 'MyReadingRoute',
       );
       expect(myReadingRoute.path, equals('myreading'));
     });

@@ -675,7 +675,7 @@ $ImageSizeCopyWith<$Res>? get desktop {
 /// @nodoc
 mixin _$HeroImage {
 
- String get id; String get filetype; String? get description;@JsonKey(name: 'resized_targets') ResizedTargets get resizedTargets;
+ String get id; String get filetype;@JsonKey(name: 'resized_targets') ResizedTargets get resizedTargets; String? get description;
 /// Create a copy of HeroImage
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -688,16 +688,16 @@ $HeroImageCopyWith<HeroImage> get copyWith => _$HeroImageCopyWithImpl<HeroImage>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HeroImage&&(identical(other.id, id) || other.id == id)&&(identical(other.filetype, filetype) || other.filetype == filetype)&&(identical(other.description, description) || other.description == description)&&(identical(other.resizedTargets, resizedTargets) || other.resizedTargets == resizedTargets));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HeroImage&&(identical(other.id, id) || other.id == id)&&(identical(other.filetype, filetype) || other.filetype == filetype)&&(identical(other.resizedTargets, resizedTargets) || other.resizedTargets == resizedTargets)&&(identical(other.description, description) || other.description == description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,filetype,description,resizedTargets);
+int get hashCode => Object.hash(runtimeType,id,filetype,resizedTargets,description);
 
 @override
 String toString() {
-  return 'HeroImage(id: $id, filetype: $filetype, description: $description, resizedTargets: $resizedTargets)';
+  return 'HeroImage(id: $id, filetype: $filetype, resizedTargets: $resizedTargets, description: $description)';
 }
 
 
@@ -708,7 +708,7 @@ abstract mixin class $HeroImageCopyWith<$Res>  {
   factory $HeroImageCopyWith(HeroImage value, $Res Function(HeroImage) _then) = _$HeroImageCopyWithImpl;
 @useResult
 $Res call({
- String id, String filetype, String? description,@JsonKey(name: 'resized_targets') ResizedTargets resizedTargets
+ String id, String filetype,@JsonKey(name: 'resized_targets') ResizedTargets resizedTargets, String? description
 });
 
 
@@ -725,13 +725,13 @@ class _$HeroImageCopyWithImpl<$Res>
 
 /// Create a copy of HeroImage
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? filetype = null,Object? description = freezed,Object? resizedTargets = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? filetype = null,Object? resizedTargets = null,Object? description = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,filetype: null == filetype ? _self.filetype : filetype // ignore: cast_nullable_to_non_nullable
-as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String?,resizedTargets: null == resizedTargets ? _self.resizedTargets : resizedTargets // ignore: cast_nullable_to_non_nullable
-as ResizedTargets,
+as String,resizedTargets: null == resizedTargets ? _self.resizedTargets : resizedTargets // ignore: cast_nullable_to_non_nullable
+as ResizedTargets,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 /// Create a copy of HeroImage
@@ -822,10 +822,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String filetype,  String? description, @JsonKey(name: 'resized_targets')  ResizedTargets resizedTargets)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String filetype, @JsonKey(name: 'resized_targets')  ResizedTargets resizedTargets,  String? description)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HeroImage() when $default != null:
-return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);case _:
+return $default(_that.id,_that.filetype,_that.resizedTargets,_that.description);case _:
   return orElse();
 
 }
@@ -843,10 +843,10 @@ return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String filetype,  String? description, @JsonKey(name: 'resized_targets')  ResizedTargets resizedTargets)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String filetype, @JsonKey(name: 'resized_targets')  ResizedTargets resizedTargets,  String? description)  $default,) {final _that = this;
 switch (_that) {
 case _HeroImage():
-return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);}
+return $default(_that.id,_that.filetype,_that.resizedTargets,_that.description);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -860,10 +860,10 @@ return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String filetype,  String? description, @JsonKey(name: 'resized_targets')  ResizedTargets resizedTargets)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String filetype, @JsonKey(name: 'resized_targets')  ResizedTargets resizedTargets,  String? description)?  $default,) {final _that = this;
 switch (_that) {
 case _HeroImage() when $default != null:
-return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);case _:
+return $default(_that.id,_that.filetype,_that.resizedTargets,_that.description);case _:
   return null;
 
 }
@@ -875,13 +875,13 @@ return $default(_that.id,_that.filetype,_that.description,_that.resizedTargets);
 @JsonSerializable()
 
 class _HeroImage implements HeroImage {
-  const _HeroImage({required this.id, required this.filetype, this.description, @JsonKey(name: 'resized_targets') required this.resizedTargets});
+  const _HeroImage({required this.id, required this.filetype, @JsonKey(name: 'resized_targets') required this.resizedTargets, this.description});
   factory _HeroImage.fromJson(Map<String, dynamic> json) => _$HeroImageFromJson(json);
 
 @override final  String id;
 @override final  String filetype;
-@override final  String? description;
 @override@JsonKey(name: 'resized_targets') final  ResizedTargets resizedTargets;
+@override final  String? description;
 
 /// Create a copy of HeroImage
 /// with the given fields replaced by the non-null parameter values.
@@ -896,16 +896,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HeroImage&&(identical(other.id, id) || other.id == id)&&(identical(other.filetype, filetype) || other.filetype == filetype)&&(identical(other.description, description) || other.description == description)&&(identical(other.resizedTargets, resizedTargets) || other.resizedTargets == resizedTargets));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HeroImage&&(identical(other.id, id) || other.id == id)&&(identical(other.filetype, filetype) || other.filetype == filetype)&&(identical(other.resizedTargets, resizedTargets) || other.resizedTargets == resizedTargets)&&(identical(other.description, description) || other.description == description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,filetype,description,resizedTargets);
+int get hashCode => Object.hash(runtimeType,id,filetype,resizedTargets,description);
 
 @override
 String toString() {
-  return 'HeroImage(id: $id, filetype: $filetype, description: $description, resizedTargets: $resizedTargets)';
+  return 'HeroImage(id: $id, filetype: $filetype, resizedTargets: $resizedTargets, description: $description)';
 }
 
 
@@ -916,7 +916,7 @@ abstract mixin class _$HeroImageCopyWith<$Res> implements $HeroImageCopyWith<$Re
   factory _$HeroImageCopyWith(_HeroImage value, $Res Function(_HeroImage) _then) = __$HeroImageCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String filetype, String? description,@JsonKey(name: 'resized_targets') ResizedTargets resizedTargets
+ String id, String filetype,@JsonKey(name: 'resized_targets') ResizedTargets resizedTargets, String? description
 });
 
 
@@ -933,13 +933,13 @@ class __$HeroImageCopyWithImpl<$Res>
 
 /// Create a copy of HeroImage
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? filetype = null,Object? description = freezed,Object? resizedTargets = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? filetype = null,Object? resizedTargets = null,Object? description = freezed,}) {
   return _then(_HeroImage(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,filetype: null == filetype ? _self.filetype : filetype // ignore: cast_nullable_to_non_nullable
-as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String?,resizedTargets: null == resizedTargets ? _self.resizedTargets : resizedTargets // ignore: cast_nullable_to_non_nullable
-as ResizedTargets,
+as String,resizedTargets: null == resizedTargets ? _self.resizedTargets : resizedTargets // ignore: cast_nullable_to_non_nullable
+as ResizedTargets,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

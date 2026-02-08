@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
-import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
-import 'package:tw_reporter_app/shared/utils/scroll_visibility_mixin.dart';
+import 'package:tw_reporter_app/shared/composables/use_scroll_visibility.dart';
 import 'package:video_player/video_player.dart';
 
 /// Widget that plays embedded videos using the video_player package.
 /// Lazily initializes the player when first visible and pauses when off-screen.
-class EmbeddedVideoPlayer extends StatefulWidget {
+class EmbeddedVideoPlayer extends StatelessWidget {
   /// Creates an [EmbeddedVideoPlayer].
   const EmbeddedVideoPlayer({
     required this.url,
@@ -36,199 +36,221 @@ class EmbeddedVideoPlayer extends StatefulWidget {
   final String? caption;
 
   @override
-  State<EmbeddedVideoPlayer> createState() =>
-      _EmbeddedVideoPlayerState();
+  Widget build(BuildContext context) {
+    return _EmbeddedVideoPlayerContent(
+      url: url,
+      autoplay: autoplay,
+      muted: muted,
+      loop: loop,
+      caption: caption,
+    );
+  }
 }
 
-class _EmbeddedVideoPlayerState extends State<EmbeddedVideoPlayer>
-    with ScrollVisibilityMixin<EmbeddedVideoPlayer> {
-  VideoPlayerController? _controller;
-  bool _isInitialized = false;
-  bool _hasError = false;
-  bool _hasStartedInit = false;
-  bool _wasPlaying = false;
-  bool _disposed = false;
-  double _lastAspectRatio = 16 / 9;
+class _EmbeddedVideoPlayerContent extends CompositionWidget {
+  const _EmbeddedVideoPlayerContent({
+    required this.url,
+    this.autoplay = false,
+    this.muted = false,
+    this.loop = false,
+    this.caption,
+  });
+
+  final String url;
+  final bool autoplay;
+  final bool muted;
+  final bool loop;
+  final String? caption;
 
   @override
-  void onVisibilityChanged({required bool visible}) {
-    if (visible) {
-      if (!_hasStartedInit || _disposed) {
-        unawaited(_initializePlayer());
-      } else if (_isInitialized &&
-          !_controller!.value.isPlaying) {
-        unawaited(_controller!.play());
-      }
-    } else {
-      // Off-screen: dispose controller to free memory
-      if (_controller != null && _isInitialized) {
-        _disposeController();
-      }
-    }
-  }
+  Widget Function(BuildContext context) setup() {
+    final controllerRef = ref<VideoPlayerController?>(null);
+    final isInitialized = ref<bool>(false);
+    final hasError = ref<bool>(false);
+    final hasStartedInit = ref<bool>(false);
+    final wasPlaying = ref<bool>(false);
+    final disposed = ref<bool>(false);
+    final lastAspectRatio = ref<double>(16.0 / 9.0);
+    var isDisposing = false;
 
-  Future<void> _initializePlayer() async {
-    if (_isInitialized && !_disposed) return;
-    _hasStartedInit = true;
-    _disposed = false;
-    _hasError = false;
+    // Forward-declare functions that have circular dependencies with
+    // useScrollVisibility: the onChanged closure references both
+    // initializePlayer and disposeController, while initializePlayer
+    // references isVisible from useScrollVisibility.
+    late final Future<void> Function() initializePlayer;
+    late final void Function() disposeController;
 
-    _controller = VideoPlayerController.networkUrl(
-      Uri.parse(widget.url),
+    final (visibilityKey, isVisible) = useScrollVisibility(
+      onChanged: ({required visible}) {
+        if (visible) {
+          if (!hasStartedInit.value || disposed.value) {
+            unawaited(initializePlayer());
+          } else if (isInitialized.value && controllerRef.value != null) {
+            unawaited(controllerRef.value!.play());
+          }
+        } else {
+          if (controllerRef.value != null && isInitialized.value) {
+            disposeController();
+          }
+        }
+      },
     );
-    _controller!.addListener(_onControllerUpdate);
 
-    await _controller!.setLooping(widget.loop);
-    if (widget.muted) {
-      await _controller!.setVolume(0);
-    }
-    try {
-      await _controller!.initialize();
-      if (!mounted || _disposed) return;
-      _lastAspectRatio = _controller!.value.aspectRatio;
-      setState(() => _isInitialized = true);
-      if (isVisibleInViewport) {
-        await _controller!.play();
+    void onControllerUpdate() {
+      if (controllerRef.value == null || isDisposing) return;
+      final isPlaying = controllerRef.value!.value.isPlaying;
+      if (isPlaying != wasPlaying.value) {
+        wasPlaying.value = isPlaying;
       }
-    } on Exception catch (_) {
-      if (!mounted) return;
-      setState(() => _hasError = true);
     }
-  }
 
-  void _disposeController() {
-    _controller?.removeListener(_onControllerUpdate);
-    unawaited(_controller?.dispose());
-    _controller = null;
-    _isInitialized = false;
-    _wasPlaying = false;
-    _disposed = true;
-    if (mounted) setState(() {});
-  }
+    disposeController = () {
+      controllerRef.value?.removeListener(onControllerUpdate);
+      unawaited(controllerRef.value?.dispose());
+      controllerRef.value = null;
+      isInitialized.value = false;
+      wasPlaying.value = false;
+      disposed.value = true;
+    };
 
-  /// Listen to play state changes to show/hide the play button overlay.
-  void _onControllerUpdate() {
-    if (_controller == null) return;
-    final bool isPlaying = _controller!.value.isPlaying;
-    if (isPlaying != _wasPlaying) {
-      _wasPlaying = isPlaying;
-      if (mounted) setState(() {});
+    initializePlayer = () async {
+      if (isInitialized.value && !disposed.value) return;
+      hasStartedInit.value = true;
+      disposed.value = false;
+      hasError.value = false;
+
+      controllerRef.value = VideoPlayerController.networkUrl(
+        Uri.parse(url),
+      );
+      controllerRef.value!.addListener(onControllerUpdate);
+
+      await controllerRef.value!.setLooping(loop);
+      if (muted) {
+        await controllerRef.value!.setVolume(0);
+      }
+      try {
+        await controllerRef.value!.initialize();
+        if (disposed.value) return;
+        lastAspectRatio.value = controllerRef.value!.value.aspectRatio;
+        isInitialized.value = true;
+        if (isVisible.value) {
+          await controllerRef.value!.play();
+        }
+      } on Exception catch (_) {
+        if (disposed.value) return;
+        hasError.value = true;
+      }
+    };
+
+    onUnmounted(() {
+      isDisposing = true;
+      disposeController();
+    });
+
+    Future<void> togglePlayPause() async {
+      if (controllerRef.value == null || !isInitialized.value) return;
+      if (controllerRef.value!.value.isPlaying) {
+        await controllerRef.value!.pause();
+      } else {
+        await controllerRef.value!.play();
+      }
     }
-  }
 
-  @override
-  void dispose() {
-    _disposeController();
-    super.dispose();
-  }
-
-  Future<void> _togglePlayPause() async {
-    if (_controller == null || !_isInitialized) return;
-    if (_controller!.value.isPlaying) {
-      await _controller!.pause();
-    } else {
-      await _controller!.play();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isDark =
-        Theme.of(context).brightness == Brightness.dark;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        ClipRRect(
-          borderRadius: BorderRadius.circular(
-            AppSpacing.radiusSm,
-          ),
-          child: AspectRatio(
-            aspectRatio: _lastAspectRatio,
-            child: _buildVideoContent(),
-          ),
-        ),
-        if (widget.caption != null &&
-            widget.caption!.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(
-              top: AppSpacing.xs,
+    Widget buildVideoContent() {
+      if (hasError.value) {
+        return const ColoredBox(
+          color: AppColors.grey200,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(
+                  Icons.error_outline,
+                  color: AppColors.grey400,
+                  size: 48,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '影片載入失敗',
+                  style: TextStyle(color: AppColors.grey400),
+                ),
+              ],
             ),
-            child: Text(
-              widget.caption!,
-              style: AppTextStyles.caption.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondary,
-              ),
+          ),
+        );
+      }
+
+      if (!isInitialized.value) {
+        return const ColoredBox(
+          color: AppColors.grey200,
+          child: Center(
+            child: Icon(
+              Icons.play_circle_outline,
+              color: AppColors.grey400,
+              size: 48,
             ),
           ),
-      ],
-    );
-  }
+        );
+      }
 
-  Widget _buildVideoContent() {
-    if (_hasError) {
-      return const ColoredBox(
-        color: AppColors.grey200,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(
-                Icons.error_outline,
-                color: AppColors.grey400,
-                size: 48,
+      return GestureDetector(
+        onTap: togglePlayPause,
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: <Widget>[
+            VideoPlayer(controllerRef.value!),
+            if (!controllerRef.value!.value.isPlaying)
+              const Center(
+                child: Icon(
+                  Icons.play_circle_fill,
+                  size: 64,
+                  color: Colors.white70,
+                ),
               ),
-              SizedBox(height: 8),
-              Text(
-                '影片載入失敗',
-                style: TextStyle(color: AppColors.grey400),
+            VideoProgressIndicator(
+              controllerRef.value!,
+              allowScrubbing: true,
+              colors: const VideoProgressColors(
+                playedColor: AppColors.secondary,
+                bufferedColor: AppColors.grey300,
+                backgroundColor: AppColors.grey200,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
 
-    if (!_isInitialized) {
-      return const ColoredBox(
-        color: AppColors.grey200,
-        child: Center(
-          child: Icon(
-            Icons.play_circle_outline,
-            color: AppColors.grey400,
-            size: 48,
-          ),
-        ),
-      );
-    }
+    return (BuildContext context) {
+      final colors = Theme.of(context).colorScheme;
 
-    return GestureDetector(
-      onTap: _togglePlayPause,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
+      return Column(
+        key: visibilityKey,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          VideoPlayer(_controller!),
-          if (!_controller!.value.isPlaying)
-            const Center(
-              child: Icon(
-                Icons.play_circle_fill,
-                size: 64,
-                color: Colors.white70,
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(
+              AppSpacing.radiusSm,
             ),
-          VideoProgressIndicator(
-            _controller!,
-            allowScrubbing: true,
-            colors: const VideoProgressColors(
-              playedColor: AppColors.secondary,
-              bufferedColor: AppColors.grey300,
-              backgroundColor: AppColors.grey200,
+            child: AspectRatio(
+              aspectRatio: lastAspectRatio.value,
+              child: buildVideoContent(),
             ),
           ),
+          if (caption != null && caption!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(
+                top: AppSpacing.xs,
+              ),
+              child: Text(
+                caption!,
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ),
         ],
-      ),
-    );
+      );
+    };
   }
 }

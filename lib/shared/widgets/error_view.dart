@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
-import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
 
 class ErrorView extends StatelessWidget {
   const ErrorView({
@@ -15,30 +13,33 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Center(
       child: Padding(
         padding: AppSpacing.edgeInsetsMd,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Icon(
+            Icon(
               Icons.error_outline,
               size: 48,
-              color: AppColors.error,
+              color: colors.error,
             ),
             AppSpacing.verticalSpacerMd,
             Text(
               '發生錯誤',
-              style: AppTextStyles.headline3.copyWith(
-                color: AppColors.textPrimary,
+              style: textTheme.displaySmall!.copyWith(
+                color: colors.onSurface,
               ),
             ),
             AppSpacing.verticalSpacerSm,
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.body2.copyWith(
-                color: AppColors.textSecondary,
+              style: textTheme.bodyMedium!.copyWith(
+                color: colors.onSurfaceVariant,
               ),
             ),
             AppSpacing.verticalSpacerMd,

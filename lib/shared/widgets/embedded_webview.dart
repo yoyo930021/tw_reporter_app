@@ -4,10 +4,10 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
-import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
-import 'package:tw_reporter_app/shared/utils/scroll_visibility_mixin.dart';
+import 'package:tw_reporter_app/shared/composables/use_scroll_visibility.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
@@ -18,7 +18,7 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 /// Supports two modes:
 /// - URL mode: loads content from [src]
 /// - HTML mode: loads raw HTML from [htmlData]
-class EmbeddedWebView extends StatefulWidget {
+class EmbeddedWebView extends StatelessWidget {
   /// Creates an [EmbeddedWebView].
   const EmbeddedWebView({
     this.src,
@@ -44,170 +44,242 @@ class EmbeddedWebView extends StatefulWidget {
   final String? caption;
 
   @override
-  State<EmbeddedWebView> createState() => _EmbeddedWebViewState();
+  Widget build(BuildContext context) {
+    return _EmbeddedWebViewContent(
+      src: src,
+      htmlData: htmlData,
+      height: height,
+      caption: caption,
+    );
+  }
 }
 
-class _EmbeddedWebViewState extends State<EmbeddedWebView>
-    with ScrollVisibilityMixin<EmbeddedWebView> {
-  WebViewController? _controller;
-  bool _isLoading = true;
-  bool _hasBeenVisible = false;
-  double? _contentHeight;
+class _EmbeddedWebViewContent extends CompositionWidget {
+  const _EmbeddedWebViewContent({
+    this.src,
+    this.htmlData,
+    this.height = 400,
+    this.caption,
+  });
+
+  final String? src;
+  final String? htmlData;
+  final double height;
+  final String? caption;
 
   @override
-  void onVisibilityChanged({required bool visible}) {
-    if (visible) {
-      if (_controller == null) {
-        _hasBeenVisible = true;
-        _isLoading = true;
-        _controller = WebViewController();
-        unawaited(_initController());
-        setState(() {});
-      }
-    } else {
-      if (_controller != null) {
-        _controller!.loadRequest(Uri.parse('about:blank'));
-        _controller = null;
-        setState(() {});
-      }
-    }
-  }
+  Widget Function(BuildContext) setup() {
+    final controllerRef = ref<WebViewController?>(null);
+    final isLoading = ref<bool>(true);
+    final hasBeenVisible = ref<bool>(false);
+    final contentHeight = ref<double?>(null);
 
-  Future<void> _initController() async {
-    if (kDebugMode) {
-      if (Platform.isAndroid) {
-        await AndroidWebViewController.enableDebugging(true);
-      } else if (Platform.isIOS) {
-        final Object platform = _controller!.platform;
-        if (platform is WebKitWebViewController) {
-          await platform.setInspectable(true);
-        }
-      }
-    }
-    await _controller!.setJavaScriptMode(
-      JavaScriptMode.unrestricted,
-    );
-    await _controller!.setBackgroundColor(Colors.transparent);
-    await _controller!.addJavaScriptChannel(
-      'FlutterHeight',
-      onMessageReceived: (JavaScriptMessage message) {
-        final h = double.tryParse(message.message);
-        if (h != null && h > 0 && mounted) {
-          setState(() => _contentHeight = h);
-        }
-      },
-    );
-    await _controller!.setOnConsoleMessage((JavaScriptConsoleMessage msg) {
-      debugPrint('[WebView ${msg.level.name}] ${msg.message}');
-    });
-    await _controller!.setNavigationDelegate(
-      NavigationDelegate(
-        onPageFinished: (_) {
-          _measureHeight();
-          if (mounted) {
-            setState(() => _isLoading = false);
-          }
-        },
-        onWebResourceError: (WebResourceError error) {
-          debugPrint(
-            '[WebView error] ${error.errorCode}: '
-            '${error.description} (${error.url})',
-          );
-        },
-      ),
-    );
-
-    if (widget.src != null) {
-      debugPrint('[WebView] loadRequest: ${widget.src}');
-      await _controller!.loadRequest(
-        Uri.parse(widget.src!),
-      );
-    } else if (widget.htmlData != null) {
-      debugPrint('[WebView] loadHtmlString:\n${widget.htmlData}');
-      await _controller!.loadHtmlString(
-        widget.htmlData!,
-        baseUrl: _baseUrlFromHtml(widget.htmlData!),
-      );
-    }
-  }
-
-  void _measureHeight() {
-    _controller?.runJavaScript('''
+    void injectScripts() {
+      unawaited(controllerRef.value?.runJavaScript('''
 (function() {
-  var s = document.createElement('style');
-  s.textContent = 'html,body{background:transparent!important}';
-  (document.head || document.documentElement).appendChild(s);
+  // Forward wheel events to Flutter so the parent ScrollView scrolls.
+  document.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    FlutterScroll.postMessage(String(e.deltaY));
+  }, {passive: false});
 
-  var h = document.documentElement.scrollHeight;
-  if (h > 0) FlutterHeight.postMessage(String(h));
-  new MutationObserver(function() {
-    var nh = document.documentElement.scrollHeight;
-    if (nh !== h) {
+  // Measure content height.
+  var h = 0;
+  function measure() {
+    var bh = document.body ? document.body.scrollHeight : 0;
+    var dh = document.documentElement.scrollHeight;
+    var nh = Math.max(bh, dh);
+    if (nh > 0 && nh !== h) {
       h = nh;
       FlutterHeight.postMessage(String(h));
     }
-  }).observe(document.body || document.documentElement,
-    {childList: true, subtree: true, attributes: true});
-})();
-''');
   }
+  measure();
+  new MutationObserver(measure).observe(
+    document.documentElement,
+    {childList: true, subtree: true, attributes: true}
+  );
+  if (typeof ResizeObserver !== 'undefined' && document.body) {
+    new ResizeObserver(measure).observe(document.body);
+  }
+  var count = 0;
+  var poll = setInterval(function() {
+    measure();
+    if (++count >= 30) clearInterval(poll);
+  }, 500);
+})();
+'''));
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final double viewHeight = _contentHeight ?? widget.height;
+    // Declare onVisibilityChanged before useScrollVisibility so it can
+    // be passed as the callback, and declare forwardScroll /
+    // initController as late locals so that onVisibilityChanged can
+    // reference initController and initController can reference
+    // forwardScroll (all invoked lazily via closures).
+    late final void Function(double dy) forwardScroll;
+    late final Future<void> Function() initController;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        SizedBox(
-          height: viewHeight,
-          child: _hasBeenVisible && _controller != null
-              ? Stack(
-                  children: <Widget>[
-                    WebViewWidget(controller: _controller!),
-                    if (_isLoading)
-                      const Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
+    void onVisibilityChanged({required bool visible}) {
+      if (visible) {
+        if (controllerRef.value == null) {
+          hasBeenVisible.value = true;
+          isLoading.value = true;
+          controllerRef.value = WebViewController();
+          unawaited(initController());
+        }
+      } else {
+        if (controllerRef.value != null) {
+          unawaited(
+              controllerRef.value!.loadRequest(Uri.parse('about:blank')));
+          controllerRef.value = null;
+        }
+      }
+    }
+
+    final (visibilityKey, _) = useScrollVisibility(
+      onChanged: onVisibilityChanged,
+    );
+
+    forwardScroll = (dy) {
+      final ctx = visibilityKey.currentContext;
+      if (ctx == null) return;
+      final scrollable = Scrollable.maybeOf(ctx);
+      if (scrollable == null) return;
+      final position = scrollable.position;
+      final target = (position.pixels + dy).clamp(
+        position.minScrollExtent,
+        position.maxScrollExtent,
+      );
+      position.jumpTo(target);
+    };
+
+    initController = () async {
+      if (kDebugMode) {
+        if (Platform.isAndroid) {
+          await AndroidWebViewController.enableDebugging(true);
+        } else if (Platform.isIOS) {
+          final Object platform = controllerRef.value!.platform;
+          if (platform is WebKitWebViewController) {
+            await platform.setInspectable(true);
+          }
+        }
+      }
+      await controllerRef.value!.setJavaScriptMode(
+        JavaScriptMode.unrestricted,
+      );
+      await controllerRef.value!.addJavaScriptChannel(
+        'FlutterHeight',
+        onMessageReceived: (message) {
+          final h = double.tryParse(message.message);
+          if (h != null && h > 0 && controllerRef.value != null) {
+            contentHeight.value = h;
+          }
+        },
+      );
+      await controllerRef.value!.addJavaScriptChannel(
+        'FlutterScroll',
+        onMessageReceived: (message) {
+          final dy = double.tryParse(message.message);
+          if (dy != null && dy != 0) {
+            forwardScroll(dy);
+          }
+        },
+      );
+      await controllerRef.value!.setOnConsoleMessage((msg) {
+        debugPrint('[WebView ${msg.level.name}] ${msg.message}');
+      });
+      await controllerRef.value!.setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (_) {
+            injectScripts();
+            if (controllerRef.value != null) {
+              isLoading.value = false;
+            }
+          },
+          onWebResourceError: (error) {
+            debugPrint(
+              '[WebView error] ${error.errorCode}: '
+              '${error.description} (${error.url})',
+            );
+          },
+        ),
+      );
+
+      if (src != null) {
+        debugPrint('[WebView] loadRequest: $src');
+        await controllerRef.value!.loadRequest(
+          Uri.parse(src!),
+        );
+      } else if (htmlData != null) {
+        debugPrint('[WebView] loadHtmlString:\n$htmlData');
+        await controllerRef.value!.loadHtmlString(
+          htmlData!,
+          baseUrl: _baseUrlFromHtml(htmlData!),
+        );
+      }
+    };
+
+    onUnmounted(() {
+      if (controllerRef.value != null) {
+        unawaited(
+            controllerRef.value!.loadRequest(Uri.parse('about:blank')));
+        controllerRef.value = null;
+      }
+    });
+
+    return (BuildContext context) {
+      final colors = Theme.of(context).colorScheme;
+      final viewHeight = contentHeight.value ?? height;
+
+      return Column(
+        key: visibilityKey,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            height: viewHeight,
+            child: hasBeenVisible.value && controllerRef.value != null
+                ? Stack(
+                    children: <Widget>[
+                      WebViewWidget(controller: controllerRef.value!),
+                      if (isLoading.value)
+                        const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
                         ),
+                    ],
+                  )
+                : const ColoredBox(
+                    color: AppColors.grey200,
+                    child: Center(
+                      child: Icon(
+                        Icons.web,
+                        color: AppColors.grey400,
+                        size: 48,
                       ),
-                  ],
-                )
-              : const ColoredBox(
-                  color: AppColors.grey200,
-                  child: Center(
-                    child: Icon(
-                      Icons.web,
-                      color: AppColors.grey400,
-                      size: 48,
                     ),
                   ),
+          ),
+          if (caption != null && caption!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(
+                top: AppSpacing.xs,
+              ),
+              child: Text(
+                caption!,
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
-        ),
-        if (widget.caption != null && widget.caption!.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(
-              top: AppSpacing.xs,
-            ),
-            child: Text(
-              widget.caption!,
-              style: AppTextStyles.caption.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondary,
               ),
             ),
-          ),
-      ],
-    );
+        ],
+      );
+    };
   }
 }
 
 /// Extract origin from `<script src="...">` to use as baseUrl,
 /// avoiding CORS `null` origin.
-/// Prioritises `<script>` over `<link>` because the script origin
-/// is what matters for CORS.
 String? _baseUrlFromHtml(String html) {
   // Try <script src="https://..."> first
   var match = RegExp(

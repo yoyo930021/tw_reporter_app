@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
-import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
+import 'package:tw_reporter_app/core/theme/app_theme.dart';
 
 class CategoryBadge extends StatelessWidget {
   const CategoryBadge({
@@ -13,7 +13,7 @@ class CategoryBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color =
+    final color =
         AppColors.categoryColors[categoryName] ?? AppColors.grey600;
 
     return Container(
@@ -27,7 +27,7 @@ class CategoryBadge extends StatelessWidget {
       ),
       child: Text(
         categoryName,
-        style: AppTextStyles.categoryTag.copyWith(color: color),
+        style: Theme.of(context).textTheme.categoryTag.copyWith(color: color),
       ),
     );
   }

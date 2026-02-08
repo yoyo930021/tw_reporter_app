@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Author {
 
- String get id; String get name;@JsonKey(name: 'job_title') String? get jobTitle;
+ String get id; String get name;@JsonKey(name: 'job_title') String? get jobTitle; String? get email; String? get bio; HeroImage? get thumbnail;@JsonKey(name: 'updated_at') DateTime? get updatedAt;
 /// Create a copy of Author
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $AuthorCopyWith<Author> get copyWith => _$AuthorCopyWithImpl<Author>(this as Aut
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Author&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.jobTitle, jobTitle) || other.jobTitle == jobTitle));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Author&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.jobTitle, jobTitle) || other.jobTitle == jobTitle)&&(identical(other.email, email) || other.email == email)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,jobTitle);
+int get hashCode => Object.hash(runtimeType,id,name,jobTitle,email,bio,thumbnail,updatedAt);
 
 @override
 String toString() {
-  return 'Author(id: $id, name: $name, jobTitle: $jobTitle)';
+  return 'Author(id: $id, name: $name, jobTitle: $jobTitle, email: $email, bio: $bio, thumbnail: $thumbnail, updatedAt: $updatedAt)';
 }
 
 
@@ -48,11 +48,11 @@ abstract mixin class $AuthorCopyWith<$Res>  {
   factory $AuthorCopyWith(Author value, $Res Function(Author) _then) = _$AuthorCopyWithImpl;
 @useResult
 $Res call({
- String id, String name,@JsonKey(name: 'job_title') String? jobTitle
+ String id, String name,@JsonKey(name: 'job_title') String? jobTitle, String? email, String? bio, HeroImage? thumbnail,@JsonKey(name: 'updated_at') DateTime? updatedAt
 });
 
 
-
+$HeroImageCopyWith<$Res>? get thumbnail;
 
 }
 /// @nodoc
@@ -65,15 +65,31 @@ class _$AuthorCopyWithImpl<$Res>
 
 /// Create a copy of Author
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? jobTitle = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? jobTitle = freezed,Object? email = freezed,Object? bio = freezed,Object? thumbnail = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,jobTitle: freezed == jobTitle ? _self.jobTitle : jobTitle // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
+as String?,thumbnail: freezed == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
+as HeroImage?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
+/// Create a copy of Author
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$HeroImageCopyWith<$Res>? get thumbnail {
+    if (_self.thumbnail == null) {
+    return null;
+  }
 
+  return $HeroImageCopyWith<$Res>(_self.thumbnail!, (value) {
+    return _then(_self.copyWith(thumbnail: value));
+  });
+}
 }
 
 
@@ -152,10 +168,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'job_title')  String? jobTitle)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'job_title')  String? jobTitle,  String? email,  String? bio,  HeroImage? thumbnail, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Author() when $default != null:
-return $default(_that.id,_that.name,_that.jobTitle);case _:
+return $default(_that.id,_that.name,_that.jobTitle,_that.email,_that.bio,_that.thumbnail,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -173,10 +189,10 @@ return $default(_that.id,_that.name,_that.jobTitle);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'job_title')  String? jobTitle)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name, @JsonKey(name: 'job_title')  String? jobTitle,  String? email,  String? bio,  HeroImage? thumbnail, @JsonKey(name: 'updated_at')  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _Author():
-return $default(_that.id,_that.name,_that.jobTitle);}
+return $default(_that.id,_that.name,_that.jobTitle,_that.email,_that.bio,_that.thumbnail,_that.updatedAt);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -190,10 +206,10 @@ return $default(_that.id,_that.name,_that.jobTitle);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name, @JsonKey(name: 'job_title')  String? jobTitle)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name, @JsonKey(name: 'job_title')  String? jobTitle,  String? email,  String? bio,  HeroImage? thumbnail, @JsonKey(name: 'updated_at')  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Author() when $default != null:
-return $default(_that.id,_that.name,_that.jobTitle);case _:
+return $default(_that.id,_that.name,_that.jobTitle,_that.email,_that.bio,_that.thumbnail,_that.updatedAt);case _:
   return null;
 
 }
@@ -205,12 +221,16 @@ return $default(_that.id,_that.name,_that.jobTitle);case _:
 @JsonSerializable()
 
 class _Author implements Author {
-  const _Author({required this.id, required this.name, @JsonKey(name: 'job_title') this.jobTitle});
+  const _Author({required this.id, required this.name, @JsonKey(name: 'job_title') this.jobTitle, this.email, this.bio, this.thumbnail, @JsonKey(name: 'updated_at') this.updatedAt});
   factory _Author.fromJson(Map<String, dynamic> json) => _$AuthorFromJson(json);
 
 @override final  String id;
 @override final  String name;
 @override@JsonKey(name: 'job_title') final  String? jobTitle;
+@override final  String? email;
+@override final  String? bio;
+@override final  HeroImage? thumbnail;
+@override@JsonKey(name: 'updated_at') final  DateTime? updatedAt;
 
 /// Create a copy of Author
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Author&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.jobTitle, jobTitle) || other.jobTitle == jobTitle));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Author&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.jobTitle, jobTitle) || other.jobTitle == jobTitle)&&(identical(other.email, email) || other.email == email)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,jobTitle);
+int get hashCode => Object.hash(runtimeType,id,name,jobTitle,email,bio,thumbnail,updatedAt);
 
 @override
 String toString() {
-  return 'Author(id: $id, name: $name, jobTitle: $jobTitle)';
+  return 'Author(id: $id, name: $name, jobTitle: $jobTitle, email: $email, bio: $bio, thumbnail: $thumbnail, updatedAt: $updatedAt)';
 }
 
 
@@ -245,11 +265,11 @@ abstract mixin class _$AuthorCopyWith<$Res> implements $AuthorCopyWith<$Res> {
   factory _$AuthorCopyWith(_Author value, $Res Function(_Author) _then) = __$AuthorCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name,@JsonKey(name: 'job_title') String? jobTitle
+ String id, String name,@JsonKey(name: 'job_title') String? jobTitle, String? email, String? bio, HeroImage? thumbnail,@JsonKey(name: 'updated_at') DateTime? updatedAt
 });
 
 
-
+@override $HeroImageCopyWith<$Res>? get thumbnail;
 
 }
 /// @nodoc
@@ -262,16 +282,32 @@ class __$AuthorCopyWithImpl<$Res>
 
 /// Create a copy of Author
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? jobTitle = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? jobTitle = freezed,Object? email = freezed,Object? bio = freezed,Object? thumbnail = freezed,Object? updatedAt = freezed,}) {
   return _then(_Author(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,jobTitle: freezed == jobTitle ? _self.jobTitle : jobTitle // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String?,bio: freezed == bio ? _self.bio : bio // ignore: cast_nullable_to_non_nullable
+as String?,thumbnail: freezed == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
+as HeroImage?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
+/// Create a copy of Author
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$HeroImageCopyWith<$Res>? get thumbnail {
+    if (_self.thumbnail == null) {
+    return null;
+  }
 
+  return $HeroImageCopyWith<$Res>(_self.thumbnail!, (value) {
+    return _then(_self.copyWith(thumbnail: value));
+  });
+}
 }
 
 // dart format on

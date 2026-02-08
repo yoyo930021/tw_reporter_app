@@ -1,9 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
-import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
-import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
+import 'package:tw_reporter_app/core/theme/app_theme.dart';
 import 'package:tw_reporter_app/shared/utils/date_formatter.dart';
 
 class TopicCard extends StatelessWidget {
@@ -18,7 +17,9 @@ class TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String? imageUrl = _getImageUrl();
+    final imageUrl = _getImageUrl();
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Card(
       margin: const EdgeInsets.symmetric(
@@ -40,20 +41,20 @@ class TopicCard extends StatelessWidget {
                 height: 180,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                placeholder: (BuildContext context, String url) => Container(
+                placeholder: (context, url) => Container(
                   height: 180,
-                  color: AppColors.grey200,
+                  color: colors.surfaceContainerHighest,
                   child: const Center(
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 ),
                 errorWidget:
-                    (BuildContext context, String url, Object error) =>
+                    (context, url, error) =>
                         Container(
                   height: 180,
-                  color: AppColors.grey200,
-                  child: const Icon(Icons.image_not_supported,
-                      color: AppColors.grey400),
+                  color: colors.surfaceContainerHighest,
+                  child: Icon(Icons.image_not_supported,
+                      color: colors.outline),
                 ),
               ),
             Padding(
@@ -63,7 +64,7 @@ class TopicCard extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     topic.title,
-                    style: AppTextStyles.headline3.copyWith(fontSize: 18),
+                    style: textTheme.displaySmall!.copyWith(fontSize: 18),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -71,8 +72,8 @@ class TopicCard extends StatelessWidget {
                     AppSpacing.verticalSpacerSm,
                     Text(
                       topic.ogDescription!,
-                      style: AppTextStyles.body2.copyWith(
-                        color: AppColors.textSecondary,
+                      style: textTheme.bodyMedium!.copyWith(
+                        color: colors.onSurfaceVariant,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -81,7 +82,7 @@ class TopicCard extends StatelessWidget {
                   AppSpacing.verticalSpacerSm,
                   Text(
                     formatDate(topic.publishedDate),
-                    style: AppTextStyles.timestamp,
+                    style: textTheme.timestamp,
                   ),
                 ],
               ),

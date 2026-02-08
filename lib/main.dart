@@ -1,75 +1,102 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:tw_reporter_app/core/api/api_client.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
+import 'package:tw_reporter_app/core/di/app_providers.dart';
+import 'package:tw_reporter_app/core/push/push_service.dart';
+import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
+import 'package:tw_reporter_app/core/repositories_impl/local_reading_repository.dart';
+import 'package:tw_reporter_app/core/repositories_impl/tw_reporter_article_repository.dart';
+import 'package:tw_reporter_app/core/repositories_impl/tw_reporter_home_repository.dart';
+import 'package:tw_reporter_app/core/repositories_impl/tw_reporter_topic_repository.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/core/theme/app_theme.dart';
 import 'package:tw_reporter_app/core/theme/theme_notifier.dart';
-import 'package:tw_reporter_app/features/home/presentation/home_page.dart';
 
-void main() {
+Future<void> main(List<String> args) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await PushService.instance.init(args);
+
+  // 如果由 UnifiedPush 背景啟動，不需要顯示 UI
+  if (args.contains('--unifiedpush-bg')) return;
+
   runApp(const MyApp());
 }
 
-/// ThemeNotifier Provider
-class ThemeNotifierProvider extends InheritedNotifier<ThemeNotifier> {
-  const ThemeNotifierProvider({
-    required ThemeNotifier notifier,
-    required super.child,
-    super.key,
-  }) : super(notifier: notifier);
-
-  static ThemeNotifier of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<ThemeNotifierProvider>();
-    return provider!.notifier!;
-  }
-}
-
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) => const _MyAppContent();
 }
 
-class _MyAppState extends State<MyApp> {
-  final _themeNotifier = ThemeNotifier();
-  late final AppRouter _appRouter;
-  late final TwReporterApi _api;
+class _MyAppContent extends CompositionWidget {
+  const _MyAppContent();
 
   @override
-  void initState() {
-    super.initState();
-    _api = TwReporterApi(ApiClient.createDio());
-    _appRouter = AppRouter();
-  }
+  Widget Function(BuildContext) setup() {
+    final themeNotifierRef = manageChangeNotifier(ThemeNotifier());
 
-  @override
-  void dispose() {
-    _themeNotifier.dispose();
-    super.dispose();
-  }
+    final api = TwReporterApi(ApiClient.createDio());
+    final articleRepo = TwReporterArticleRepository(api);
+    final topicRepo = TwReporterTopicRepository(api);
+    final homeRepo = TwReporterHomeRepository(api);
+    final appRouter = AppRouter();
+    final readingRepo = ref<ReadingRepository?>(null);
 
-  @override
-  Widget build(BuildContext context) {
-    return ThemeNotifierProvider(
-      notifier: _themeNotifier,
-      child: ApiProvider(
-        api: _api,
-        child: ListenableBuilder(
-          listenable: _themeNotifier,
-          builder: (context, _) {
-            return MaterialApp.router(
-              title: '報導者',
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: _themeNotifier.themeMode,
-              routerConfig: _appRouter.config(),
-              debugShowCheckedModeBanner: false,
-            );
-          },
+    void handlePushNotificationTap() {
+      final payload = PushService.instance.consumePendingPayload();
+      if (payload == null) return;
+
+      final uri = Uri.tryParse(payload);
+      if (uri == null) return;
+
+      final segments = uri.pathSegments;
+      if (segments.length >= 2 && segments[0] == 'a') {
+        unawaited(appRouter.push(ArticleRoute(slug: segments[1])));
+      } else if (segments.length >= 2 && segments[0] == 'topics') {
+        unawaited(appRouter.push(TopicDetailRoute(slug: segments[1])));
+      }
+    }
+
+    onMounted(() async {
+      PushService.instance.addListener(handlePushNotificationTap);
+      final repo = await LocalReadingRepository.create();
+      readingRepo.value = repo;
+    });
+
+    onUnmounted(() {
+      PushService.instance.removeListener(handlePushNotificationTap);
+    });
+
+    return (BuildContext context) {
+      final repo = readingRepo.value;
+      if (repo == null) {
+        return const MaterialApp(
+          home: Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          ),
+        );
+      }
+
+      final notifier = themeNotifierRef.value;
+      return AppProviders(
+        articleRepository: articleRepo,
+        topicRepository: topicRepo,
+        homeRepository: homeRepo,
+        readingRepository: repo,
+        themeNotifier: notifier,
+        child: MaterialApp.router(
+          title: '報導者',
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: notifier.themeMode,
+          routerConfig: appRouter.config(),
+          debugShowCheckedModeBanner: false,
         ),
-      ),
-    );
+      );
+    };
   }
 }

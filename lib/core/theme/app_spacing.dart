@@ -24,71 +24,73 @@ class AppSpacing {
 
   /// 常用的 EdgeInsets
   /// 無間距
-  static const edgeInsetsZero = EdgeInsets.zero;
+  static const EdgeInsets edgeInsetsZero = EdgeInsets.zero;
 
   /// 極小全邊距 - 4px
-  static const edgeInsetsXs = EdgeInsets.all(xs);
+  static const EdgeInsets edgeInsetsXs = EdgeInsets.all(xs);
 
   /// 小全邊距 - 8px
-  static const edgeInsetsSm = EdgeInsets.all(sm);
+  static const EdgeInsets edgeInsetsSm = EdgeInsets.all(sm);
 
   /// 中全邊距 - 16px
-  static const edgeInsetsMd = EdgeInsets.all(md);
+  static const EdgeInsets edgeInsetsMd = EdgeInsets.all(md);
 
   /// 大全邊距 - 24px
-  static const edgeInsetsLg = EdgeInsets.all(lg);
+  static const EdgeInsets edgeInsetsLg = EdgeInsets.all(lg);
 
   /// 極大全邊距 - 32px
-  static const edgeInsetsXl = EdgeInsets.all(xl);
+  static const EdgeInsets edgeInsetsXl = EdgeInsets.all(xl);
 
   /// 水平間距 - 16px
-  static const edgeInsetsHorizontalMd = EdgeInsets.symmetric(horizontal: md);
+  static const EdgeInsets edgeInsetsHorizontalMd =
+      EdgeInsets.symmetric(horizontal: md);
 
   /// 垂直間距 - 16px
-  static const edgeInsetsVerticalMd = EdgeInsets.symmetric(vertical: md);
+  static const EdgeInsets edgeInsetsVerticalMd =
+      EdgeInsets.symmetric(vertical: md);
 
   /// 頁面邊距 - 水平 16px, 垂直 8px
-  static const edgeInsetsPage = EdgeInsets.symmetric(
+  static const EdgeInsets edgeInsetsPage = EdgeInsets.symmetric(
     horizontal: md,
     vertical: sm,
   );
 
   /// 卡片內邊距 - 16px
-  static const edgeInsetsCard = EdgeInsets.all(md);
+  static const EdgeInsets edgeInsetsCard = EdgeInsets.all(md);
 
   /// 列表項目邊距 - 水平 16px, 垂直 12px
-  static const edgeInsetsListItem = EdgeInsets.symmetric(
+  static const EdgeInsets edgeInsetsListItem = EdgeInsets.symmetric(
     horizontal: md,
     vertical: 12,
   );
 
   /// 常用的 SizedBox
   /// 水平間距盒 - 4px
-  static const horizontalSpacerXs = SizedBox(width: xs);
+  static const SizedBox horizontalSpacerXs = SizedBox(width: xs);
 
   /// 水平間距盒 - 8px
-  static const horizontalSpacerSm = SizedBox(width: sm);
+  static const SizedBox horizontalSpacerSm = SizedBox(width: sm);
 
   /// 水平間距盒 - 16px
-  static const horizontalSpacerMd = SizedBox(width: md);
+  static const SizedBox horizontalSpacerMd = SizedBox(width: md);
 
   /// 水平間距盒 - 24px
-  static const horizontalSpacerLg = SizedBox(width: lg);
+  static const SizedBox horizontalSpacerLg = SizedBox(width: lg);
 
   /// 垂直間距盒 - 4px
-  static const verticalSpacerXs = SizedBox(height: xs);
+  static const SizedBox verticalSpacerXs = SizedBox(height: xs);
 
   /// 垂直間距盒 - 8px
-  static const verticalSpacerSm = SizedBox(height: sm);
+  static const SizedBox verticalSpacerSm = SizedBox(height: sm);
 
   /// 垂直間距盒 - 16px
-  static const verticalSpacerMd = SizedBox(height: md);
+  static const SizedBox verticalSpacerMd = SizedBox(height: md);
 
   /// 垂直間距盒 - 24px
-  static const verticalSpacerLg = SizedBox(height: lg);
+  static const SizedBox verticalSpacerLg = SizedBox(height: lg);
 
   /// 垂直間距盒 - 32px
-  static const verticalSpacerXl = SizedBox(height: xl);
+  static const SizedBox verticalSpacerXl = SizedBox(height: xl);
 
   /// 常用的圓角半徑
   /// 小圓角 - 4px

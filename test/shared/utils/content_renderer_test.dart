@@ -1,3 +1,5 @@
+// ignore_for_file: missing_whitespace_between_adjacent_strings // Adjacent strings used intentionally for multi-line HTML test data
+
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -6,7 +8,7 @@ import 'package:tw_reporter_app/shared/utils/content_renderer.dart';
 void main() {
   group('convertContentToHtml - embeddedcode', () {
     test('should render video with autoplay/muted/loop attributes', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -29,7 +31,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('<embedded-video'));
       expect(
@@ -44,7 +46,7 @@ void main() {
     });
 
     test('should render video without autoplay when not present', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -63,7 +65,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('autoplay="false"'));
       expect(result, contains('muted="false"'));
@@ -71,7 +73,7 @@ void main() {
     });
 
     test('should render iframe with height from style', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -90,7 +92,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('<embedded-iframe'));
       expect(
@@ -103,7 +105,7 @@ void main() {
     });
 
     test('should render iframe with vh height approximation', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -122,7 +124,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('<embedded-iframe'));
       // 80vh * 8 = 640
@@ -131,7 +133,7 @@ void main() {
 
     test('should render iframe with default height when none specified',
         () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -148,17 +150,17 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('height="400"'));
     });
 
     test('should render custom component with scripts as webview', () {
-      const String fullCode = '<script type="module" '
+      const fullCode = '<script type="module" '
           'src="https://example.com/widget.js"></script>'
           '<my-widget data="test"></my-widget>';
 
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -174,7 +176,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('<embedded-webview'));
       expect(result, contains('data="'));
@@ -182,10 +184,10 @@ void main() {
       expect(result, contains('</embedded-webview>'));
 
       // Verify the data attribute is valid base64 of a full HTML document
-      final RegExp dataRegex = RegExp(r'data="([^"]*)"');
-      final RegExpMatch? dataMatch = dataRegex.firstMatch(result);
+      final dataRegex = RegExp('data="([^"]*)"');
+      final dataMatch = dataRegex.firstMatch(result);
       expect(dataMatch, isNotNull);
-      final String decoded = utf8.decode(
+      final decoded = utf8.decode(
         base64Url.decode(dataMatch!.group(1)!),
       );
       expect(decoded, contains('<!DOCTYPE html>'));
@@ -196,7 +198,7 @@ void main() {
 
     test('should render custom web component without scripts as webview',
         () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -216,17 +218,17 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('<embedded-webview'));
       expect(result, contains('caption="疊圖"'));
       expect(result, contains('</embedded-webview>'));
 
       // Verify data decodes to a full HTML document
-      final RegExp dataRegex = RegExp(r'data="([^"]*)"');
-      final RegExpMatch? dataMatch = dataRegex.firstMatch(result);
+      final dataRegex = RegExp('data="([^"]*)"');
+      final dataMatch = dataRegex.firstMatch(result);
       expect(dataMatch, isNotNull);
-      final String decoded = utf8.decode(
+      final decoded = utf8.decode(
         base64Url.decode(dataMatch!.group(1)!),
       );
       expect(decoded, contains('<!DOCTYPE html>'));
@@ -236,7 +238,7 @@ void main() {
 
     test('should fallback to unsupported for unknown embedded content',
         () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -251,13 +253,13 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('此內容格式未支援'));
     });
 
     test('should fallback to unsupported for empty content list', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -266,13 +268,13 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('此內容格式未支援'));
     });
 
     test('should fallback to unsupported for non-list content', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -281,13 +283,13 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('此內容格式未支援'));
     });
 
     test('should prefer embeddedCodeWithoutScript over embeddedCode', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -306,7 +308,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       // Should detect iframe from embeddedCodeWithoutScript
       expect(result, contains('<embedded-iframe'));
@@ -314,7 +316,7 @@ void main() {
     });
 
     test('should escape HTML in caption', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'embeddedcode',
@@ -335,7 +337,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(
         result,
@@ -348,7 +350,7 @@ void main() {
 
   group('convertContentToHtml - imagediff', () {
     test('should render two images as diffimg custom tags', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'imagediff',
@@ -370,7 +372,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('<imagediff>'));
       expect(result, contains('</imagediff>'));
@@ -392,7 +394,7 @@ void main() {
     });
 
     test('should handle empty imagediff content', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'imagediff',
@@ -401,13 +403,13 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, isEmpty);
     });
 
     test('should handle imagediff with no description', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'imagediff',
@@ -422,7 +424,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('<imagediff>'));
       expect(result, contains('<diffimg'));
@@ -430,7 +432,7 @@ void main() {
     });
 
     test('should prefer mobile image size', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'imagediff',
@@ -449,7 +451,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(
         result,
@@ -460,7 +462,7 @@ void main() {
 
   group('convertContentToHtml - slideshow', () {
     test('should render slideshow with multiple slides', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'slideshow',
@@ -488,7 +490,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, contains('<slideshow>'));
       expect(result, contains('</slideshow>'));
@@ -514,7 +516,7 @@ void main() {
     });
 
     test('should handle empty slideshow content', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'slideshow',
@@ -523,13 +525,13 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(result, isEmpty);
     });
 
     test('should escape HTML in slide descriptions', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'slideshow',
@@ -545,7 +547,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect(
         result,
@@ -554,7 +556,7 @@ void main() {
     });
 
     test('should skip slides without image url', () {
-      final Map<String, dynamic> content = <String, dynamic>{
+      final content = <String, dynamic>{
         'api_data': <Map<String, dynamic>>[
           <String, dynamic>{
             'type': 'slideshow',
@@ -574,7 +576,7 @@ void main() {
         ],
       };
 
-      final String result = convertContentToHtml(content);
+      final result = convertContentToHtml(content);
 
       expect('<slide '.allMatches(result).length, equals(1));
       expect(result, contains('desc="有圖"'));

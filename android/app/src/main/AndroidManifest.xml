@@ -1,5 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Network access for API calls, image loading, video playback, and WebView -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Detect network connectivity status -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Push notification permissions -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
+        android:usesCleartextTraffic="false"
         android:label="tw_reporter_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

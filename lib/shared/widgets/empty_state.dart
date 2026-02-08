@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
-import 'package:tw_reporter_app/core/theme/app_text_styles.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({
@@ -15,6 +13,9 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -23,14 +24,14 @@ class EmptyState extends StatelessWidget {
             Icon(
               icon,
               size: 48,
-              color: AppColors.grey400,
+              color: colors.onSurfaceVariant,
             ),
             AppSpacing.verticalSpacerMd,
           ],
           Text(
             message,
-            style: AppTextStyles.body1.copyWith(
-              color: AppColors.textSecondary,
+            style: textTheme.bodyLarge!.copyWith(
+              color: colors.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),

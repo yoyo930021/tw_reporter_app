@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Topic {
 
- String get id; String get slug; String get title;@JsonKey(name: 'short_title') String? get shortTitle;@JsonKey(name: 'og_description') String? get ogDescription;@JsonKey(name: 'og_image') HeroImage? get ogImage;@JsonKey(name: 'leading_image') HeroImage? get leadingImage;@JsonKey(name: 'leading_image_portrait') HeroImage? get leadingImagePortrait;@JsonKey(name: 'published_date') DateTime get publishedDate;@JsonKey(name: 'relateds_background') String? get relatedsBackground;@JsonKey(name: 'relateds_format') String? get relatedsFormat;// relateds 是文章 ID 陣列，不是完整的 Article 物件
+ String get id; String get slug; String get title;@JsonKey(name: 'published_date') DateTime get publishedDate;@JsonKey(name: 'short_title') String? get shortTitle;@JsonKey(name: 'og_description') String? get ogDescription;@JsonKey(name: 'og_image') HeroImage? get ogImage;@JsonKey(name: 'leading_image') HeroImage? get leadingImage;@JsonKey(name: 'leading_image_portrait') HeroImage? get leadingImagePortrait;@JsonKey(name: 'relateds_background') String? get relatedsBackground;@JsonKey(name: 'relateds_format') String? get relatedsFormat;// relateds 是文章 ID 陣列，不是完整的 Article 物件
  List<String>? get relateds; bool? get full;
 /// Create a copy of Topic
 /// with the given fields replaced by the non-null parameter values.
@@ -29,16 +29,16 @@ $TopicCopyWith<Topic> get copyWith => _$TopicCopyWithImpl<Topic>(this as Topic, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Topic&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.title, title) || other.title == title)&&(identical(other.shortTitle, shortTitle) || other.shortTitle == shortTitle)&&(identical(other.ogDescription, ogDescription) || other.ogDescription == ogDescription)&&(identical(other.ogImage, ogImage) || other.ogImage == ogImage)&&(identical(other.leadingImage, leadingImage) || other.leadingImage == leadingImage)&&(identical(other.leadingImagePortrait, leadingImagePortrait) || other.leadingImagePortrait == leadingImagePortrait)&&(identical(other.publishedDate, publishedDate) || other.publishedDate == publishedDate)&&(identical(other.relatedsBackground, relatedsBackground) || other.relatedsBackground == relatedsBackground)&&(identical(other.relatedsFormat, relatedsFormat) || other.relatedsFormat == relatedsFormat)&&const DeepCollectionEquality().equals(other.relateds, relateds)&&(identical(other.full, full) || other.full == full));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Topic&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.title, title) || other.title == title)&&(identical(other.publishedDate, publishedDate) || other.publishedDate == publishedDate)&&(identical(other.shortTitle, shortTitle) || other.shortTitle == shortTitle)&&(identical(other.ogDescription, ogDescription) || other.ogDescription == ogDescription)&&(identical(other.ogImage, ogImage) || other.ogImage == ogImage)&&(identical(other.leadingImage, leadingImage) || other.leadingImage == leadingImage)&&(identical(other.leadingImagePortrait, leadingImagePortrait) || other.leadingImagePortrait == leadingImagePortrait)&&(identical(other.relatedsBackground, relatedsBackground) || other.relatedsBackground == relatedsBackground)&&(identical(other.relatedsFormat, relatedsFormat) || other.relatedsFormat == relatedsFormat)&&const DeepCollectionEquality().equals(other.relateds, relateds)&&(identical(other.full, full) || other.full == full));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,slug,title,shortTitle,ogDescription,ogImage,leadingImage,leadingImagePortrait,publishedDate,relatedsBackground,relatedsFormat,const DeepCollectionEquality().hash(relateds),full);
+int get hashCode => Object.hash(runtimeType,id,slug,title,publishedDate,shortTitle,ogDescription,ogImage,leadingImage,leadingImagePortrait,relatedsBackground,relatedsFormat,const DeepCollectionEquality().hash(relateds),full);
 
 @override
 String toString() {
-  return 'Topic(id: $id, slug: $slug, title: $title, shortTitle: $shortTitle, ogDescription: $ogDescription, ogImage: $ogImage, leadingImage: $leadingImage, leadingImagePortrait: $leadingImagePortrait, publishedDate: $publishedDate, relatedsBackground: $relatedsBackground, relatedsFormat: $relatedsFormat, relateds: $relateds, full: $full)';
+  return 'Topic(id: $id, slug: $slug, title: $title, publishedDate: $publishedDate, shortTitle: $shortTitle, ogDescription: $ogDescription, ogImage: $ogImage, leadingImage: $leadingImage, leadingImagePortrait: $leadingImagePortrait, relatedsBackground: $relatedsBackground, relatedsFormat: $relatedsFormat, relateds: $relateds, full: $full)';
 }
 
 
@@ -49,7 +49,7 @@ abstract mixin class $TopicCopyWith<$Res>  {
   factory $TopicCopyWith(Topic value, $Res Function(Topic) _then) = _$TopicCopyWithImpl;
 @useResult
 $Res call({
- String id, String slug, String title,@JsonKey(name: 'short_title') String? shortTitle,@JsonKey(name: 'og_description') String? ogDescription,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'leading_image') HeroImage? leadingImage,@JsonKey(name: 'leading_image_portrait') HeroImage? leadingImagePortrait,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'relateds_background') String? relatedsBackground,@JsonKey(name: 'relateds_format') String? relatedsFormat, List<String>? relateds, bool? full
+ String id, String slug, String title,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'short_title') String? shortTitle,@JsonKey(name: 'og_description') String? ogDescription,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'leading_image') HeroImage? leadingImage,@JsonKey(name: 'leading_image_portrait') HeroImage? leadingImagePortrait,@JsonKey(name: 'relateds_background') String? relatedsBackground,@JsonKey(name: 'relateds_format') String? relatedsFormat, List<String>? relateds, bool? full
 });
 
 
@@ -66,18 +66,18 @@ class _$TopicCopyWithImpl<$Res>
 
 /// Create a copy of Topic
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? slug = null,Object? title = null,Object? shortTitle = freezed,Object? ogDescription = freezed,Object? ogImage = freezed,Object? leadingImage = freezed,Object? leadingImagePortrait = freezed,Object? publishedDate = null,Object? relatedsBackground = freezed,Object? relatedsFormat = freezed,Object? relateds = freezed,Object? full = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? slug = null,Object? title = null,Object? publishedDate = null,Object? shortTitle = freezed,Object? ogDescription = freezed,Object? ogImage = freezed,Object? leadingImage = freezed,Object? leadingImagePortrait = freezed,Object? relatedsBackground = freezed,Object? relatedsFormat = freezed,Object? relateds = freezed,Object? full = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,shortTitle: freezed == shortTitle ? _self.shortTitle : shortTitle // ignore: cast_nullable_to_non_nullable
+as String,publishedDate: null == publishedDate ? _self.publishedDate : publishedDate // ignore: cast_nullable_to_non_nullable
+as DateTime,shortTitle: freezed == shortTitle ? _self.shortTitle : shortTitle // ignore: cast_nullable_to_non_nullable
 as String?,ogDescription: freezed == ogDescription ? _self.ogDescription : ogDescription // ignore: cast_nullable_to_non_nullable
 as String?,ogImage: freezed == ogImage ? _self.ogImage : ogImage // ignore: cast_nullable_to_non_nullable
 as HeroImage?,leadingImage: freezed == leadingImage ? _self.leadingImage : leadingImage // ignore: cast_nullable_to_non_nullable
 as HeroImage?,leadingImagePortrait: freezed == leadingImagePortrait ? _self.leadingImagePortrait : leadingImagePortrait // ignore: cast_nullable_to_non_nullable
-as HeroImage?,publishedDate: null == publishedDate ? _self.publishedDate : publishedDate // ignore: cast_nullable_to_non_nullable
-as DateTime,relatedsBackground: freezed == relatedsBackground ? _self.relatedsBackground : relatedsBackground // ignore: cast_nullable_to_non_nullable
+as HeroImage?,relatedsBackground: freezed == relatedsBackground ? _self.relatedsBackground : relatedsBackground // ignore: cast_nullable_to_non_nullable
 as String?,relatedsFormat: freezed == relatedsFormat ? _self.relatedsFormat : relatedsFormat // ignore: cast_nullable_to_non_nullable
 as String?,relateds: freezed == relateds ? _self.relateds : relateds // ignore: cast_nullable_to_non_nullable
 as List<String>?,full: freezed == full ? _self.full : full // ignore: cast_nullable_to_non_nullable
@@ -199,10 +199,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String slug,  String title, @JsonKey(name: 'short_title')  String? shortTitle, @JsonKey(name: 'og_description')  String? ogDescription, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'leading_image')  HeroImage? leadingImage, @JsonKey(name: 'leading_image_portrait')  HeroImage? leadingImagePortrait, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'relateds_background')  String? relatedsBackground, @JsonKey(name: 'relateds_format')  String? relatedsFormat,  List<String>? relateds,  bool? full)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String slug,  String title, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'short_title')  String? shortTitle, @JsonKey(name: 'og_description')  String? ogDescription, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'leading_image')  HeroImage? leadingImage, @JsonKey(name: 'leading_image_portrait')  HeroImage? leadingImagePortrait, @JsonKey(name: 'relateds_background')  String? relatedsBackground, @JsonKey(name: 'relateds_format')  String? relatedsFormat,  List<String>? relateds,  bool? full)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Topic() when $default != null:
-return $default(_that.id,_that.slug,_that.title,_that.shortTitle,_that.ogDescription,_that.ogImage,_that.leadingImage,_that.leadingImagePortrait,_that.publishedDate,_that.relatedsBackground,_that.relatedsFormat,_that.relateds,_that.full);case _:
+return $default(_that.id,_that.slug,_that.title,_that.publishedDate,_that.shortTitle,_that.ogDescription,_that.ogImage,_that.leadingImage,_that.leadingImagePortrait,_that.relatedsBackground,_that.relatedsFormat,_that.relateds,_that.full);case _:
   return orElse();
 
 }
@@ -220,10 +220,10 @@ return $default(_that.id,_that.slug,_that.title,_that.shortTitle,_that.ogDescrip
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String slug,  String title, @JsonKey(name: 'short_title')  String? shortTitle, @JsonKey(name: 'og_description')  String? ogDescription, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'leading_image')  HeroImage? leadingImage, @JsonKey(name: 'leading_image_portrait')  HeroImage? leadingImagePortrait, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'relateds_background')  String? relatedsBackground, @JsonKey(name: 'relateds_format')  String? relatedsFormat,  List<String>? relateds,  bool? full)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String slug,  String title, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'short_title')  String? shortTitle, @JsonKey(name: 'og_description')  String? ogDescription, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'leading_image')  HeroImage? leadingImage, @JsonKey(name: 'leading_image_portrait')  HeroImage? leadingImagePortrait, @JsonKey(name: 'relateds_background')  String? relatedsBackground, @JsonKey(name: 'relateds_format')  String? relatedsFormat,  List<String>? relateds,  bool? full)  $default,) {final _that = this;
 switch (_that) {
 case _Topic():
-return $default(_that.id,_that.slug,_that.title,_that.shortTitle,_that.ogDescription,_that.ogImage,_that.leadingImage,_that.leadingImagePortrait,_that.publishedDate,_that.relatedsBackground,_that.relatedsFormat,_that.relateds,_that.full);}
+return $default(_that.id,_that.slug,_that.title,_that.publishedDate,_that.shortTitle,_that.ogDescription,_that.ogImage,_that.leadingImage,_that.leadingImagePortrait,_that.relatedsBackground,_that.relatedsFormat,_that.relateds,_that.full);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -237,10 +237,10 @@ return $default(_that.id,_that.slug,_that.title,_that.shortTitle,_that.ogDescrip
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String slug,  String title, @JsonKey(name: 'short_title')  String? shortTitle, @JsonKey(name: 'og_description')  String? ogDescription, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'leading_image')  HeroImage? leadingImage, @JsonKey(name: 'leading_image_portrait')  HeroImage? leadingImagePortrait, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'relateds_background')  String? relatedsBackground, @JsonKey(name: 'relateds_format')  String? relatedsFormat,  List<String>? relateds,  bool? full)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String slug,  String title, @JsonKey(name: 'published_date')  DateTime publishedDate, @JsonKey(name: 'short_title')  String? shortTitle, @JsonKey(name: 'og_description')  String? ogDescription, @JsonKey(name: 'og_image')  HeroImage? ogImage, @JsonKey(name: 'leading_image')  HeroImage? leadingImage, @JsonKey(name: 'leading_image_portrait')  HeroImage? leadingImagePortrait, @JsonKey(name: 'relateds_background')  String? relatedsBackground, @JsonKey(name: 'relateds_format')  String? relatedsFormat,  List<String>? relateds,  bool? full)?  $default,) {final _that = this;
 switch (_that) {
 case _Topic() when $default != null:
-return $default(_that.id,_that.slug,_that.title,_that.shortTitle,_that.ogDescription,_that.ogImage,_that.leadingImage,_that.leadingImagePortrait,_that.publishedDate,_that.relatedsBackground,_that.relatedsFormat,_that.relateds,_that.full);case _:
+return $default(_that.id,_that.slug,_that.title,_that.publishedDate,_that.shortTitle,_that.ogDescription,_that.ogImage,_that.leadingImage,_that.leadingImagePortrait,_that.relatedsBackground,_that.relatedsFormat,_that.relateds,_that.full);case _:
   return null;
 
 }
@@ -252,18 +252,18 @@ return $default(_that.id,_that.slug,_that.title,_that.shortTitle,_that.ogDescrip
 @JsonSerializable()
 
 class _Topic implements Topic {
-  const _Topic({required this.id, required this.slug, required this.title, @JsonKey(name: 'short_title') this.shortTitle, @JsonKey(name: 'og_description') this.ogDescription, @JsonKey(name: 'og_image') this.ogImage, @JsonKey(name: 'leading_image') this.leadingImage, @JsonKey(name: 'leading_image_portrait') this.leadingImagePortrait, @JsonKey(name: 'published_date') required this.publishedDate, @JsonKey(name: 'relateds_background') this.relatedsBackground, @JsonKey(name: 'relateds_format') this.relatedsFormat, final  List<String>? relateds, this.full}): _relateds = relateds;
+  const _Topic({required this.id, required this.slug, required this.title, @JsonKey(name: 'published_date') required this.publishedDate, @JsonKey(name: 'short_title') this.shortTitle, @JsonKey(name: 'og_description') this.ogDescription, @JsonKey(name: 'og_image') this.ogImage, @JsonKey(name: 'leading_image') this.leadingImage, @JsonKey(name: 'leading_image_portrait') this.leadingImagePortrait, @JsonKey(name: 'relateds_background') this.relatedsBackground, @JsonKey(name: 'relateds_format') this.relatedsFormat, final  List<String>? relateds, this.full}): _relateds = relateds;
   factory _Topic.fromJson(Map<String, dynamic> json) => _$TopicFromJson(json);
 
 @override final  String id;
 @override final  String slug;
 @override final  String title;
+@override@JsonKey(name: 'published_date') final  DateTime publishedDate;
 @override@JsonKey(name: 'short_title') final  String? shortTitle;
 @override@JsonKey(name: 'og_description') final  String? ogDescription;
 @override@JsonKey(name: 'og_image') final  HeroImage? ogImage;
 @override@JsonKey(name: 'leading_image') final  HeroImage? leadingImage;
 @override@JsonKey(name: 'leading_image_portrait') final  HeroImage? leadingImagePortrait;
-@override@JsonKey(name: 'published_date') final  DateTime publishedDate;
 @override@JsonKey(name: 'relateds_background') final  String? relatedsBackground;
 @override@JsonKey(name: 'relateds_format') final  String? relatedsFormat;
 // relateds 是文章 ID 陣列，不是完整的 Article 物件
@@ -292,16 +292,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Topic&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.title, title) || other.title == title)&&(identical(other.shortTitle, shortTitle) || other.shortTitle == shortTitle)&&(identical(other.ogDescription, ogDescription) || other.ogDescription == ogDescription)&&(identical(other.ogImage, ogImage) || other.ogImage == ogImage)&&(identical(other.leadingImage, leadingImage) || other.leadingImage == leadingImage)&&(identical(other.leadingImagePortrait, leadingImagePortrait) || other.leadingImagePortrait == leadingImagePortrait)&&(identical(other.publishedDate, publishedDate) || other.publishedDate == publishedDate)&&(identical(other.relatedsBackground, relatedsBackground) || other.relatedsBackground == relatedsBackground)&&(identical(other.relatedsFormat, relatedsFormat) || other.relatedsFormat == relatedsFormat)&&const DeepCollectionEquality().equals(other._relateds, _relateds)&&(identical(other.full, full) || other.full == full));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Topic&&(identical(other.id, id) || other.id == id)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.title, title) || other.title == title)&&(identical(other.publishedDate, publishedDate) || other.publishedDate == publishedDate)&&(identical(other.shortTitle, shortTitle) || other.shortTitle == shortTitle)&&(identical(other.ogDescription, ogDescription) || other.ogDescription == ogDescription)&&(identical(other.ogImage, ogImage) || other.ogImage == ogImage)&&(identical(other.leadingImage, leadingImage) || other.leadingImage == leadingImage)&&(identical(other.leadingImagePortrait, leadingImagePortrait) || other.leadingImagePortrait == leadingImagePortrait)&&(identical(other.relatedsBackground, relatedsBackground) || other.relatedsBackground == relatedsBackground)&&(identical(other.relatedsFormat, relatedsFormat) || other.relatedsFormat == relatedsFormat)&&const DeepCollectionEquality().equals(other._relateds, _relateds)&&(identical(other.full, full) || other.full == full));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,slug,title,shortTitle,ogDescription,ogImage,leadingImage,leadingImagePortrait,publishedDate,relatedsBackground,relatedsFormat,const DeepCollectionEquality().hash(_relateds),full);
+int get hashCode => Object.hash(runtimeType,id,slug,title,publishedDate,shortTitle,ogDescription,ogImage,leadingImage,leadingImagePortrait,relatedsBackground,relatedsFormat,const DeepCollectionEquality().hash(_relateds),full);
 
 @override
 String toString() {
-  return 'Topic(id: $id, slug: $slug, title: $title, shortTitle: $shortTitle, ogDescription: $ogDescription, ogImage: $ogImage, leadingImage: $leadingImage, leadingImagePortrait: $leadingImagePortrait, publishedDate: $publishedDate, relatedsBackground: $relatedsBackground, relatedsFormat: $relatedsFormat, relateds: $relateds, full: $full)';
+  return 'Topic(id: $id, slug: $slug, title: $title, publishedDate: $publishedDate, shortTitle: $shortTitle, ogDescription: $ogDescription, ogImage: $ogImage, leadingImage: $leadingImage, leadingImagePortrait: $leadingImagePortrait, relatedsBackground: $relatedsBackground, relatedsFormat: $relatedsFormat, relateds: $relateds, full: $full)';
 }
 
 
@@ -312,7 +312,7 @@ abstract mixin class _$TopicCopyWith<$Res> implements $TopicCopyWith<$Res> {
   factory _$TopicCopyWith(_Topic value, $Res Function(_Topic) _then) = __$TopicCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String slug, String title,@JsonKey(name: 'short_title') String? shortTitle,@JsonKey(name: 'og_description') String? ogDescription,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'leading_image') HeroImage? leadingImage,@JsonKey(name: 'leading_image_portrait') HeroImage? leadingImagePortrait,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'relateds_background') String? relatedsBackground,@JsonKey(name: 'relateds_format') String? relatedsFormat, List<String>? relateds, bool? full
+ String id, String slug, String title,@JsonKey(name: 'published_date') DateTime publishedDate,@JsonKey(name: 'short_title') String? shortTitle,@JsonKey(name: 'og_description') String? ogDescription,@JsonKey(name: 'og_image') HeroImage? ogImage,@JsonKey(name: 'leading_image') HeroImage? leadingImage,@JsonKey(name: 'leading_image_portrait') HeroImage? leadingImagePortrait,@JsonKey(name: 'relateds_background') String? relatedsBackground,@JsonKey(name: 'relateds_format') String? relatedsFormat, List<String>? relateds, bool? full
 });
 
 
@@ -329,18 +329,18 @@ class __$TopicCopyWithImpl<$Res>
 
 /// Create a copy of Topic
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? slug = null,Object? title = null,Object? shortTitle = freezed,Object? ogDescription = freezed,Object? ogImage = freezed,Object? leadingImage = freezed,Object? leadingImagePortrait = freezed,Object? publishedDate = null,Object? relatedsBackground = freezed,Object? relatedsFormat = freezed,Object? relateds = freezed,Object? full = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? slug = null,Object? title = null,Object? publishedDate = null,Object? shortTitle = freezed,Object? ogDescription = freezed,Object? ogImage = freezed,Object? leadingImage = freezed,Object? leadingImagePortrait = freezed,Object? relatedsBackground = freezed,Object? relatedsFormat = freezed,Object? relateds = freezed,Object? full = freezed,}) {
   return _then(_Topic(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,shortTitle: freezed == shortTitle ? _self.shortTitle : shortTitle // ignore: cast_nullable_to_non_nullable
+as String,publishedDate: null == publishedDate ? _self.publishedDate : publishedDate // ignore: cast_nullable_to_non_nullable
+as DateTime,shortTitle: freezed == shortTitle ? _self.shortTitle : shortTitle // ignore: cast_nullable_to_non_nullable
 as String?,ogDescription: freezed == ogDescription ? _self.ogDescription : ogDescription // ignore: cast_nullable_to_non_nullable
 as String?,ogImage: freezed == ogImage ? _self.ogImage : ogImage // ignore: cast_nullable_to_non_nullable
 as HeroImage?,leadingImage: freezed == leadingImage ? _self.leadingImage : leadingImage // ignore: cast_nullable_to_non_nullable
 as HeroImage?,leadingImagePortrait: freezed == leadingImagePortrait ? _self.leadingImagePortrait : leadingImagePortrait // ignore: cast_nullable_to_non_nullable
-as HeroImage?,publishedDate: null == publishedDate ? _self.publishedDate : publishedDate // ignore: cast_nullable_to_non_nullable
-as DateTime,relatedsBackground: freezed == relatedsBackground ? _self.relatedsBackground : relatedsBackground // ignore: cast_nullable_to_non_nullable
+as HeroImage?,relatedsBackground: freezed == relatedsBackground ? _self.relatedsBackground : relatedsBackground // ignore: cast_nullable_to_non_nullable
 as String?,relatedsFormat: freezed == relatedsFormat ? _self.relatedsFormat : relatedsFormat // ignore: cast_nullable_to_non_nullable
 as String?,relateds: freezed == relateds ? _self._relateds : relateds // ignore: cast_nullable_to_non_nullable
 as List<String>?,full: freezed == full ? _self.full : full // ignore: cast_nullable_to_non_nullable

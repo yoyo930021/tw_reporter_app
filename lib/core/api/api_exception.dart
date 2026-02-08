@@ -32,7 +32,7 @@ sealed class ApiException with _$ApiException implements Exception {
         return const ApiException.networkError();
 
       case DioExceptionType.badResponse:
-        final int? statusCode = error.response?.statusCode;
+        final statusCode = error.response?.statusCode;
         if (statusCode == 404) {
           return const ApiException.notFound();
         } else if (statusCode == 401) {
@@ -41,7 +41,9 @@ sealed class ApiException with _$ApiException implements Exception {
           return ApiException.serverError(statusCode ?? 500);
         }
 
-      default:
+      case DioExceptionType.cancel:
+      case DioExceptionType.badCertificate:
+      case DioExceptionType.unknown:
         return ApiException.unknown(error.message ?? 'Unknown error');
     }
   }

@@ -7,13 +7,13 @@ void main() {
     group('fromDioException', () {
       test('should create NetworkError for connection timeout', () {
         // Arrange
-        final DioException dioError = DioException(
+        final dioError = DioException(
           requestOptions: RequestOptions(),
           type: DioExceptionType.connectionTimeout,
         );
 
         // Act
-        final ApiException exception = ApiException.fromDioException(dioError);
+        final exception = ApiException.fromDioException(dioError);
 
         // Assert
         expect(exception, isA<NetworkError>());
@@ -31,13 +31,13 @@ void main() {
 
       test('should create NetworkError for send timeout', () {
         // Arrange
-        final DioException dioError = DioException(
+        final dioError = DioException(
           requestOptions: RequestOptions(),
           type: DioExceptionType.sendTimeout,
         );
 
         // Act
-        final ApiException exception = ApiException.fromDioException(dioError);
+        final exception = ApiException.fromDioException(dioError);
 
         // Assert
         expect(exception, isA<NetworkError>());
@@ -45,13 +45,13 @@ void main() {
 
       test('should create NetworkError for receive timeout', () {
         // Arrange
-        final DioException dioError = DioException(
+        final dioError = DioException(
           requestOptions: RequestOptions(),
           type: DioExceptionType.receiveTimeout,
         );
 
         // Act
-        final ApiException exception = ApiException.fromDioException(dioError);
+        final exception = ApiException.fromDioException(dioError);
 
         // Assert
         expect(exception, isA<NetworkError>());
@@ -59,13 +59,13 @@ void main() {
 
       test('should create NetworkError for connection error', () {
         // Arrange
-        final DioException dioError = DioException(
+        final dioError = DioException(
           requestOptions: RequestOptions(),
           type: DioExceptionType.connectionError,
         );
 
         // Act
-        final ApiException exception = ApiException.fromDioException(dioError);
+        final exception = ApiException.fromDioException(dioError);
 
         // Assert
         expect(exception, isA<NetworkError>());
@@ -73,7 +73,7 @@ void main() {
 
       test('should create NotFound for 404 status code', () {
         // Arrange
-        final DioException dioError = DioException(
+        final dioError = DioException(
           requestOptions: RequestOptions(),
           type: DioExceptionType.badResponse,
           response: Response<dynamic>(
@@ -83,7 +83,7 @@ void main() {
         );
 
         // Act
-        final ApiException exception = ApiException.fromDioException(dioError);
+        final exception = ApiException.fromDioException(dioError);
 
         // Assert
         expect(exception, isA<NotFound>());
@@ -91,7 +91,7 @@ void main() {
 
       test('should create Unauthorized for 401 status code', () {
         // Arrange
-        final DioException dioError = DioException(
+        final dioError = DioException(
           requestOptions: RequestOptions(),
           type: DioExceptionType.badResponse,
           response: Response<dynamic>(
@@ -101,7 +101,7 @@ void main() {
         );
 
         // Act
-        final ApiException exception = ApiException.fromDioException(dioError);
+        final exception = ApiException.fromDioException(dioError);
 
         // Assert
         expect(exception, isA<Unauthorized>());
@@ -109,7 +109,7 @@ void main() {
 
       test('should create ServerError for 500 status code', () {
         // Arrange
-        final DioException dioError = DioException(
+        final dioError = DioException(
           requestOptions: RequestOptions(),
           type: DioExceptionType.badResponse,
           response: Response<dynamic>(
@@ -119,14 +119,14 @@ void main() {
         );
 
         // Act
-        final ApiException exception = ApiException.fromDioException(dioError);
+        final exception = ApiException.fromDioException(dioError);
 
         // Assert
         expect(exception, isA<ServerError>());
         expect(
           exception.when(
             networkError: () => 0,
-            serverError: (int code) => code,
+            serverError: (code) => code,
             notFound: () => 0,
             unauthorized: () => 0,
             unknown: (_) => 0,
@@ -137,14 +137,14 @@ void main() {
 
       test('should create Unknown for unhandled error types', () {
         // Arrange
-        final DioException dioError = DioException(
+        final dioError = DioException(
           requestOptions: RequestOptions(),
           type: DioExceptionType.cancel,
           message: 'Request cancelled',
         );
 
         // Act
-        final ApiException exception = ApiException.fromDioException(dioError);
+        final exception = ApiException.fromDioException(dioError);
 
         // Assert
         expect(exception, isA<Unknown>());
@@ -153,10 +153,10 @@ void main() {
 
     test('should support pattern matching with when', () {
       // Arrange
-      const ApiException exception = ApiException.networkError();
+      const exception = ApiException.networkError();
 
       // Act
-      final String result = exception.when(
+      final result = exception.when(
         networkError: () => 'Network error',
         serverError: (_) => 'Server error',
         notFound: () => 'Not found',
@@ -170,10 +170,10 @@ void main() {
 
     test('should support pattern matching with map', () {
       // Arrange
-      const ApiException exception = ApiException.notFound();
+      const exception = ApiException.notFound();
 
       // Act
-      final String result = exception.map(
+      final result = exception.map(
         networkError: (_) => 'Network',
         serverError: (_) => 'Server',
         notFound: (_) => 'Not found',
@@ -187,7 +187,7 @@ void main() {
 
     test('should support maybeWhen with orElse', () {
       // Arrange
-      const ApiException exception = ApiException.unauthorized();
+      const exception = ApiException.unauthorized();
 
       // Act & Assert
       expect(
