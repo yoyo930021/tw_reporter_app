@@ -3,6 +3,9 @@
 *.log
 *.pyc
 *.swp
+
+# Claude Code local settings
+.claude/settings.local.json
 .DS_Store
 .atom/
 .build/
