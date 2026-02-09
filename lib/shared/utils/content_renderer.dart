@@ -84,12 +84,15 @@ void _renderHeader(StringBuffer html, dynamic content, String tag) {
 void _renderBlockquote(StringBuffer html, dynamic content) {
   final text = _extractText(content);
   if (text.isNotEmpty) {
-    html.write('<blockquote>$text</blockquote>');
+    html.write('<blockquote>${text.replaceAll('\n', '<br>')}</blockquote>');
   }
 }
 
-void _renderListItem(StringBuffer html, dynamic content,
-    {required bool ordered}) {
+void _renderListItem(
+  StringBuffer html,
+  dynamic content, {
+  required bool ordered,
+}) {
   final text = _extractText(content);
   if (text.isNotEmpty) {
     final tag = ordered ? 'ol' : 'ul';
@@ -150,31 +153,26 @@ void _renderEmbeddedCode(
     return;
   }
 
-  final item =
-      content[0] is Map<String, dynamic>
-          ? content[0] as Map<String, dynamic>
-          : null;
+  final item = content[0] is Map<String, dynamic>
+      ? content[0] as Map<String, dynamic>
+      : null;
   if (item == null) {
     _renderUnsupported(html, 'embeddedcode');
     return;
   }
 
   final caption = item['caption'] as String? ?? '';
-  var codeWithoutScript =
-      item['embeddedCodeWithoutScript'] as String? ?? '';
-  var fullCode =
-      item['embeddedCode'] as String? ?? '';
-  final rawHtml = codeWithoutScript.isNotEmpty
-      ? codeWithoutScript
-      : fullCode;
+  var codeWithoutScript = item['embeddedCodeWithoutScript'] as String? ?? '';
+  var fullCode = item['embeddedCode'] as String? ?? '';
+  final rawHtml = codeWithoutScript.isNotEmpty ? codeWithoutScript : fullCode;
 
   // Detect standalone image: <img> or <picture> without scripts
   final imgMatch = RegExp(
     r'<img\s[^>]*src="([^"]*)"',
     caseSensitive: false,
   ).firstMatch(rawHtml);
-  final hasScriptsEarly = fullCode.contains('<script') ||
-      fullCode.contains('</script>');
+  final hasScriptsEarly =
+      fullCode.contains('<script') || fullCode.contains('</script>');
   final hasCustomElementEarly = RegExp(
     r'<([a-z][a-z0-9]*-[a-z][\w-]*)',
   ).hasMatch(rawHtml);
@@ -239,28 +237,27 @@ void _renderEmbeddedCode(
     final iframeSrc = iframeMatch.group(1)!;
     double height = 400;
 
-    final heightPxMatch =
-        RegExp(r'height:\s*(\d+)px').firstMatch(rawHtml);
+    final heightPxMatch = RegExp(r'height:\s*(\d+)px').firstMatch(rawHtml);
     if (heightPxMatch != null) {
-      height = double.tryParse(
+      height =
+          double.tryParse(
             heightPxMatch.group(1)!,
           ) ??
           400;
     } else {
-      final heightAttrMatch =
-          RegExp(r'height[=:]\s*"?(\d+)')
-              .firstMatch(rawHtml);
+      final heightAttrMatch = RegExp(
+        r'height[=:]\s*"?(\d+)',
+      ).firstMatch(rawHtml);
       if (heightAttrMatch != null) {
-        height = double.tryParse(
+        height =
+            double.tryParse(
               heightAttrMatch.group(1)!,
             ) ??
             400;
       }
-      final vhMatch =
-          RegExp(r'(\d+)vh').firstMatch(rawHtml);
+      final vhMatch = RegExp(r'(\d+)vh').firstMatch(rawHtml);
       if (vhMatch != null) {
-        final vh =
-            double.tryParse(vhMatch.group(1)!) ?? 80;
+        final vh = double.tryParse(vhMatch.group(1)!) ?? 80;
         height = vh * 8;
       }
     }
@@ -278,13 +275,12 @@ void _renderEmbeddedCode(
   }
 
   // Custom component with scripts, or custom web component (tag with hyphen)
-  final hasScripts = fullCode.contains('<script') ||
-      fullCode.contains('</script>');
+  final hasScripts =
+      fullCode.contains('<script') || fullCode.contains('</script>');
   final customElementRe = RegExp(
     r'<([a-z][a-z0-9]*-[a-z][\w-]*)',
   );
-  final customMatch =
-      customElementRe.firstMatch('$rawHtml$fullCode');
+  final customMatch = customElementRe.firstMatch('$rawHtml$fullCode');
 
   if (hasScripts || customMatch != null) {
     final tagName = customMatch?.group(1);
@@ -343,8 +339,7 @@ void _renderImageDiff(StringBuffer html, dynamic content) {
   for (final dynamic item in content) {
     if (item is Map<String, dynamic>) {
       final url = _getImageUrl(item);
-      final description =
-          item['description'] as String? ?? '';
+      final description = item['description'] as String? ?? '';
       if (url != null) {
         final escapedUrl = _escapeHtml(url);
         final escapedDesc = _escapeHtml(description);
@@ -366,8 +361,7 @@ void _renderSlideshow(StringBuffer html, dynamic content) {
   for (final dynamic item in content) {
     if (item is Map<String, dynamic>) {
       final url = _getImageUrl(item);
-      final description =
-          item['description'] as String? ?? '';
+      final description = item['description'] as String? ?? '';
       if (url != null) {
         final escapedUrl = _escapeHtml(url);
         final escapedDesc = _escapeHtml(description);
@@ -438,12 +432,9 @@ String _cleanAnnotations(String text) {
     (m) {
       try {
         final jsonStr = m.group(1)!;
-        final data =
-            json.decode(jsonStr) as Map<String, dynamic>;
-        final triggerText =
-            data['text'] as String? ?? m.group(2)!;
-        final annotationText =
-            data['pureAnnotationText'] as String? ?? '';
+        final data = json.decode(jsonStr) as Map<String, dynamic>;
+        final triggerText = data['text'] as String? ?? m.group(2)!;
+        final annotationText = data['pureAnnotationText'] as String? ?? '';
         if (annotationText.isEmpty) return triggerText;
         final encodedContent = base64Url.encode(utf8.encode(annotationText));
         final encodedTrigger = base64Url.encode(utf8.encode(triggerText));
@@ -462,18 +453,15 @@ String _cleanAnnotations(String text) {
 
 String? _getImageUrl(Map<String, dynamic> imageData) {
   // Prefer mobile size for app display
-  final mobile =
-      imageData['mobile'] as Map<String, dynamic>?;
+  final mobile = imageData['mobile'] as Map<String, dynamic>?;
   if (mobile != null && mobile['url'] != null) {
     return mobile['url'] as String;
   }
-  final w400 =
-      imageData['w400'] as Map<String, dynamic>?;
+  final w400 = imageData['w400'] as Map<String, dynamic>?;
   if (w400 != null && w400['url'] != null) {
     return w400['url'] as String;
   }
-  final tablet =
-      imageData['tablet'] as Map<String, dynamic>?;
+  final tablet = imageData['tablet'] as Map<String, dynamic>?;
   if (tablet != null && tablet['url'] != null) {
     return tablet['url'] as String;
   }
@@ -503,16 +491,14 @@ String _buildHtmlDocument({
 
   // Extract <style> and <link> from codeWithoutScript
   // (has styles but no scripts)
-  final headSource =
-      codeWithoutScript.isNotEmpty ? codeWithoutScript : fullCode;
-  final styles =
-      styleRe.allMatches(headSource).map((m) => m.group(0)!);
-  final links =
-      linkRe.allMatches(headSource).map((m) => m.group(0)!);
+  final headSource = codeWithoutScript.isNotEmpty
+      ? codeWithoutScript
+      : fullCode;
+  final styles = styleRe.allMatches(headSource).map((m) => m.group(0)!);
+  final links = linkRe.allMatches(headSource).map((m) => m.group(0)!);
 
   // Extract <script> blocks from fullCode (has scripts)
-  final scripts =
-      scriptRe.allMatches(fullCode).map((m) => m.group(0)!);
+  final scripts = scriptRe.allMatches(fullCode).map((m) => m.group(0)!);
 
   // Body = codeWithoutScript with <style>, <link>, <script> stripped out
   var body = codeWithoutScript.isNotEmpty ? codeWithoutScript : fullCode;
@@ -524,8 +510,10 @@ String _buildHtmlDocument({
     ..write('<!DOCTYPE html>')
     ..write('<html><head>')
     ..write('<meta charset="utf-8">')
-    ..write('<meta name="viewport" '
-        'content="width=device-width, initial-scale=1.0">')
+    ..write(
+      '<meta name="viewport" '
+      'content="width=device-width, initial-scale=1.0">',
+    )
     ..writeAll(styles)
     ..writeAll(links)
     ..write('</head>')

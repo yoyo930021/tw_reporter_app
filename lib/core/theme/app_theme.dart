@@ -7,8 +7,7 @@ extension AppTextThemeExtension on TextTheme {
   TextStyle get timestamp => bodySmall!.copyWith(height: 1.2);
 
   /// 分類標籤樣式 (12px, w600)
-  TextStyle get categoryTag =>
-      bodySmall!.copyWith(fontWeight: FontWeight.w600);
+  TextStyle get categoryTag => bodySmall!.copyWith(fontWeight: FontWeight.w600);
 }
 
 /// 應用程式主題配置
@@ -16,8 +15,9 @@ extension AppTextThemeExtension on TextTheme {
 class AppTheme {
   const AppTheme._();
 
-  static const BorderRadius _borderRadius8 =
-      BorderRadius.all(Radius.circular(8));
+  static const BorderRadius _borderRadius8 = BorderRadius.all(
+    Radius.circular(8),
+  );
 
   /// 共用文字主題（不包含顏色，由 ColorScheme 自動套用）
   static const TextTheme _textTheme = TextTheme(
@@ -114,7 +114,6 @@ class AppTheme {
         backgroundColor: colorScheme.surfaceContainerHigh,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
-        centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -251,7 +250,6 @@ class AppTheme {
         backgroundColor: colorScheme.surfaceContainerHigh,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
-        centerTitle: false,
         titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
