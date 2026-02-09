@@ -12,6 +12,7 @@ import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/injection_keys.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/author.dart';
+import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
@@ -304,47 +305,17 @@ class _ArticlePageContent extends CompositionWidget {
       unawaited(Share.share(shareText));
     }
 
-    Widget buildContent(BuildContext context) {
-      if (articleDetail.hasError.value) {
-        return ErrorView(
-          message: articleDetail.error.value ?? '未知錯誤',
-          onRetry: articleDetail.refresh,
-        );
+    void toggleBookmark() {
+      final article = articleDetail.article.value;
+      if (article == null) return;
+      final imageUrl = _getImageUrl(article);
+      if (isBookmarked.value) {
+        readingRepo.removeBookmark(slug);
+        isBookmarked.value = false;
+      } else {
+        readingRepo.addBookmark(slug, article.title, imageUrl);
+        isBookmarked.value = true;
       }
-
-      if (articleDetail.isLoading.value) {
-        return const Padding(
-          padding: EdgeInsets.only(top: 64),
-          child: LoadingIndicator(),
-        );
-      }
-
-      if (articleDetail.article.value == null) {
-        return const Padding(
-          padding: EdgeInsets.only(top: 64),
-          child: Center(child: Text('文章不存在')),
-        );
-      }
-
-      return _ArticleBodyView(
-        article: articleDetail.article.value!,
-        relatedArticles: articleDetail.relatedArticles.value,
-        isBookmarked: isBookmarked.value,
-        onToggleBookmark: () {
-          final article = articleDetail.article.value;
-          if (article == null) return;
-          final imageUrl = _getImageUrl(article);
-          if (isBookmarked.value) {
-            readingRepo.removeBookmark(slug);
-            isBookmarked.value = false;
-          } else {
-            readingRepo.addBookmark(slug, article.title, imageUrl);
-            isBookmarked.value = true;
-          }
-        },
-        onShare: shareArticle,
-        slug: slug,
-      );
     }
 
     return (BuildContext context) {
@@ -398,16 +369,7 @@ class _ArticlePageContent extends CompositionWidget {
                       onSelected: (value) {
                         switch (value) {
                           case 'bookmark':
-                            final a = articleDetail.article.value;
-                            if (a == null) return;
-                            final imgUrl = _getImageUrl(a);
-                            if (isBookmarked.value) {
-                              readingRepo.removeBookmark(slug);
-                              isBookmarked.value = false;
-                            } else {
-                              readingRepo.addBookmark(slug, a.title, imgUrl);
-                              isBookmarked.value = true;
-                            }
+                            toggleBookmark();
                           case 'share':
                             shareArticle(title);
                           case 'browser':
@@ -422,22 +384,24 @@ class _ArticlePageContent extends CompositionWidget {
                       itemBuilder: (ctx) {
                         final menuIconColor =
                             Theme.of(ctx).iconTheme.color ?? Colors.black87;
+                        // Read isBookmarked.value at build time for menu items
+                        final bookmarked = isBookmarked.value;
                         return <PopupMenuEntry<String>>[
                           PopupMenuItem<String>(
                             value: 'bookmark',
                             child: Row(
                               children: <Widget>[
                                 Icon(
-                                  isBookmarked.value
+                                  bookmarked
                                       ? Icons.favorite
                                       : Icons.favorite_border,
-                                  color: isBookmarked.value
+                                  color: bookmarked
                                       ? AppColors.accent
                                       : menuIconColor,
                                   size: 20,
                                 ),
                                 const SizedBox(width: 12),
-                                Text(isBookmarked.value ? '取消收藏' : '收藏'),
+                                Text(bookmarked ? '取消收藏' : '收藏'),
                               ],
                             ),
                           ),
@@ -535,10 +499,81 @@ class _ArticlePageContent extends CompositionWidget {
               ),
             ),
             SliverToBoxAdapter(
-              child: buildContent(context),
+              child: _ArticleContentView(
+                articleDetail: articleDetail,
+                isBookmarked: isBookmarked,
+                readingRepo: readingRepo,
+                slug: slug,
+                onShare: shareArticle,
+                onToggleBookmark: toggleBookmark,
+              ),
             ),
           ],
         ),
+      );
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private CompositionWidget: Article content (replaces buildContent)
+// ---------------------------------------------------------------------------
+
+class _ArticleContentView extends CompositionWidget {
+  const _ArticleContentView({
+    required this.articleDetail,
+    required this.isBookmarked,
+    required this.readingRepo,
+    required this.slug,
+    required this.onShare,
+    required this.onToggleBookmark,
+  });
+
+  final ArticleDetailResult articleDetail;
+  final Ref<bool> isBookmarked;
+  final ReadingRepository readingRepo;
+  final String slug;
+  final void Function(String title) onShare;
+  final VoidCallback onToggleBookmark;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final htmlContent = computed(() {
+      final a = articleDetail.article.value;
+      if (a == null) return '';
+      return _markExternalLinks(convertContentToHtml(a.content));
+    });
+
+    return (BuildContext context) {
+      if (articleDetail.hasError.value) {
+        return ErrorView(
+          message: articleDetail.error.value ?? '未知錯誤',
+          onRetry: articleDetail.refresh,
+        );
+      }
+
+      if (articleDetail.isLoading.value) {
+        return const Padding(
+          padding: EdgeInsets.only(top: 64),
+          child: LoadingIndicator(),
+        );
+      }
+
+      if (articleDetail.article.value == null) {
+        return const Padding(
+          padding: EdgeInsets.only(top: 64),
+          child: Center(child: Text('文章不存在')),
+        );
+      }
+
+      return _ArticleBodyView(
+        article: articleDetail.article.value!,
+        relatedArticles: articleDetail.relatedArticles.value,
+        htmlContent: htmlContent.value,
+        isBookmarked: isBookmarked,
+        onToggleBookmark: onToggleBookmark,
+        onShare: onShare,
+        slug: slug,
       );
     };
   }
@@ -552,6 +587,7 @@ class _ArticleBodyView extends StatelessWidget {
   const _ArticleBodyView({
     required this.article,
     required this.relatedArticles,
+    required this.htmlContent,
     required this.isBookmarked,
     required this.onToggleBookmark,
     required this.onShare,
@@ -560,7 +596,8 @@ class _ArticleBodyView extends StatelessWidget {
 
   final Article article;
   final List<Article> relatedArticles;
-  final bool isBookmarked;
+  final String htmlContent;
+  final Ref<bool> isBookmarked;
   final VoidCallback onToggleBookmark;
   final void Function(String title) onShare;
   final String slug;
@@ -572,10 +609,6 @@ class _ArticleBodyView extends StatelessWidget {
     final textColor = colors.onSurface;
     final secondaryTextColor = colors.onSurfaceVariant;
     final linkColor = colors.primary;
-
-    final htmlContent = _markExternalLinks(
-      convertContentToHtml(article.content),
-    );
 
     return SelectionArea(
       child: Column(
@@ -690,13 +723,19 @@ class _ArticleBodyView extends StatelessWidget {
                       label: const Text('分享'),
                     ),
                     AppSpacing.horizontalSpacerMd,
-                    OutlinedButton.icon(
-                      onPressed: onToggleBookmark,
-                      icon: Icon(
-                        isBookmarked ? Icons.favorite : Icons.favorite_border,
-                        color: isBookmarked ? AppColors.accent : null,
+                    ComputedBuilder(
+                      builder: () => OutlinedButton.icon(
+                        onPressed: onToggleBookmark,
+                        icon: Icon(
+                          isBookmarked.value
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: isBookmarked.value ? AppColors.accent : null,
+                        ),
+                        label: Text(
+                          isBookmarked.value ? '已收藏' : '收藏',
+                        ),
                       ),
-                      label: Text(isBookmarked ? '已收藏' : '收藏'),
                     ),
                   ],
                 ),

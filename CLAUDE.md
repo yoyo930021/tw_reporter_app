@@ -68,6 +68,13 @@ WelcomeRoute ('/welcome')
 
 culture, econ, education, environment, health, humanrights, politics_and_society, world
 
+## 效能最佳化經驗法則
+
+- **`computed()`** 適用於衍生狀態（合併列表、布林判斷、過濾結果、HTML 轉換），避免每次 render 重新計算
+- **`ComputedBuilder`** 適用於縮小 rebuild 範圍：將響應式狀態讀取隔離在子樹中（如收藏按鈕、已讀標記）
+- **Builder functions → private widgets**：讓 Flutter framework 能跳過未變更的子樹
+- 何時用 **CompositionWidget** vs **StatelessWidget**：需要響應式狀態（ref/computed/onMounted）→ CompositionWidget，純展示 → StatelessWidget
+
 ## 重要提醒
 
 - 文章使用 **slug** 作為唯一識別符

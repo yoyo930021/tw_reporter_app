@@ -101,22 +101,24 @@ class _CategoryPageContent extends CompositionWidget {
 
             final article =
                 categoryArticles.articles.value[index];
-            return ArticleCard(
-              article: article,
-              isRead: readSlugs.value.contains(article.slug),
-              onTap: () {
-                unawaited(
-                  context.router.push(
-                    ArticleRoute(
-                      slug: article.slug,
-                      heroImageUrl:
-                          ArticleCard.getArticleImageUrl(
-                        article,
+            return ComputedBuilder(
+              builder: () => ArticleCard(
+                article: article,
+                isRead: readSlugs.value.contains(article.slug),
+                onTap: () {
+                  unawaited(
+                    context.router.push(
+                      ArticleRoute(
+                        slug: article.slug,
+                        heroImageUrl:
+                            ArticleCard.getArticleImageUrl(
+                          article,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             );
           },
         ),

@@ -35,111 +35,6 @@ class _MyReadingPageContent extends CompositionWidget {
     final readingData = useReadingData(repo);
     final theme = useTheme();
 
-    Widget buildRecordTile(BuildContext context, ReadingRecord record) {
-      return ListTile(
-        contentPadding: AppSpacing.edgeInsetsListItem,
-        leading: record.imageUrl != null
-            ? ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(AppSpacing.radiusSm),
-                child: CachedNetworkImage(
-                  imageUrl: record.imageUrl!,
-                  cacheManager:
-                      AppCacheManager.instance.imageCacheManager,
-                  width: 64,
-                  height: 48,
-                  fit: BoxFit.cover,
-                  placeholder: (_, _) => Container(
-                    width: 64,
-                    height: 48,
-                    color: AppColors.grey200,
-                  ),
-                  errorWidget: (_, _, _) => Container(
-                    width: 64,
-                    height: 48,
-                    color: AppColors.grey200,
-                    child: const Icon(Icons.image_not_supported,
-                        size: 20, color: AppColors.grey400),
-                  ),
-                ),
-              )
-            : null,
-        title: Text(
-          record.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        subtitle: Text(
-          formatDate(record.timestamp),
-          style: Theme.of(context).textTheme.timestamp,
-        ),
-        onTap: () {
-          unawaited(context.router.push(ArticleRoute(
-            slug: record.slug,
-            heroImageUrl: record.imageUrl,
-          )));
-        },
-      );
-    }
-
-    Widget buildHistoryTab() {
-      final history = readingData.history.value;
-
-      if (history.isEmpty) {
-        return const EmptyState(
-          message: '尚無閱讀記錄\n瀏覽文章後會自動記錄',
-          icon: Icons.history,
-        );
-      }
-
-      return ListView.separated(
-        padding: AppSpacing.edgeInsetsSm,
-        itemCount: history.length,
-        separatorBuilder: (_, _) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final record = history[index];
-          return buildRecordTile(context, record);
-        },
-      );
-    }
-
-    Widget buildBookmarksTab() {
-      final bookmarks = readingData.bookmarks.value;
-
-      if (bookmarks.isEmpty) {
-        return const EmptyState(
-          message: '尚無收藏文章\n在文章頁面點擊愛心收藏',
-          icon: Icons.favorite_border,
-        );
-      }
-
-      return ListView.separated(
-        padding: AppSpacing.edgeInsetsSm,
-        itemCount: bookmarks.length,
-        separatorBuilder: (_, _) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final record = bookmarks[index];
-          return Dismissible(
-            key: ValueKey<String>('bookmark-${record.slug}'),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              alignment: Alignment.centerRight,
-              padding:
-                  const EdgeInsets.only(right: AppSpacing.md),
-              color: AppColors.accent,
-              child:
-                  const Icon(Icons.delete, color: Colors.white),
-            ),
-            onDismissed: (_) {
-              readingData.removeBookmark(record.slug);
-            },
-            child: buildRecordTile(context, record),
-          );
-        },
-      );
-    }
-
     return (BuildContext context) {
       // Read theme to establish reactive tracking for theme changes
       final _ = theme.value;
@@ -174,12 +69,150 @@ class _MyReadingPageContent extends CompositionWidget {
           ),
           body: TabBarView(
             children: <Widget>[
-              buildHistoryTab(),
-              buildBookmarksTab(),
+              _HistoryTab(readingData: readingData),
+              _BookmarksTab(readingData: readingData),
             ],
           ),
         ),
       );
     };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private widget: History tab
+// ---------------------------------------------------------------------------
+
+class _HistoryTab extends StatelessWidget {
+  const _HistoryTab({required this.readingData});
+
+  final ReadingDataResult readingData;
+
+  @override
+  Widget build(BuildContext context) {
+    final history = readingData.history.value;
+
+    if (history.isEmpty) {
+      return const EmptyState(
+        message: '尚無閱讀記錄\n瀏覽文章後會自動記錄',
+        icon: Icons.history,
+      );
+    }
+
+    return ListView.separated(
+      padding: AppSpacing.edgeInsetsSm,
+      itemCount: history.length,
+      separatorBuilder: (_, _) => const Divider(height: 1),
+      itemBuilder: (context, index) {
+        final record = history[index];
+        return _RecordTile(record: record);
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private widget: Bookmarks tab
+// ---------------------------------------------------------------------------
+
+class _BookmarksTab extends StatelessWidget {
+  const _BookmarksTab({required this.readingData});
+
+  final ReadingDataResult readingData;
+
+  @override
+  Widget build(BuildContext context) {
+    final bookmarks = readingData.bookmarks.value;
+
+    if (bookmarks.isEmpty) {
+      return const EmptyState(
+        message: '尚無收藏文章\n在文章頁面點擊愛心收藏',
+        icon: Icons.favorite_border,
+      );
+    }
+
+    return ListView.separated(
+      padding: AppSpacing.edgeInsetsSm,
+      itemCount: bookmarks.length,
+      separatorBuilder: (_, _) => const Divider(height: 1),
+      itemBuilder: (context, index) {
+        final record = bookmarks[index];
+        return Dismissible(
+          key: ValueKey<String>('bookmark-${record.slug}'),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding:
+                const EdgeInsets.only(right: AppSpacing.md),
+            color: AppColors.accent,
+            child:
+                const Icon(Icons.delete, color: Colors.white),
+          ),
+          onDismissed: (_) {
+            readingData.removeBookmark(record.slug);
+          },
+          child: _RecordTile(record: record),
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private widget: Record tile
+// ---------------------------------------------------------------------------
+
+class _RecordTile extends StatelessWidget {
+  const _RecordTile({required this.record});
+
+  final ReadingRecord record;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: AppSpacing.edgeInsetsListItem,
+      leading: record.imageUrl != null
+          ? ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(AppSpacing.radiusSm),
+              child: CachedNetworkImage(
+                imageUrl: record.imageUrl!,
+                cacheManager:
+                    AppCacheManager.instance.imageCacheManager,
+                width: 64,
+                height: 48,
+                fit: BoxFit.cover,
+                placeholder: (_, _) => Container(
+                  width: 64,
+                  height: 48,
+                  color: AppColors.grey200,
+                ),
+                errorWidget: (_, _, _) => Container(
+                  width: 64,
+                  height: 48,
+                  color: AppColors.grey200,
+                  child: const Icon(Icons.image_not_supported,
+                      size: 20, color: AppColors.grey400),
+                ),
+              ),
+            )
+          : null,
+      title: Text(
+        record.title,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context).textTheme.bodyLarge,
+      ),
+      subtitle: Text(
+        formatDate(record.timestamp),
+        style: Theme.of(context).textTheme.timestamp,
+      ),
+      onTap: () {
+        unawaited(context.router.push(ArticleRoute(
+          slug: record.slug,
+          heroImageUrl: record.imageUrl,
+        )));
+      },
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:tw_reporter_app/core/services/donate_text_service.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
@@ -15,7 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 /// [pagePath] 指定從哪個頁面抓取贊助區塊：
 /// - `'/'` 首頁（預設）
 /// - `'/a/{slug}'` 文章頁面
-class DonateBanner extends StatefulWidget {
+class DonateBanner extends StatelessWidget {
   DonateBanner({
     super.key,
     this.pagePath = '/',
@@ -28,28 +29,22 @@ class DonateBanner extends StatefulWidget {
   final DonateTextService _service;
 
   @override
-  State<DonateBanner> createState() => _DonateBannerState();
+  Widget build(BuildContext context) {
+    return _DonateBannerContent(
+      pagePath: pagePath,
+      service: _service,
+    );
+  }
 }
 
-class _DonateBannerState extends State<DonateBanner> {
-  DonateTextData _data = DonateTextService.defaultData;
+class _DonateBannerContent extends CompositionWidget {
+  const _DonateBannerContent({
+    required this.pagePath,
+    required this.service,
+  });
 
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_fetchDonateText());
-  }
-
-  Future<void> _fetchDonateText() async {
-    final data = await widget._service.fetch(
-      pagePath: widget.pagePath,
-    );
-    if (mounted) {
-      setState(() {
-        _data = data;
-      });
-    }
-  }
+  final String pagePath;
+  final DonateTextService service;
 
   /// Injects inline styles into the HTML.
   ///
@@ -92,70 +87,80 @@ class _DonateBannerState extends State<DonateBanner> {
         );
   }
 
-  void _openDonation() {
-    unawaited(launchUrl(
-      Uri.parse(_data.buttonUrl),
-      mode: LaunchMode.inAppBrowserView,
-    ));
-  }
-
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: AppSpacing.edgeInsetsHorizontalMd,
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        color: AppColors.primary,
-        child: Padding(
-          padding: AppSpacing.edgeInsetsLg,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Html(
-                data: _styledHtml(_data.html),
-                onLinkTap: (url, _, _) {
-                  if (url != null && url.isNotEmpty) {
-                    unawaited(launchUrl(
-                      Uri.parse(url),
-                      mode: LaunchMode.inAppBrowserView,
-                    ));
-                  }
-                },
-                style: {
-                  'body': Style(
-                    margin: Margins.zero,
-                    padding: HtmlPaddings.zero,
-                  ),
-                  'div': Style(
-                    margin: Margins.zero,
-                    padding: HtmlPaddings.zero,
-                  ),
-                  'a': Style(
-                    color: AppColors.secondary,
-                    textDecoration: TextDecoration.underline,
-                    textDecorationColor: AppColors.secondary,
-                  ),
-                  'svg': Style(
-                    display: Display.none,
-                  ),
-                },
-              ),
-              AppSpacing.verticalSpacerMd,
-              Center(
-                child: FilledButton.icon(
-                  onPressed: _openDonation,
-                  icon: const Icon(Icons.favorite, size: 18),
-                  label: const Text('贊助報導者'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    foregroundColor: Colors.white,
+  Widget Function(BuildContext) setup() {
+    final data = ref<DonateTextData>(DonateTextService.defaultData);
+
+    onMounted(() async {
+      data.value = await service.fetch(pagePath: pagePath);
+    });
+
+    return (BuildContext context) {
+      final currentData = data.value;
+
+      void openDonation() {
+        unawaited(launchUrl(
+          Uri.parse(currentData.buttonUrl),
+          mode: LaunchMode.inAppBrowserView,
+        ));
+      }
+
+      return Padding(
+        padding: AppSpacing.edgeInsetsHorizontalMd,
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          color: AppColors.primary,
+          child: Padding(
+            padding: AppSpacing.edgeInsetsLg,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Html(
+                  data: _styledHtml(currentData.html),
+                  onLinkTap: (url, _, _) {
+                    if (url != null && url.isNotEmpty) {
+                      unawaited(launchUrl(
+                        Uri.parse(url),
+                        mode: LaunchMode.inAppBrowserView,
+                      ));
+                    }
+                  },
+                  style: {
+                    'body': Style(
+                      margin: Margins.zero,
+                      padding: HtmlPaddings.zero,
+                    ),
+                    'div': Style(
+                      margin: Margins.zero,
+                      padding: HtmlPaddings.zero,
+                    ),
+                    'a': Style(
+                      color: AppColors.secondary,
+                      textDecoration: TextDecoration.underline,
+                      textDecorationColor: AppColors.secondary,
+                    ),
+                    'svg': Style(
+                      display: Display.none,
+                    ),
+                  },
+                ),
+                AppSpacing.verticalSpacerMd,
+                Center(
+                  child: FilledButton.icon(
+                    onPressed: openDonation,
+                    icon: const Icon(Icons.favorite, size: 18),
+                    label: const Text('贊助報導者'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    };
   }
 }

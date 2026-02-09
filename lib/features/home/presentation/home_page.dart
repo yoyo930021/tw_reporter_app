@@ -79,446 +79,6 @@ class _HomePageContent extends CompositionWidget {
     final homeData = useHomeData(homeRepo);
     final theme = useTheme();
 
-    Widget buildFeaturedArticle(Article article) {
-      final imageUrl = ArticleCard.getArticleImageUrl(article);
-
-      return Builder(
-        builder: (context) => GestureDetector(
-          onTap: () {
-            unawaited(
-              context.router.push(
-                ArticleRoute(
-                  slug: article.slug,
-                  heroImageUrl: imageUrl,
-                ),
-              ),
-            );
-          },
-          child: Padding(
-            padding: AppSpacing.edgeInsetsHorizontalMd,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                if (imageUrl != null)
-                  Hero(
-                    tag: 'article-image-${article.slug}',
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                      child: CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        cacheManager:
-                            AppCacheManager.instance.imageCacheManager,
-                        height: 220,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) => Container(
-                          height: 220,
-                          color: AppColors.grey200,
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        ),
-                        errorWidget: (_, _, _) => Container(
-                          height: 220,
-                          color: AppColors.grey200,
-                          child: const Icon(
-                            Icons.image_not_supported,
-                            color: AppColors.grey400,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                AppSpacing.verticalSpacerSm,
-                Text(
-                  article.title,
-                  style: Theme.of(context).textTheme.displayMedium,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                AppSpacing.verticalSpacerXs,
-                Text(
-                  article.ogDescription,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    Widget buildHorizontalArticleSection(
-      List<Article> articles, {
-      double imageHeight = 140,
-    }) {
-      return HorizontalCarousel(
-        itemWidth: 280,
-        height: imageHeight + 136,
-        itemCount: articles.length,
-        itemBuilder: (context, index) {
-          final article = articles[index];
-          final imageUrl = ArticleCard.getArticleImageUrl(article);
-
-          return GestureDetector(
-            onTap: () {
-              unawaited(
-                context.router.push(
-                  ArticleRoute(
-                    slug: article.slug,
-                    heroImageUrl: imageUrl,
-                  ),
-                ),
-              );
-            },
-            child: Card(
-              clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  if (imageUrl != null)
-                    Hero(
-                      tag: 'article-image-${article.slug}',
-                      child: CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        cacheManager:
-                            AppCacheManager.instance.imageCacheManager,
-                        height: imageHeight,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) => Container(
-                          height: imageHeight,
-                          color: AppColors.grey200,
-                        ),
-                        errorWidget: (_, _, _) => Container(
-                          height: imageHeight,
-                          color: AppColors.grey200,
-                          child: const Icon(
-                            Icons.image_not_supported,
-                            color: AppColors.grey400,
-                          ),
-                        ),
-                      ),
-                    ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.sm),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            article.title,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.displaySmall!.copyWith(fontSize: 15),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          AppSpacing.verticalSpacerXs,
-                          Expanded(
-                            child: Text(
-                              article.ogDescription,
-                              style: Theme.of(context).textTheme.bodySmall!
-                                  .copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    }
-
-    Widget buildTopicsCarousel(IndexPageData indexData) {
-      final topics = <Topic>[
-        ...?indexData.latestTopicSection,
-        ...?indexData.topicsSection,
-      ];
-
-      return HorizontalCarousel(
-        itemWidth: 280,
-        height: 400,
-        itemCount: topics.length,
-        itemBuilder: (context, index) {
-          final topic = topics[index];
-          return TopicCard(
-            topic: topic,
-            onTap: () {
-              unawaited(
-                context.router.push(
-                  TopicDetailRoute(
-                    slug: topic.slug,
-                    topic: topic,
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      );
-    }
-
-    Widget buildArticleCard(Article article) {
-      return Builder(
-        builder: (context) => ArticleCard(
-          article: article,
-          onTap: () {
-            unawaited(
-              context.router.push(
-                ArticleRoute(
-                  slug: article.slug,
-                  heroImageUrl: ArticleCard.getArticleImageUrl(article),
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    }
-
-    Widget buildCategoriesRow(IndexPageData indexData) {
-      final items = <(String, String, Article)>[];
-      for (final (String label, String slug) in _categories) {
-        final articles = _getCategoryArticles(indexData, slug);
-        if (articles != null && articles.isNotEmpty) {
-          items.add((label, slug, articles.first));
-        }
-      }
-
-      if (items.isEmpty) return const SizedBox.shrink();
-
-      return HorizontalCarousel(
-        itemWidth: 280,
-        height: 140 + 136,
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final (String label, String slug, Article article) = items[index];
-          final imageUrl = ArticleCard.getArticleImageUrl(article);
-
-          return GestureDetector(
-            onTap: () {
-              unawaited(
-                context.router.push(
-                  ArticleRoute(
-                    slug: article.slug,
-                    heroImageUrl: imageUrl,
-                  ),
-                ),
-              );
-            },
-            child: Card(
-              clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  if (imageUrl != null)
-                    Hero(
-                      tag: 'article-image-${article.slug}',
-                      child: CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        cacheManager:
-                            AppCacheManager.instance.imageCacheManager,
-                        height: 140,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) => Container(
-                          height: 140,
-                          color: AppColors.grey200,
-                        ),
-                        errorWidget: (_, _, _) => Container(
-                          height: 140,
-                          color: AppColors.grey200,
-                          child: const Icon(
-                            Icons.image_not_supported,
-                            color: AppColors.grey400,
-                          ),
-                        ),
-                      ),
-                    ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.sm),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            label,
-                            style: Theme.of(context).textTheme.bodySmall!
-                                .copyWith(
-                                  color: AppColors.secondary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          AppSpacing.verticalSpacerXs,
-                          Text(
-                            article.title,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.displaySmall!.copyWith(fontSize: 15),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          AppSpacing.verticalSpacerXs,
-                          Expanded(
-                            child: Text(
-                              article.ogDescription,
-                              style: Theme.of(context).textTheme.bodySmall!
-                                  .copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    }
-
-    Widget buildBody() {
-      // 錯誤狀態
-      if (homeData.hasError.value) {
-        return ErrorView(
-          message: homeData.error.value ?? '未知錯誤',
-          onRetry: homeData.refresh,
-        );
-      }
-
-      // 載入中狀態
-      if (homeData.isLoading.value) {
-        return const LoadingIndicator();
-      }
-
-      // 空狀態
-      final indexData = homeData.indexData.value;
-      if (indexData == null) {
-        return const EmptyState(message: '目前沒有文章');
-      }
-
-      final hasTopics =
-          (indexData.latestTopicSection?.isNotEmpty ?? false) ||
-          (indexData.topicsSection?.isNotEmpty ?? false);
-
-      // 正常顯示
-      return ListView(
-        padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-        children: <Widget>[
-          // 1. 分類輪播
-          buildCategoriesRow(indexData),
-
-          // 2. 編輯精選
-          if (indexData.editorPicksSection?.isNotEmpty ?? false) ...<Widget>[
-            const Padding(
-              padding: AppSpacing.edgeInsetsHorizontalMd,
-              child: SectionHeader(title: '編輯精選'),
-            ),
-            AppSpacing.verticalSpacerSm,
-            buildFeaturedArticle(indexData.editorPicksSection!.first),
-            if (indexData.editorPicksSection!.length > 1) ...<Widget>[
-              AppSpacing.verticalSpacerSm,
-              buildHorizontalArticleSection(
-                indexData.editorPicksSection!.sublist(1),
-              ),
-            ],
-            AppSpacing.verticalSpacerLg,
-          ],
-
-          // 3. 最新專題
-          if (hasTopics) ...<Widget>[
-            const Padding(
-              padding: AppSpacing.edgeInsetsHorizontalMd,
-              child: SectionHeader(title: '最新專題'),
-            ),
-            AppSpacing.verticalSpacerSm,
-            buildTopicsCarousel(indexData),
-            AppSpacing.verticalSpacerLg,
-          ],
-
-          // 4. 最新報導
-          if (indexData.latestSection?.isNotEmpty ?? false) ...<Widget>[
-            const Padding(
-              padding: AppSpacing.edgeInsetsHorizontalMd,
-              child: SectionHeader(title: '最新報導'),
-            ),
-            AppSpacing.verticalSpacerSm,
-            ...indexData.latestSection!.map(buildArticleCard),
-            AppSpacing.verticalSpacerLg,
-          ],
-
-          // 5. 評論
-          if (indexData.reviewsSection?.isNotEmpty ?? false) ...<Widget>[
-            const Padding(
-              padding: AppSpacing.edgeInsetsHorizontalMd,
-              child: SectionHeader(title: '評論'),
-            ),
-            AppSpacing.verticalSpacerSm,
-            buildHorizontalArticleSection(indexData.reviewsSection!),
-            AppSpacing.verticalSpacerLg,
-          ],
-
-          // 6. 攝影
-          if (indexData.photosSection?.isNotEmpty ?? false) ...<Widget>[
-            const Padding(
-              padding: AppSpacing.edgeInsetsHorizontalMd,
-              child: SectionHeader(title: '攝影'),
-            ),
-            AppSpacing.verticalSpacerSm,
-            buildHorizontalArticleSection(
-              indexData.photosSection!,
-              imageHeight: 200,
-            ),
-            AppSpacing.verticalSpacerLg,
-          ],
-
-          // 7. 多媒體
-          if (indexData.infographicsSection?.isNotEmpty ?? false) ...<Widget>[
-            const Padding(
-              padding: AppSpacing.edgeInsetsHorizontalMd,
-              child: SectionHeader(title: '多媒體'),
-            ),
-            AppSpacing.verticalSpacerSm,
-            buildHorizontalArticleSection(indexData.infographicsSection!),
-            AppSpacing.verticalSpacerLg,
-          ],
-
-          // 8. 贊助報導者
-          AppSpacing.verticalSpacerLg,
-          DonateBanner(),
-          AppSpacing.verticalSpacerLg,
-        ],
-      );
-    }
-
     return (BuildContext context) {
       final isDark = theme.value.brightness == Brightness.dark;
       final logoAsset = isDark
@@ -643,8 +203,530 @@ class _HomePageContent extends CompositionWidget {
         ),
         body: RefreshIndicator(
           onRefresh: homeData.refresh,
-          child: buildBody(),
+          child: _HomeBody(homeData: homeData),
         ),
+      );
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private widget: Home body (replaces buildBody)
+// ---------------------------------------------------------------------------
+
+class _HomeBody extends CompositionWidget {
+  const _HomeBody({required this.homeData});
+
+  final HomeDataResult homeData;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    return (BuildContext context) {
+      if (homeData.hasError.value) {
+        return ErrorView(
+          message: homeData.error.value ?? '未知錯誤',
+          onRetry: homeData.refresh,
+        );
+      }
+
+      if (homeData.isLoading.value) {
+        return const LoadingIndicator();
+      }
+
+      final indexData = homeData.indexData.value;
+      if (indexData == null) {
+        return const EmptyState(message: '目前沒有文章');
+      }
+
+      final hasTopics =
+          (indexData.latestTopicSection?.isNotEmpty ?? false) ||
+          (indexData.topicsSection?.isNotEmpty ?? false);
+
+      return ListView(
+        padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+        children: <Widget>[
+          // 1. 分類輪播
+          _CategoriesRow(indexData: indexData),
+
+          // 2. 編輯精選
+          if (indexData.editorPicksSection?.isNotEmpty ?? false) ...<Widget>[
+            const Padding(
+              padding: AppSpacing.edgeInsetsHorizontalMd,
+              child: SectionHeader(title: '編輯精選'),
+            ),
+            AppSpacing.verticalSpacerSm,
+            _FeaturedArticleCard(
+              article: indexData.editorPicksSection!.first,
+            ),
+            if (indexData.editorPicksSection!.length > 1) ...<Widget>[
+              AppSpacing.verticalSpacerSm,
+              _HorizontalArticleSection(
+                articles: indexData.editorPicksSection!.sublist(1),
+              ),
+            ],
+            AppSpacing.verticalSpacerLg,
+          ],
+
+          // 3. 最新專題
+          if (hasTopics) ...<Widget>[
+            const Padding(
+              padding: AppSpacing.edgeInsetsHorizontalMd,
+              child: SectionHeader(title: '最新專題'),
+            ),
+            AppSpacing.verticalSpacerSm,
+            _TopicsCarousel(indexData: indexData),
+            AppSpacing.verticalSpacerLg,
+          ],
+
+          // 4. 最新報導
+          if (indexData.latestSection?.isNotEmpty ?? false) ...<Widget>[
+            const Padding(
+              padding: AppSpacing.edgeInsetsHorizontalMd,
+              child: SectionHeader(title: '最新報導'),
+            ),
+            AppSpacing.verticalSpacerSm,
+            ...indexData.latestSection!.map(
+              (article) => _LatestArticleCard(article: article),
+            ),
+            AppSpacing.verticalSpacerLg,
+          ],
+
+          // 5. 評論
+          if (indexData.reviewsSection?.isNotEmpty ?? false) ...<Widget>[
+            const Padding(
+              padding: AppSpacing.edgeInsetsHorizontalMd,
+              child: SectionHeader(title: '評論'),
+            ),
+            AppSpacing.verticalSpacerSm,
+            _HorizontalArticleSection(
+              articles: indexData.reviewsSection!,
+            ),
+            AppSpacing.verticalSpacerLg,
+          ],
+
+          // 6. 攝影
+          if (indexData.photosSection?.isNotEmpty ?? false) ...<Widget>[
+            const Padding(
+              padding: AppSpacing.edgeInsetsHorizontalMd,
+              child: SectionHeader(title: '攝影'),
+            ),
+            AppSpacing.verticalSpacerSm,
+            _HorizontalArticleSection(
+              articles: indexData.photosSection!,
+              imageHeight: 200,
+            ),
+            AppSpacing.verticalSpacerLg,
+          ],
+
+          // 7. 多媒體
+          if (indexData.infographicsSection?.isNotEmpty ?? false) ...<Widget>[
+            const Padding(
+              padding: AppSpacing.edgeInsetsHorizontalMd,
+              child: SectionHeader(title: '多媒體'),
+            ),
+            AppSpacing.verticalSpacerSm,
+            _HorizontalArticleSection(
+              articles: indexData.infographicsSection!,
+            ),
+            AppSpacing.verticalSpacerLg,
+          ],
+
+          // 8. 贊助報導者
+          AppSpacing.verticalSpacerLg,
+          DonateBanner(),
+          AppSpacing.verticalSpacerLg,
+        ],
+      );
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private widget: Featured article card
+// ---------------------------------------------------------------------------
+
+class _FeaturedArticleCard extends StatelessWidget {
+  const _FeaturedArticleCard({required this.article});
+
+  final Article article;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = ArticleCard.getArticleImageUrl(article);
+
+    return GestureDetector(
+      onTap: () {
+        unawaited(
+          context.router.push(
+            ArticleRoute(
+              slug: article.slug,
+              heroImageUrl: imageUrl,
+            ),
+          ),
+        );
+      },
+      child: Padding(
+        padding: AppSpacing.edgeInsetsHorizontalMd,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            if (imageUrl != null)
+              Hero(
+                tag: 'article-image-${article.slug}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    cacheManager:
+                        AppCacheManager.instance.imageCacheManager,
+                    height: 220,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(
+                      height: 220,
+                      color: AppColors.grey200,
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                    errorWidget: (_, _, _) => Container(
+                      height: 220,
+                      color: AppColors.grey200,
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: AppColors.grey400,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            AppSpacing.verticalSpacerSm,
+            Text(
+              article.title,
+              style: Theme.of(context).textTheme.displayMedium,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+            AppSpacing.verticalSpacerXs,
+            Text(
+              article.ogDescription,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private widget: Horizontal article section
+// ---------------------------------------------------------------------------
+
+class _HorizontalArticleSection extends StatelessWidget {
+  const _HorizontalArticleSection({
+    required this.articles,
+    this.imageHeight = 140,
+  });
+
+  final List<Article> articles;
+  final double imageHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    return HorizontalCarousel(
+      itemWidth: 280,
+      height: imageHeight + 136,
+      itemCount: articles.length,
+      itemBuilder: (context, index) {
+        final article = articles[index];
+        final imageUrl = ArticleCard.getArticleImageUrl(article);
+
+        return GestureDetector(
+          onTap: () {
+            unawaited(
+              context.router.push(
+                ArticleRoute(
+                  slug: article.slug,
+                  heroImageUrl: imageUrl,
+                ),
+              ),
+            );
+          },
+          child: Card(
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                if (imageUrl != null)
+                  Hero(
+                    tag: 'article-image-${article.slug}',
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      cacheManager:
+                          AppCacheManager.instance.imageCacheManager,
+                      height: imageHeight,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) => Container(
+                        height: imageHeight,
+                        color: AppColors.grey200,
+                      ),
+                      errorWidget: (_, _, _) => Container(
+                        height: imageHeight,
+                        color: AppColors.grey200,
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: AppColors.grey400,
+                        ),
+                      ),
+                    ),
+                  ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          article.title,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.displaySmall!.copyWith(fontSize: 15),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        AppSpacing.verticalSpacerXs,
+                        Expanded(
+                          child: Text(
+                            article.ogDescription,
+                            style: Theme.of(context).textTheme.bodySmall!
+                                .copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private widget: Topics carousel (with computed)
+// ---------------------------------------------------------------------------
+
+class _TopicsCarousel extends CompositionWidget {
+  const _TopicsCarousel({required this.indexData});
+
+  final IndexPageData indexData;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final topics = computed(() {
+      return <Topic>[
+        ...?indexData.latestTopicSection,
+        ...?indexData.topicsSection,
+      ];
+    });
+
+    return (BuildContext context) {
+      final topicList = topics.value;
+
+      return HorizontalCarousel(
+        itemWidth: 280,
+        height: 400,
+        itemCount: topicList.length,
+        itemBuilder: (context, index) {
+          final topic = topicList[index];
+          return TopicCard(
+            topic: topic,
+            onTap: () {
+              unawaited(
+                context.router.push(
+                  TopicDetailRoute(
+                    slug: topic.slug,
+                    topic: topic,
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      );
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private widget: Latest article card (replaces buildArticleCard)
+// ---------------------------------------------------------------------------
+
+class _LatestArticleCard extends StatelessWidget {
+  const _LatestArticleCard({required this.article});
+
+  final Article article;
+
+  @override
+  Widget build(BuildContext context) {
+    return ArticleCard(
+      article: article,
+      onTap: () {
+        unawaited(
+          context.router.push(
+            ArticleRoute(
+              slug: article.slug,
+              heroImageUrl: ArticleCard.getArticleImageUrl(article),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private widget: Categories row (with computed)
+// ---------------------------------------------------------------------------
+
+class _CategoriesRow extends CompositionWidget {
+  const _CategoriesRow({required this.indexData});
+
+  final IndexPageData indexData;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final categoryItems = computed(() {
+      final items = <(String, String, Article)>[];
+      for (final (String label, String slug) in _categories) {
+        final articles = _getCategoryArticles(indexData, slug);
+        if (articles != null && articles.isNotEmpty) {
+          items.add((label, slug, articles.first));
+        }
+      }
+      return items;
+    });
+
+    return (BuildContext context) {
+      final items = categoryItems.value;
+
+      if (items.isEmpty) return const SizedBox.shrink();
+
+      return HorizontalCarousel(
+        itemWidth: 280,
+        height: 140 + 136,
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final (String label, String slug, Article article) = items[index];
+          final imageUrl = ArticleCard.getArticleImageUrl(article);
+
+          return GestureDetector(
+            onTap: () {
+              unawaited(
+                context.router.push(
+                  ArticleRoute(
+                    slug: article.slug,
+                    heroImageUrl: imageUrl,
+                  ),
+                ),
+              );
+            },
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  if (imageUrl != null)
+                    Hero(
+                      tag: 'article-image-${article.slug}',
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        cacheManager:
+                            AppCacheManager.instance.imageCacheManager,
+                        height: 140,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) => Container(
+                          height: 140,
+                          color: AppColors.grey200,
+                        ),
+                        errorWidget: (_, _, _) => Container(
+                          height: 140,
+                          color: AppColors.grey200,
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            color: AppColors.grey400,
+                          ),
+                        ),
+                      ),
+                    ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.sm),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            label,
+                            style: Theme.of(context).textTheme.bodySmall!
+                                .copyWith(
+                                  color: AppColors.secondary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          AppSpacing.verticalSpacerXs,
+                          Text(
+                            article.title,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displaySmall!.copyWith(fontSize: 15),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          AppSpacing.verticalSpacerXs,
+                          Expanded(
+                            child: Text(
+                              article.ogDescription,
+                              style: Theme.of(context).textTheme.bodySmall!
+                                  .copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       );
     };
   }
