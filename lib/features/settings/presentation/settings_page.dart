@@ -4,9 +4,18 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/injection_keys.dart';
 import 'package:tw_reporter_app/core/push/push_service.dart';
 import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
+
+String _formatBytes(int bytes) {
+  if (bytes < 1024) return '$bytes B';
+  if (bytes < 1024 * 1024) {
+    return '${(bytes / 1024).toStringAsFixed(1)} KB';
+  }
+  return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+}
 
 String _formatDistributorName(String packageName) {
   const knownNames = <String, String>{
@@ -52,9 +61,20 @@ class _SettingsPageContent extends CompositionWidget {
     final themeNotifier = inject(AppKeys.themeNotifier);
     final readingRepo = inject(AppKeys.readingRepository);
 
-    // Use flutter_compositions reactivity instead of ListenableBuilder
-    manageListenable(themeNotifier);
+    // Must read the returned ref's .value in the render function
+    // to establish a reactive dependency for rebuilds.
+    final themeNotifierRef = manageListenable(themeNotifier);
     final pushServiceRef = manageListenable(PushService.instance);
+    final cacheSize = ref<int?>(null);
+
+    Future<void> refreshCacheSize() async {
+      cacheSize.value =
+          await AppCacheManager.instance.getTotalCacheSize();
+    }
+
+    onMounted(() async {
+      await refreshCacheSize();
+    });
 
     void showNoDistributorDialog(BuildContext context) {
       unawaited(
@@ -153,6 +173,35 @@ class _SettingsPageContent extends CompositionWidget {
       }
     }
 
+    void showClearCacheDialog(BuildContext context) {
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('清除快取'),
+            content:
+                const Text('確定要清除所有快取資料嗎？包含 API 快取、圖片快取和影片快取。'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('取消'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await AppCacheManager.instance.clearAll();
+                  await refreshCacheSize();
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text('清除'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     void showClearHistoryDialog(BuildContext context, ReadingRepository repo) {
       unawaited(
         showDialog<void>(
@@ -183,6 +232,7 @@ class _SettingsPageContent extends CompositionWidget {
 
     return (BuildContext context) {
       // Access refs to establish reactive tracking
+      final notifier = themeNotifierRef.value;
       final pushService = pushServiceRef.value;
 
       return Scaffold(
@@ -207,11 +257,11 @@ class _SettingsPageContent extends CompositionWidget {
               ),
             ),
             RadioGroup<ThemeMode>(
-              groupValue: themeNotifier.themeMode,
+              groupValue: notifier.themeMode,
               onChanged: (value) {
                 if (value != null) {
                   unawaited(
-                    themeNotifier.setThemeMode(value),
+                    notifier.setThemeMode(value),
                   );
                 }
               },
@@ -295,6 +345,20 @@ class _SettingsPageContent extends CompositionWidget {
               onTap: () => showClearHistoryDialog(
                 context,
                 readingRepo,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.storage_outlined),
+              title: const Text('快取空間'),
+              subtitle: Text(
+                cacheSize.value != null
+                    ? '已使用 ${_formatBytes(cacheSize.value!)}'
+                    : '計算中...',
+              ),
+              trailing: TextButton(
+                onPressed: () =>
+                    showClearCacheDialog(context),
+                child: const Text('清除'),
               ),
             ),
           ],

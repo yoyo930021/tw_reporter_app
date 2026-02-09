@@ -30,6 +30,18 @@ class MenuPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('選單'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(20),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              '非官方開源客戶端',
+              style: textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: AppSpacing.xl),
@@ -74,6 +86,44 @@ class MenuPage extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.code),
+            title: const Text('查看原始碼'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              unawaited(launchUrl(
+                Uri.parse(
+                    'https://github.com/yoyo930021/tw_reporter_app'),
+                mode: LaunchMode.inAppBrowserView,
+              ));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.bug_report_outlined),
+            title: const Text('回報問題'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              unawaited(launchUrl(
+                Uri.parse(
+                    'https://github.com/yoyo930021/tw_reporter_app/issues'),
+                mode: LaunchMode.inAppBrowserView,
+              ));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.description_outlined),
+            title: const Text('開源授權'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              showLicensePage(
+                context: context,
+                applicationName: '閱報導者',
+                applicationVersion: '1.0.0',
+                applicationLegalese:
+                    'MIT License \u00a9 2025 yoyo930021',
+              );
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('設定'),
             trailing: const Icon(Icons.chevron_right),
@@ -91,8 +141,15 @@ class MenuPage extends StatelessWidget {
               children: <Widget>[
                 AppSpacing.verticalSpacerMd,
                 Text(
-                  '報導者 The Reporter',
+                  '閱報導者',
                   style: textTheme.titleMedium?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+                AppSpacing.verticalSpacerXs,
+                Text(
+                  '非官方 · 開源 · 內容來自報導者',
+                  style: textTheme.bodySmall?.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),

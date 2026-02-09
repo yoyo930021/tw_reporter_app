@@ -14,6 +14,7 @@ import 'package:tw_reporter_app/features/settings/presentation/settings_page.dar
 import 'package:tw_reporter_app/features/tag/presentation/tag_detail_page.dart';
 import 'package:tw_reporter_app/features/topics/presentation/topic_detail_page.dart';
 import 'package:tw_reporter_app/features/topics/presentation/topics_page.dart';
+import 'package:tw_reporter_app/features/welcome/presentation/welcome_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -86,6 +87,12 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           page: SettingsRoute.page,
           path: '/settings',
+        ),
+
+        // 歡迎頁面
+        AutoRoute(
+          page: WelcomeRoute.page,
+          path: '/welcome',
         ),
       ];
 }
