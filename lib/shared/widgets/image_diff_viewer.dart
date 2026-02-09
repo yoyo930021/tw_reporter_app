@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
+import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 
@@ -37,6 +38,11 @@ class ImageDiffViewer extends CompositionWidget {
       final colors = theme.value.colorScheme;
       final textTheme = theme.value.textTheme;
 
+      // Read reactive value HERE (in the render function) so that
+      // changes trigger a rebuild. LayoutBuilder.builder is NOT
+      // tracked by the reactive system.
+      final position = dividerPosition.value;
+
       final hasDescriptions =
           (props.value.beforeDesc != null &&
               props.value.beforeDesc!.isNotEmpty) ||
@@ -46,43 +52,26 @@ class ImageDiffViewer extends CompositionWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth;
-              return GestureDetector(
-                onHorizontalDragUpdate: (details) {
-                  dividerPosition.value =
-                      (details.localPosition.dx / width).clamp(0.0, 1.0);
-                },
-                child: AspectRatio(
-                  aspectRatio: 16 / 10,
-                  child: Stack(
-                    children: <Widget>[
-                      // After image (full width, behind)
-                      Positioned.fill(
-                        child: CachedNetworkImage(
-                          imageUrl: props.value.afterUrl,
-                          fit: BoxFit.cover,
-                          placeholder: (_, _) => const ColoredBox(
-                            color: AppColors.grey200,
-                          ),
-                          errorWidget: (_, _, _) => const ColoredBox(
-                            color: AppColors.grey200,
-                            child: Center(
-                              child: Icon(
-                                Icons.image_not_supported,
-                                color: AppColors.grey400,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Before image (clipped from left)
-                      Positioned.fill(
-                        child: ClipRect(
-                          clipper: _LeftClipper(dividerPosition.value),
+          SelectionContainer.disabled(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth;
+                return GestureDetector(
+                  onHorizontalDragUpdate: (details) {
+                    dividerPosition.value =
+                        (details.localPosition.dx / width)
+                            .clamp(0.0, 1.0);
+                  },
+                  child: AspectRatio(
+                    aspectRatio: 16 / 10,
+                    child: Stack(
+                      children: <Widget>[
+                        // After image (full width, behind)
+                        Positioned.fill(
                           child: CachedNetworkImage(
-                            imageUrl: props.value.beforeUrl,
+                            imageUrl: props.value.afterUrl,
+                            cacheManager:
+                                AppCacheManager.instance.imageCacheManager,
                             fit: BoxFit.cover,
                             placeholder: (_, _) => const ColoredBox(
                               color: AppColors.grey200,
@@ -98,49 +87,74 @@ class ImageDiffViewer extends CompositionWidget {
                             ),
                           ),
                         ),
-                      ),
-                      // Divider line
-                      Positioned(
-                        left: width * dividerPosition.value - 1,
-                        top: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 2,
-                          color: Colors.white,
-                        ),
-                      ),
-                      // Drag handle
-                      Positioned(
-                        left: width * dividerPosition.value - 18,
-                        top: 0,
-                        bottom: 0,
-                        child: Center(
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  blurRadius: 4,
+                        // Before image (clipped from left)
+                        Positioned.fill(
+                          child: ClipRect(
+                            clipper: _LeftClipper(position),
+                            child: CachedNetworkImage(
+                              imageUrl: props.value.beforeUrl,
+                              cacheManager:
+                                  AppCacheManager.instance.imageCacheManager,
+                              fit: BoxFit.cover,
+                              placeholder: (_, _) => const ColoredBox(
+                                color: AppColors.grey200,
+                              ),
+                              errorWidget: (_, _, _) => const ColoredBox(
+                                color: AppColors.grey200,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    color: AppColors.grey400,
+                                  ),
                                 ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.drag_handle,
-                              size: 20,
-                              color: AppColors.grey600,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        // Divider line
+                        Positioned(
+                          left: width * position - 1,
+                          top: 0,
+                          bottom: 0,
+                          child: Container(
+                            width: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                        // Drag handle
+                        Positioned(
+                          left: width * position - 18,
+                          top: 0,
+                          bottom: 0,
+                          child: Center(
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: <BoxShadow>[
+                                  BoxShadow(
+                                    color:
+                                        Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.drag_handle,
+                                size: 20,
+                                color: AppColors.grey600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
           // Descriptions
           if (hasDescriptions) ...<Widget>[

@@ -57,6 +57,8 @@ String convertContentToHtml(Map<String, dynamic>? content) {
         _renderImageDiff(html, blockContent);
       case 'slideshow':
         _renderSlideshow(html, blockContent);
+      case 'youtube':
+        _renderYoutube(html, blockContent);
       default:
         _renderUnsupported(html, type);
     }
@@ -166,9 +168,38 @@ void _renderEmbeddedCode(
       ? codeWithoutScript
       : fullCode;
 
-  // Detect video: <source src="...mp4">
+  // Detect standalone image: <img> or <picture> without scripts
+  final imgMatch = RegExp(
+    r'<img\s[^>]*src="([^"]*)"',
+    caseSensitive: false,
+  ).firstMatch(rawHtml);
+  final hasScriptsEarly = fullCode.contains('<script') ||
+      fullCode.contains('</script>');
+  final hasCustomElementEarly = RegExp(
+    r'<([a-z][a-z0-9]*-[a-z][\w-]*)',
+  ).hasMatch(rawHtml);
+
+  if (imgMatch != null && !hasScriptsEarly && !hasCustomElementEarly) {
+    final imgUrl = imgMatch.group(1)!;
+    final altMatch = RegExp(
+      'alt="([^"]*)"',
+      caseSensitive: false,
+    ).firstMatch(rawHtml);
+    final alt = altMatch?.group(1) ?? '';
+    final description = caption.isNotEmpty ? caption : alt;
+    final escapedUrl = _escapeHtml(imgUrl);
+    final escapedDesc = _escapeHtml(description);
+    html
+      ..write('<figure>')
+      ..write('<img src="$escapedUrl" alt="$escapedDesc" />')
+      ..write('<figcaption>$escapedDesc</figcaption>')
+      ..write('</figure>');
+    return;
+  }
+
+  // Detect video: <source src="...mp4"> (also matches .mp4?query)
   final videoMatch = RegExp(
-    r'<source\s[^>]*src="([^"]*\.mp4)"',
+    r'<source\s[^>]*src="([^"]*\.mp4[^"]*)"',
     caseSensitive: false,
   ).firstMatch(rawHtml);
 
@@ -349,6 +380,28 @@ void _renderSlideshow(StringBuffer html, dynamic content) {
     }
   }
   html.write('</slideshow>');
+}
+
+void _renderYoutube(StringBuffer html, dynamic content) {
+  if (content is! List || content.isEmpty) return;
+
+  for (final dynamic item in content) {
+    if (item is Map<String, dynamic>) {
+      final youtubeId = item['youtubeId'] as String? ?? '';
+      final description = item['description'] as String? ?? '';
+      if (youtubeId.isNotEmpty) {
+        // Strip tracking params (e.g. ?si=...) for the embed URL
+        final cleanId = youtubeId.split('?').first;
+        final escapedId = _escapeHtml(cleanId);
+        final escapedDesc = _escapeHtml(description);
+        html.write(
+          '<embedded-youtube id="$escapedId" '
+          'caption="$escapedDesc">'
+          '</embedded-youtube>',
+        );
+      }
+    }
+  }
 }
 
 void _renderUnsupported(StringBuffer html, String type) {

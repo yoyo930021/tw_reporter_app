@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
+import 'package:tw_reporter_app/core/di/injection_keys.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/shared/composables/use_scroll_visibility.dart';
+import 'package:tw_reporter_app/shared/composables/use_video_player_controller.dart';
 import 'package:video_player/video_player.dart';
 
 /// Widget that plays embedded videos using the video_player package.
@@ -64,101 +66,50 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext context) setup() {
-    final controllerRef = ref<VideoPlayerController?>(null);
-    final isInitialized = ref<bool>(false);
-    final hasError = ref<bool>(false);
-    final hasStartedInit = ref<bool>(false);
-    final wasPlaying = ref<bool>(false);
-    final disposed = ref<bool>(false);
-    final lastAspectRatio = ref<double>(16.0 / 9.0);
-    var isDisposing = false;
-
-    // Forward-declare functions that have circular dependencies with
-    // useScrollVisibility: the onChanged closure references both
-    // initializePlayer and disposeController, while initializePlayer
-    // references isVisible from useScrollVisibility.
-    late final Future<void> Function() initializePlayer;
-    late final void Function() disposeController;
-
-    final (visibilityKey, isVisible) = useScrollVisibility(
-      onChanged: ({required visible}) {
-        if (visible) {
-          if (!hasStartedInit.value || disposed.value) {
-            unawaited(initializePlayer());
-          } else if (isInitialized.value && controllerRef.value != null) {
-            unawaited(controllerRef.value!.play());
-          }
-        } else {
-          if (controllerRef.value != null && isInitialized.value) {
-            disposeController();
-          }
-        }
-      },
+    final videoCacheService = inject(AppKeys.videoCacheService);
+    final player = useVideoPlayerController(
+      url: url,
+      loop: loop,
+      muted: muted,
+      videoCacheService: videoCacheService,
     );
 
-    void onControllerUpdate() {
-      if (controllerRef.value == null || isDisposing) return;
-      final isPlaying = controllerRef.value!.value.isPlaying;
-      if (isPlaying != wasPlaying.value) {
-        wasPlaying.value = isPlaying;
-      }
-    }
+    // Track whether we should auto-resume when scrolling back into view.
+    var shouldAutoResume = autoplay;
+    // Track whether play has ever started — suppresses the center play
+    // button during the brief gap between init and autoplay start.
+    final hasEverPlayed = ref(false);
 
-    disposeController = () {
-      controllerRef.value?.removeListener(onControllerUpdate);
-      unawaited(controllerRef.value?.dispose());
-      controllerRef.value = null;
-      isInitialized.value = false;
-      wasPlaying.value = false;
-      disposed.value = true;
-    };
+    final (visibilityKey, isVisible) = useScrollVisibility();
 
-    initializePlayer = () async {
-      if (isInitialized.value && !disposed.value) return;
-      hasStartedInit.value = true;
-      disposed.value = false;
-      hasError.value = false;
-
-      controllerRef.value = VideoPlayerController.networkUrl(
-        Uri.parse(url),
-      );
-      controllerRef.value!.addListener(onControllerUpdate);
-
-      await controllerRef.value!.setLooping(loop);
-      if (muted) {
-        await controllerRef.value!.setVolume(0);
-      }
-      try {
-        await controllerRef.value!.initialize();
-        if (disposed.value) return;
-        lastAspectRatio.value = controllerRef.value!.value.aspectRatio;
-        isInitialized.value = true;
-        if (isVisible.value) {
-          await controllerRef.value!.play();
+    watch(() => isVisible.value, (visible, _) {
+      if (visible) {
+        if (!player.isInitialized.value) {
+          unawaited(player.initialize().then((_) {
+            if (player.isInitialized.value && shouldAutoResume) {
+              unawaited(player.play());
+              hasEverPlayed.value = true;
+            }
+          }));
+        } else if (shouldAutoResume) {
+          unawaited(player.play());
+          hasEverPlayed.value = true;
         }
-      } on Exception catch (_) {
-        if (disposed.value) return;
-        hasError.value = true;
+      } else {
+        if (player.isInitialized.value) {
+          shouldAutoResume =
+              player.isPlaying.value || autoplay;
+          unawaited(player.pause());
+        }
       }
-    };
-
-    onUnmounted(() {
-      isDisposing = true;
-      disposeController();
     });
 
-    Future<void> togglePlayPause() async {
-      if (controllerRef.value == null || !isInitialized.value) return;
-      if (controllerRef.value!.value.isPlaying) {
-        await controllerRef.value!.pause();
-      } else {
-        await controllerRef.value!.play();
-      }
-    }
+    return (BuildContext context) {
+      final colors = Theme.of(context).colorScheme;
 
-    Widget buildVideoContent() {
-      if (hasError.value) {
-        return const ColoredBox(
+      Widget content;
+      if (player.hasError.value) {
+        content = const ColoredBox(
           color: AppColors.grey200,
           child: Center(
             child: Column(
@@ -178,10 +129,8 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
             ),
           ),
         );
-      }
-
-      if (!isInitialized.value) {
-        return const ColoredBox(
+      } else if (!player.isInitialized.value) {
+        content = const ColoredBox(
           color: AppColors.grey200,
           child: Center(
             child: Icon(
@@ -191,38 +140,41 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
             ),
           ),
         );
-      }
-
-      return GestureDetector(
-        onTap: togglePlayPause,
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: <Widget>[
-            VideoPlayer(controllerRef.value!),
-            if (!controllerRef.value!.value.isPlaying)
-              const Center(
-                child: Icon(
-                  Icons.play_circle_fill,
-                  size: 64,
-                  color: Colors.white70,
+      } else {
+        final controller = player.controllerRef.value;
+        final isPlaying = player.isPlaying.value;
+        final showPlayOverlay =
+            !isPlaying && hasEverPlayed.value;
+        content = GestureDetector(
+          onTap: () {
+            hasEverPlayed.value = true;
+            unawaited(player.togglePlayPause());
+          },
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: <Widget>[
+              VideoPlayer(controller),
+              if (showPlayOverlay)
+                const Center(
+                  child: Icon(
+                    Icons.play_circle_fill,
+                    size: 64,
+                    color: Colors.white70,
+                  ),
+                ),
+              VideoProgressIndicator(
+                controller,
+                allowScrubbing: true,
+                colors: const VideoProgressColors(
+                  playedColor: AppColors.secondary,
+                  bufferedColor: AppColors.grey300,
+                  backgroundColor: AppColors.grey200,
                 ),
               ),
-            VideoProgressIndicator(
-              controllerRef.value!,
-              allowScrubbing: true,
-              colors: const VideoProgressColors(
-                playedColor: AppColors.secondary,
-                bufferedColor: AppColors.grey300,
-                backgroundColor: AppColors.grey200,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return (BuildContext context) {
-      final colors = Theme.of(context).colorScheme;
+            ],
+          ),
+        );
+      }
 
       return Column(
         key: visibilityKey,
@@ -233,8 +185,8 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
               AppSpacing.radiusSm,
             ),
             child: AspectRatio(
-              aspectRatio: lastAspectRatio.value,
-              child: buildVideoContent(),
+              aspectRatio: player.aspectRatio.value,
+              child: content,
             ),
           ),
           if (caption != null && caption!.isNotEmpty)

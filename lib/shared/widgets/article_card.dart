@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/core/theme/app_theme.dart';
@@ -42,6 +43,8 @@ class ArticleCard extends StatelessWidget {
             if (imageUrl != null)
               CachedNetworkImage(
                 imageUrl: imageUrl,
+                cacheManager:
+                    AppCacheManager.instance.imageCacheManager,
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,

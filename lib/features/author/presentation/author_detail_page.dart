@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
+import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/injection_keys.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/core/storage/reading_storage.dart';
@@ -99,7 +100,11 @@ class _AuthorDetailPageContent extends CompositionWidget {
               CircleAvatar(
                 radius: 40,
                 backgroundImage:
-                    CachedNetworkImageProvider(authorThumbnailUrl!),
+                    CachedNetworkImageProvider(
+                      authorThumbnailUrl!,
+                      cacheManager:
+                          AppCacheManager.instance.imageCacheManager,
+                    ),
                 backgroundColor: AppColors.grey200,
               )
             else

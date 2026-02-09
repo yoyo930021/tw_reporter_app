@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
+import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/injection_keys.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
@@ -100,6 +101,8 @@ class _HomePageContent extends CompositionWidget {
                         BorderRadius.circular(AppSpacing.radiusMd),
                     child: CachedNetworkImage(
                       imageUrl: imageUrl,
+                      cacheManager:
+                          AppCacheManager.instance.imageCacheManager,
                       height: 220,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -176,6 +179,8 @@ class _HomePageContent extends CompositionWidget {
                   if (imageUrl != null)
                     CachedNetworkImage(
                       imageUrl: imageUrl,
+                      cacheManager:
+                          AppCacheManager.instance.imageCacheManager,
                       height: imageHeight,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -311,6 +316,8 @@ class _HomePageContent extends CompositionWidget {
                   if (imageUrl != null)
                     CachedNetworkImage(
                       imageUrl: imageUrl,
+                      cacheManager:
+                          AppCacheManager.instance.imageCacheManager,
                       height: 140,
                       width: double.infinity,
                       fit: BoxFit.cover,

@@ -5,6 +5,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
+import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/injection_keys.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
@@ -37,6 +38,8 @@ Widget? _buildFlexibleBackground({
     children: <Widget>[
       CachedNetworkImage(
         imageUrl: imageUrl,
+        cacheManager:
+            AppCacheManager.instance.imageCacheManager,
         fit: BoxFit.cover,
         placeholder: (_, _) => const ColoredBox(
           color: AppColors.grey200,

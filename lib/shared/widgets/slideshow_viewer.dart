@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
+import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 
@@ -54,6 +55,8 @@ class SlideshowViewer extends CompositionWidget {
                 final slide = props.value.slides[index];
                 return CachedNetworkImage(
                   imageUrl: slide.url,
+                  cacheManager:
+                      AppCacheManager.instance.imageCacheManager,
                   fit: BoxFit.cover,
                   placeholder: (_, _) => const ColoredBox(
                     color: AppColors.grey200,

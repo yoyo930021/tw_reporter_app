@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/injection_keys.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/author.dart';
@@ -28,6 +29,7 @@ import 'package:tw_reporter_app/shared/widgets/horizontal_carousel.dart';
 import 'package:tw_reporter_app/shared/widgets/image_diff_viewer.dart';
 import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
 import 'package:tw_reporter_app/shared/widgets/slideshow_viewer.dart';
+import 'package:tw_reporter_app/shared/widgets/youtube_player_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // ---------------------------------------------------------------------------
@@ -82,53 +84,55 @@ void _showAnnotation(BuildContext context, String encodedPath) {
         ? utf8.decode(base64Url.decode(parts[1]))
         : '註釋';
     final annoColors = Theme.of(context).colorScheme;
-    unawaited(showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.4,
-        minChildSize: 0.2,
-        maxChildSize: 0.8,
-        expand: false,
-        builder: (ctx, scrollController) => SingleChildScrollView(
-          controller: scrollController,
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.grey400,
-                    borderRadius: BorderRadius.circular(2),
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (ctx) => DraggableScrollableSheet(
+          initialChildSize: 0.4,
+          minChildSize: 0.2,
+          maxChildSize: 0.8,
+          expand: false,
+          builder: (ctx, scrollController) => SingleChildScrollView(
+            controller: scrollController,
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey400,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                  color: annoColors.onSurface,
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                    color: annoColors.onSurface,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                content,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  color: annoColors.onSurface,
-                  height: 1.7,
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  content,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    color: annoColors.onSurface,
+                    height: 1.7,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
   } on Object catch (_) {}
 }
 
@@ -175,6 +179,8 @@ Widget? _buildFlexibleBackground({
         tag: 'article-image-$slug',
         child: CachedNetworkImage(
           imageUrl: imageUrl,
+          cacheManager:
+              AppCacheManager.instance.imageCacheManager,
           fit: BoxFit.cover,
           placeholder: (_, _) => const ColoredBox(
             color: AppColors.grey200,
@@ -184,8 +190,11 @@ Widget? _buildFlexibleBackground({
           ),
           errorWidget: (_, _, _) => const ColoredBox(
             color: AppColors.grey200,
-            child: Icon(Icons.image_not_supported,
-                color: AppColors.grey400, size: 48),
+            child: Icon(
+              Icons.image_not_supported,
+              color: AppColors.grey400,
+              size: 48,
+            ),
           ),
         ),
       ),
@@ -323,8 +332,7 @@ class _ArticlePageContent extends CompositionWidget {
       final article = articleDetail.article.value;
       recordReadingIfNeeded(article);
 
-      final imageUrl =
-          article != null ? _getImageUrl(article) : heroImageUrl;
+      final imageUrl = article != null ? _getImageUrl(article) : heroImageUrl;
       final title = article?.title ?? '';
       final hasImage = imageUrl != null;
 
@@ -355,153 +363,139 @@ class _ArticlePageContent extends CompositionWidget {
                   builder: (context, _) {
                     final iconColor = hasImage
                         ? Color.lerp(
-                            Theme.of(context)
-                                .colorScheme
-                                .onSurface,
+                            Theme.of(context).colorScheme.onSurface,
                             Colors.white,
                             expandRatio.value,
                           )
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurface;
+                        : Theme.of(context).colorScheme.onSurface;
                     return PopupMenuButton<String>(
                       icon: Icon(
                         Icons.more_vert,
                         color: iconColor,
                       ),
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'bookmark':
-                        final a = articleDetail.article.value;
-                        if (a == null) return;
-                        final imgUrl = _getImageUrl(a);
-                        if (isBookmarked.value) {
-                          readingRepo.removeBookmark(slug);
-                          isBookmarked.value = false;
-                        } else {
-                          readingRepo.addBookmark(
-                              slug, a.title, imgUrl);
-                          isBookmarked.value = true;
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'bookmark':
+                            final a = articleDetail.article.value;
+                            if (a == null) return;
+                            final imgUrl = _getImageUrl(a);
+                            if (isBookmarked.value) {
+                              readingRepo.removeBookmark(slug);
+                              isBookmarked.value = false;
+                            } else {
+                              readingRepo.addBookmark(slug, a.title, imgUrl);
+                              isBookmarked.value = true;
+                            }
+                          case 'share':
+                            shareArticle(title);
+                          case 'browser':
+                            unawaited(
+                              launchUrl(
+                                Uri.parse('https://www.twreporter.org/a/$slug'),
+                                mode: LaunchMode.inAppBrowserView,
+                              ),
+                            );
                         }
-                      case 'share':
-                        shareArticle(title);
-                      case 'browser':
-                        unawaited(launchUrl(
-                          Uri.parse(
-                              'https://www.twreporter.org/a/$slug'),
-                          mode: LaunchMode.inAppBrowserView,
-                        ));
-                    }
-                  },
-                  itemBuilder: (ctx) {
-                    final menuIconColor =
-                        Theme.of(ctx).iconTheme.color ??
-                            Colors.black87;
-                    return <PopupMenuEntry<String>>[
-                      PopupMenuItem<String>(
-                        value: 'bookmark',
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              isBookmarked.value
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: isBookmarked.value
-                                  ? AppColors.accent
-                                  : menuIconColor,
-                              size: 20,
+                      },
+                      itemBuilder: (ctx) {
+                        final menuIconColor =
+                            Theme.of(ctx).iconTheme.color ?? Colors.black87;
+                        return <PopupMenuEntry<String>>[
+                          PopupMenuItem<String>(
+                            value: 'bookmark',
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  isBookmarked.value
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: isBookmarked.value
+                                      ? AppColors.accent
+                                      : menuIconColor,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(isBookmarked.value ? '取消收藏' : '收藏'),
+                              ],
                             ),
-                            const SizedBox(width: 12),
-                            Text(isBookmarked.value
-                                ? '取消收藏'
-                                : '收藏'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'share',
-                        child: Row(
-                          children: <Widget>[
-                            Icon(Icons.share,
-                                size: 20, color: menuIconColor),
-                            const SizedBox(width: 12),
-                            const Text('分享'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'browser',
-                        child: Row(
-                          children: <Widget>[
-                            Icon(Icons.open_in_browser,
-                                size: 20, color: menuIconColor),
-                            const SizedBox(width: 12),
-                            const Text('在瀏覽器中開啟'),
-                          ],
-                        ),
-                      ),
-                    ];
-                  },
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'share',
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.share,
+                                  size: 20,
+                                  color: menuIconColor,
+                                ),
+                                const SizedBox(width: 12),
+                                const Text('分享'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'browser',
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.open_in_browser,
+                                  size: 20,
+                                  color: menuIconColor,
+                                ),
+                                const SizedBox(width: 12),
+                                const Text('在瀏覽器中開啟'),
+                              ],
+                            ),
+                          ),
+                        ];
+                      },
                     );
                   },
                 ),
               ],
               flexibleSpace: LayoutBuilder(
                 builder: (context, constraints) {
-                  final statusBarHeight =
-                      MediaQuery.of(context).padding.top;
-                  final minExtent =
-                      kToolbarHeight + statusBarHeight;
-                  final expandedHeight =
-                      hasImage ? 300.0 : 160.0;
-                  final maxExtent =
-                      expandedHeight + statusBarHeight;
+                  final statusBarHeight = MediaQuery.of(context).padding.top;
+                  final minExtent = kToolbarHeight + statusBarHeight;
+                  final expandedHeight = hasImage ? 300.0 : 160.0;
+                  final maxExtent = expandedHeight + statusBarHeight;
                   final ratio =
                       ((constraints.maxHeight - minExtent) /
                               (maxExtent - minExtent))
                           .clamp(0.0, 1.0);
 
-                  if ((expandRatio.value - ratio).abs() >
-                      0.01) {
-                    WidgetsBinding.instance
-                        .addPostFrameCallback((_) {
+                  if ((expandRatio.value - ratio).abs() > 0.01) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
                       expandRatio.value = ratio;
                     });
                   }
 
                   return FlexibleSpaceBar(
                     titlePadding: EdgeInsetsDirectional.only(
-                      start:
-                          lerpDouble(56, 16, ratio)!,
+                      start: lerpDouble(56, 16, ratio)!,
                       bottom: 16,
                       end: lerpDouble(100, 16, ratio)!,
                     ),
                     title: Text(
                       title,
-                      maxLines:
-                          ratio > 0.4 ? 4 : 1,
+                      maxLines: ratio > 0.4 ? 4 : 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                         color: hasImage
                             ? Color.lerp(
-                                Theme.of(context)
-                                    .colorScheme
-                                    .onSurface,
+                                Theme.of(context).colorScheme.onSurface,
                                 Colors.white,
-                                ratio)
-                            : Theme.of(context)
-                                .colorScheme
-                                .onSurface,
-                        shadows: hasImage &&
-                                ratio > 0.3
+                                ratio,
+                              )
+                            : Theme.of(context).colorScheme.onSurface,
+                        shadows: hasImage && ratio > 0.3
                             ? <Shadow>[
                                 Shadow(
-                                  color: Colors.black54
-                                      .withValues(
-                                          alpha:
-                                              ratio),
+                                  color: Colors.black54.withValues(
+                                    alpha: ratio,
+                                  ),
                                   blurRadius: 4,
                                 ),
                               ]
@@ -556,8 +550,9 @@ class _ArticleBodyView extends StatelessWidget {
     final secondaryTextColor = colors.onSurfaceVariant;
     final linkColor = colors.primary;
 
-    final htmlContent =
-        _markExternalLinks(convertContentToHtml(article.content));
+    final htmlContent = _markExternalLinks(
+      convertContentToHtml(article.content),
+    );
 
     return SelectionArea(
       child: Column(
@@ -572,8 +567,7 @@ class _ArticleBodyView extends StatelessWidget {
 
                 // 主圖描述
                 if (article.leadingImageDescription != null &&
-                    article.leadingImageDescription!
-                        .isNotEmpty) ...<Widget>[
+                    article.leadingImageDescription!.isNotEmpty) ...<Widget>[
                   Text(
                     article.leadingImageDescription!,
                     style: textTheme.bodySmall!.copyWith(
@@ -585,11 +579,9 @@ class _ArticleBodyView extends StatelessWidget {
 
                 // 分類標記
                 if (article.categorySet.isNotEmpty &&
-                    article.categorySet.first.category !=
-                        null) ...<Widget>[
+                    article.categorySet.first.category != null) ...<Widget>[
                   CategoryBadge(
-                    categoryName:
-                        article.categorySet.first.category!.name,
+                    categoryName: article.categorySet.first.category!.name,
                   ),
                   AppSpacing.verticalSpacerSm,
                 ],
@@ -607,12 +599,14 @@ class _ArticleBodyView extends StatelessWidget {
                           style: textTheme.bodySmall,
                         ),
                         onPressed: () {
-                          unawaited(context.router.push(
-                            TagDetailRoute(
-                              tagId: tag.id,
-                              tagName: tag.name,
+                          unawaited(
+                            context.router.push(
+                              TagDetailRoute(
+                                tagId: tag.id,
+                                tagName: tag.name,
+                              ),
                             ),
-                          ));
+                          );
                         },
                       );
                     }).toList(),
@@ -676,14 +670,10 @@ class _ArticleBodyView extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: onToggleBookmark,
                       icon: Icon(
-                        isBookmarked
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color:
-                            isBookmarked ? AppColors.accent : null,
+                        isBookmarked ? Icons.favorite : Icons.favorite_border,
+                        color: isBookmarked ? AppColors.accent : null,
                       ),
-                      label:
-                          Text(isBookmarked ? '已收藏' : '收藏'),
+                      label: Text(isBookmarked ? '已收藏' : '收藏'),
                     ),
                   ],
                 ),
@@ -698,8 +688,7 @@ class _ArticleBodyView extends StatelessWidget {
           if (relatedArticles.isNotEmpty) ...<Widget>[
             Padding(
               padding: AppSpacing.edgeInsetsHorizontalMd,
-              child: Text('相關報導',
-                  style: textTheme.displaySmall),
+              child: Text('相關報導', style: textTheme.displaySmall),
             ),
             AppSpacing.verticalSpacerSm,
             _RelatedArticlesCarousel(
@@ -748,17 +737,11 @@ class _ArticleHtmlContent extends StatelessWidget {
         TagExtension(
           tagsToExtend: <String>{'embedded-video'},
           builder: (extensionContext) {
-            final src =
-                extensionContext.attributes['src'] ?? '';
-            final caption =
-                extensionContext.attributes['caption'] ?? '';
-            final autoplay =
-                extensionContext.attributes['autoplay'] ==
-                    'true';
-            final muted =
-                extensionContext.attributes['muted'] == 'true';
-            final loop =
-                extensionContext.attributes['loop'] == 'true';
+            final src = extensionContext.attributes['src'] ?? '';
+            final caption = extensionContext.attributes['caption'] ?? '';
+            final autoplay = extensionContext.attributes['autoplay'] == 'true';
+            final muted = extensionContext.attributes['muted'] == 'true';
+            final loop = extensionContext.attributes['loop'] == 'true';
             return Padding(
               padding: const EdgeInsets.symmetric(
                 vertical: AppSpacing.md,
@@ -768,8 +751,7 @@ class _ArticleHtmlContent extends StatelessWidget {
                 autoplay: autoplay,
                 muted: muted,
                 loop: loop,
-                caption:
-                    caption.isNotEmpty ? caption : null,
+                caption: caption.isNotEmpty ? caption : null,
               ),
             );
           },
@@ -777,14 +759,11 @@ class _ArticleHtmlContent extends StatelessWidget {
         TagExtension(
           tagsToExtend: <String>{'embedded-iframe'},
           builder: (extensionContext) {
-            final src =
-                extensionContext.attributes['src'] ?? '';
-            final caption =
-                extensionContext.attributes['caption'] ?? '';
+            final src = extensionContext.attributes['src'] ?? '';
+            final caption = extensionContext.attributes['caption'] ?? '';
             final height = double.tryParse(
-                  extensionContext.attributes['height'] ?? '',
-                ) ??
-                400;
+              extensionContext.attributes['height'] ?? '',
+            );
             return Padding(
               padding: const EdgeInsets.symmetric(
                 vertical: AppSpacing.md,
@@ -792,8 +771,7 @@ class _ArticleHtmlContent extends StatelessWidget {
               child: EmbeddedWebView(
                 src: src,
                 height: height,
-                caption:
-                    caption.isNotEmpty ? caption : null,
+                caption: caption.isNotEmpty ? caption : null,
               ),
             );
           },
@@ -801,15 +779,12 @@ class _ArticleHtmlContent extends StatelessWidget {
         TagExtension(
           tagsToExtend: <String>{'embedded-webview'},
           builder: (extensionContext) {
-            final data =
-                extensionContext.attributes['data'] ?? '';
-            final caption =
-                extensionContext.attributes['caption'] ?? '';
+            final data = extensionContext.attributes['data'] ?? '';
+            final caption = extensionContext.attributes['caption'] ?? '';
             var htmlData = '';
             if (data.isNotEmpty) {
               try {
-                final decoded =
-                    utf8.decode(base64Url.decode(data));
+                final decoded = utf8.decode(base64Url.decode(data));
                 htmlData = decoded;
               } on FormatException catch (_) {
                 // ignore decode errors
@@ -824,9 +799,24 @@ class _ArticleHtmlContent extends StatelessWidget {
               ),
               child: EmbeddedWebView(
                 htmlData: htmlData,
-                height: 500,
-                caption:
-                    caption.isNotEmpty ? caption : null,
+                caption: caption.isNotEmpty ? caption : null,
+              ),
+            );
+          },
+        ),
+        TagExtension(
+          tagsToExtend: <String>{'embedded-youtube'},
+          builder: (extensionContext) {
+            final id = extensionContext.attributes['id'] ?? '';
+            final caption = extensionContext.attributes['caption'] ?? '';
+            if (id.isEmpty) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: AppSpacing.md,
+              ),
+              child: YoutubePlayerWidget(
+                videoId: id,
+                caption: caption.isNotEmpty ? caption : null,
               ),
             );
           },
@@ -835,13 +825,10 @@ class _ArticleHtmlContent extends StatelessWidget {
           tagsToExtend: <String>{'imagediff'},
           builder: (extensionContext) {
             final images = <({String url, String desc})>[];
-            for (final child
-                in extensionContext.elementChildren) {
+            for (final child in extensionContext.elementChildren) {
               if (child.localName == 'diffimg') {
-                final src =
-                    child.attributes['src'] ?? '';
-                final desc =
-                    child.attributes['desc'] ?? '';
+                final src = child.attributes['src'] ?? '';
+                final desc = child.attributes['desc'] ?? '';
                 if (src.isNotEmpty) {
                   images.add((url: src, desc: desc));
                 }
@@ -857,12 +844,8 @@ class _ArticleHtmlContent extends StatelessWidget {
               child: ImageDiffViewer(
                 beforeUrl: images[0].url,
                 afterUrl: images[1].url,
-                beforeDesc: images[0].desc.isNotEmpty
-                    ? images[0].desc
-                    : null,
-                afterDesc: images[1].desc.isNotEmpty
-                    ? images[1].desc
-                    : null,
+                beforeDesc: images[0].desc.isNotEmpty ? images[0].desc : null,
+                afterDesc: images[1].desc.isNotEmpty ? images[1].desc : null,
               ),
             );
           },
@@ -871,13 +854,10 @@ class _ArticleHtmlContent extends StatelessWidget {
           tagsToExtend: <String>{'slideshow'},
           builder: (extensionContext) {
             final slides = <SlideItem>[];
-            for (final child
-                in extensionContext.elementChildren) {
+            for (final child in extensionContext.elementChildren) {
               if (child.localName == 'slide') {
-                final src =
-                    child.attributes['src'] ?? '';
-                final desc =
-                    child.attributes['desc'] ?? '';
+                final src = child.attributes['src'] ?? '';
+                final desc = child.attributes['desc'] ?? '';
                 if (src.isNotEmpty) {
                   slides.add(
                     (url: src, description: desc),
@@ -900,18 +880,14 @@ class _ArticleHtmlContent extends StatelessWidget {
           tagsToExtend: <String>{'infobox'},
           builder: (extensionContext) {
             return Container(
-              margin: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.md),
-              padding:
-                  const EdgeInsets.all(AppSpacing.md),
+              margin: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
-                color:
-                    colors.surfaceContainerHighest,
+                color: colors.surfaceContainerHighest,
                 border: Border.all(
                   color: colors.outline,
                 ),
-                borderRadius: BorderRadius.circular(
-                    AppSpacing.radiusMd),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               ),
               child: Html(
                 data: extensionContext.innerHtml,
@@ -946,12 +922,10 @@ class _ArticleHtmlContent extends StatelessWidget {
                   ),
                   'a': Style(
                     color: linkColor,
-                    textDecoration:
-                        TextDecoration.underline,
+                    textDecoration: TextDecoration.underline,
                   ),
                 },
-                onLinkTap: (url, _, _) =>
-                    _handleLinkTap(context, url),
+                onLinkTap: (url, _, _) => _handleLinkTap(context, url),
               ),
             );
           },
@@ -991,8 +965,7 @@ class _ArticleHtmlContent extends StatelessWidget {
           margin: Margins.only(top: 12, bottom: 8),
         ),
         'blockquote': Style(
-          margin:
-              Margins.only(left: 16, top: 8, bottom: 8),
+          margin: Margins.only(left: 16, top: 8, bottom: 8),
           padding: HtmlPaddings.only(left: 12),
           border: const Border(
             left: BorderSide(
@@ -1019,8 +992,7 @@ class _ArticleHtmlContent extends StatelessWidget {
           margin: Margins.only(top: 16, bottom: 16),
         ),
       },
-      onLinkTap: (url, _, _) =>
-          _handleLinkTap(context, url),
+      onLinkTap: (url, _, _) => _handleLinkTap(context, url),
     );
   }
 }
@@ -1036,8 +1008,7 @@ class _BriefSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final briefHtml =
-        _markExternalLinks(convertContentToHtml(brief));
+    final briefHtml = _markExternalLinks(convertContentToHtml(brief));
     if (briefHtml.isEmpty) return const SizedBox.shrink();
 
     final colors = Theme.of(context).colorScheme;
@@ -1085,8 +1056,7 @@ class _BriefSection extends StatelessWidget {
             textDecoration: TextDecoration.underline,
           ),
         },
-        onLinkTap: (url, _, _) =>
-            _handleLinkTap(context, url),
+        onLinkTap: (url, _, _) => _handleLinkTap(context, url),
       ),
     );
   }
@@ -1104,11 +1074,11 @@ class _DateRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final secondaryTextColor =
-        Theme.of(context).colorScheme.onSurfaceVariant;
+    final secondaryTextColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     final publishedStr = formatDate(article.publishedDate);
-    final hasUpdate = article.updatedAt != null &&
+    final hasUpdate =
+        article.updatedAt != null &&
         !_isSameDay(article.updatedAt!, article.publishedDate);
 
     if (!hasUpdate) {
@@ -1142,50 +1112,53 @@ class _BylineSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final secondaryTextColor =
-        Theme.of(context).colorScheme.onSurfaceVariant;
+    final secondaryTextColor = Theme.of(context).colorScheme.onSurfaceVariant;
     final bylineStyle = textTheme.bodyMedium!.copyWith(
       color: secondaryTextColor,
     );
 
     final bylineWidgets = <Widget>[];
 
-    if (article.writers != null &&
-        article.writers!.isNotEmpty) {
-      bylineWidgets.add(_BylineRow(
-        role: '文',
-        authors: article.writers!,
-        style: bylineStyle,
-        secondaryColor: secondaryTextColor,
-      ));
+    if (article.writers != null && article.writers!.isNotEmpty) {
+      bylineWidgets.add(
+        _BylineRow(
+          role: '文',
+          authors: article.writers!,
+          style: bylineStyle,
+          secondaryColor: secondaryTextColor,
+        ),
+      );
     }
 
-    if (article.photographers != null &&
-        article.photographers!.isNotEmpty) {
-      bylineWidgets.add(_BylineRow(
-        role: '攝影',
-        authors: article.photographers!,
-        style: bylineStyle,
-        secondaryColor: secondaryTextColor,
-      ));
+    if (article.photographers != null && article.photographers!.isNotEmpty) {
+      bylineWidgets.add(
+        _BylineRow(
+          role: '攝影',
+          authors: article.photographers!,
+          style: bylineStyle,
+          secondaryColor: secondaryTextColor,
+        ),
+      );
     }
 
-    if (article.designers != null &&
-        article.designers!.isNotEmpty) {
-      bylineWidgets.add(_BylineRow(
-        role: '設計',
-        authors: article.designers!,
-        style: bylineStyle,
-        secondaryColor: secondaryTextColor,
-      ));
+    if (article.designers != null && article.designers!.isNotEmpty) {
+      bylineWidgets.add(
+        _BylineRow(
+          role: '設計',
+          authors: article.designers!,
+          style: bylineStyle,
+          secondaryColor: secondaryTextColor,
+        ),
+      );
     }
 
-    if (article.extendByline != null &&
-        article.extendByline!.isNotEmpty) {
-      bylineWidgets.add(Text(
-        article.extendByline!,
-        style: bylineStyle,
-      ));
+    if (article.extendByline != null && article.extendByline!.isNotEmpty) {
+      bylineWidgets.add(
+        Text(
+          article.extendByline!,
+          style: bylineStyle,
+        ),
+      );
     }
 
     if (bylineWidgets.isEmpty) return const SizedBox.shrink();
@@ -1226,16 +1199,18 @@ class _BylineRow extends StatelessWidget {
             onTap: () {
               final thumbnailUrl =
                   author.thumbnail?.resizedTargets.mobile?.url ??
-                      author.thumbnail?.resizedTargets.w400?.url;
-              unawaited(context.router.push(
-                AuthorDetailRoute(
-                  authorId: author.id,
-                  authorName: author.name,
-                  authorJobTitle: author.jobTitle,
-                  authorBio: author.bio,
-                  authorThumbnailUrl: thumbnailUrl,
+                  author.thumbnail?.resizedTargets.w400?.url;
+              unawaited(
+                context.router.push(
+                  AuthorDetailRoute(
+                    authorId: author.id,
+                    authorName: author.name,
+                    authorJobTitle: author.jobTitle,
+                    authorBio: author.bio,
+                    authorThumbnailUrl: thumbnailUrl,
+                  ),
                 ),
-              ));
+              );
             },
             child: Text(
               '${author.name}${isLast ? '' : '、'}',
@@ -1273,20 +1248,22 @@ class _RelatedArticlesCarousel extends StatelessWidget {
       itemCount: relatedArticles.length,
       itemBuilder: (ctx, index) {
         final related = relatedArticles[index];
-        final relatedImageUrl =
-            ArticleCard.getArticleImageUrl(related);
+        final relatedImageUrl = ArticleCard.getArticleImageUrl(related);
         return GestureDetector(
           onTap: () {
-            unawaited(ctx.router.push(ArticleRoute(
-              slug: related.slug,
-              heroImageUrl: relatedImageUrl,
-            )));
+            unawaited(
+              ctx.router.push(
+                ArticleRoute(
+                  slug: related.slug,
+                  heroImageUrl: relatedImageUrl,
+                ),
+              ),
+            );
           },
           child: Card(
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.circular(AppSpacing.radiusMd),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1294,6 +1271,8 @@ class _RelatedArticlesCarousel extends StatelessWidget {
                 if (relatedImageUrl != null)
                   CachedNetworkImage(
                     imageUrl: relatedImageUrl,
+                    cacheManager:
+                        AppCacheManager.instance.imageCacheManager,
                     height: 140,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -1305,32 +1284,28 @@ class _RelatedArticlesCarousel extends StatelessWidget {
                       height: 140,
                       color: AppColors.grey200,
                       child: const Icon(
-                          Icons.image_not_supported,
-                          color: AppColors.grey400),
+                        Icons.image_not_supported,
+                        color: AppColors.grey400,
+                      ),
                     ),
                   ),
                 Expanded(
                   child: Padding(
-                    padding:
-                        const EdgeInsets.all(AppSpacing.sm),
+                    padding: const EdgeInsets.all(AppSpacing.sm),
                     child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
                           related.title,
-                          style: textTheme.displaySmall!
-                              .copyWith(fontSize: 15),
+                          style: textTheme.displaySmall!.copyWith(fontSize: 15),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const Spacer(),
                         Text(
                           related.ogDescription,
-                          style:
-                              textTheme.bodySmall!.copyWith(
-                            color:
-                                colors.onSurfaceVariant,
+                          style: textTheme.bodySmall!.copyWith(
+                            color: colors.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
