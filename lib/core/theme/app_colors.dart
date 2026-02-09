@@ -63,6 +63,18 @@ class AppColors {
   static const Color dividerLight = Color(0xFFE0E0E0);
   static const Color dividerDark = Color(0xFF424242);
 
+  // 分類標籤（slug → 中文名稱）
+  static const Map<String, String> categoryLabels = <String, String>{
+    'culture': '文化生活',
+    'econ': '經濟產業',
+    'education': '教育校園',
+    'environment': '環境永續',
+    'health': '醫療健康',
+    'humanrights': '人權司法',
+    'politics_and_society': '政治社會',
+    'world': '國際兩岸',
+  };
+
   // 分類顏色（用於不同新聞分類的標籤）
   static const Map<String, Color> categoryColors = <String, Color>{
     'culture': Color(0xFF9B59B6),

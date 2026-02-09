@@ -6,6 +6,7 @@ import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:tw_reporter_app/core/di/injection_keys.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/core/storage/reading_storage.dart';
+import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/features/category/logic/use_category_articles.dart';
 import 'package:tw_reporter_app/shared/widgets/article_card.dart';
@@ -124,7 +125,9 @@ class _CategoryPageContent extends CompositionWidget {
 
     return (BuildContext context) => Scaffold(
           appBar: AppBar(
-            title: Text(category),
+            title: Text(
+              AppColors.categoryLabels[category] ?? category,
+            ),
           ),
           body: buildBody(),
         );
