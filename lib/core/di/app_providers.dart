@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
+import 'package:tw_reporter_app/core/cache/video_cache_service.dart';
 import 'package:tw_reporter_app/core/di/injection_keys.dart';
 import 'package:tw_reporter_app/core/repositories/article_repository.dart';
 import 'package:tw_reporter_app/core/repositories/home_repository.dart';
@@ -18,6 +19,7 @@ class AppProviders extends CompositionWidget {
     required this.homeRepository,
     required this.readingRepository,
     required this.themeNotifier,
+    required this.videoCacheService,
     required this.child,
     super.key,
   });
@@ -27,10 +29,13 @@ class AppProviders extends CompositionWidget {
   final HomeRepository homeRepository;
   final ReadingRepository readingRepository;
   final ThemeNotifier themeNotifier;
+  final VideoCacheService videoCacheService;
   final Widget child;
 
   @override
   Widget Function(BuildContext) setup() {
+    final w = widget();
+
     provide(AppKeys.articleRepository, articleRepository);
     provide(AppKeys.topicRepository, topicRepository);
     provide(AppKeys.homeRepository, homeRepository);
@@ -39,7 +44,8 @@ class AppProviders extends CompositionWidget {
       readingRepository,
     );
     provide(AppKeys.themeNotifier, themeNotifier);
+    provide(AppKeys.videoCacheService, videoCacheService);
 
-    return (context) => child;
+    return (context) => w.value.child;
   }
 }

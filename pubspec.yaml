@@ -12,8 +12,11 @@ dependencies:
   cached_network_image: ^3.4.1  # 圖片快取
   cupertino_icons: ^1.0.8  # iOS 風格圖示
   dio: ^5.7.0
+  dio_cache_interceptor: ^3.5.0  # HTTP 快取攔截器
+  dio_cache_interceptor_hive_store: ^4.0.0  # Hive 持久化快取
   flutter:
     sdk: flutter
+  flutter_cache_manager: ^3.4.1  # 圖片快取管理
   flutter_compositions:
     path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions
   flutter_html: ^3.0.0-beta.2  # HTML 渲染
@@ -22,6 +25,8 @@ dependencies:
   freezed_annotation: ^3.0.0
   intl: ^0.20.2  # 日期格式化
   json_annotation: ^4.9.0
+  native_dio_adapter: ^1.5.1  # HTTP/2+3 平台原生適配器
+  path_provider: ^2.1.0  # 快取目錄路徑
   retrofit: ^4.9.2
   share_plus: ^10.0.0  # 分享功能
   shared_preferences: ^2.3.2  # 本地儲存
@@ -35,6 +40,8 @@ dependencies:
 dev_dependencies:
   auto_route_generator: ^10.2.6
   build_runner: ^2.4.13
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.4
   flutter_test:
     sdk: flutter
   freezed: ^3.2.3
@@ -47,6 +54,34 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  macos:
+    generate: true
+    image_path: "assets/images/app_icon_macos.png"
+  image_path: "assets/images/app_icon.png"
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#F80B28"
+  image: "assets/images/splash_icon.png"
+  android: true
+  ios: true
+  fullscreen: true
+
+# Temporary workaround for Android 16KB page-size compatibility.
+# PR #247: https://github.com/google/webcrypto.dart/pull/247
+# Issue #239: https://github.com/google/webcrypto.dart/issues/239
+# Use webcrypto branch from PR #247 to force plugin-side ndkVersion=flutter.ndkVersion.
+# Pinned to commit d178309fd4b5c389656325919e71eb6dbaa6f235 to avoid branch drift.
+# Remove this override after an official webcrypto release includes PR #247.
+dependency_overrides:
+  webcrypto:
+    git:
+      url: https://github.com/emersion/webcrypto.dart.git
+      ref: d178309fd4b5c389656325919e71eb6dbaa6f235
 
 # The following section is specific to Flutter packages.
 flutter:

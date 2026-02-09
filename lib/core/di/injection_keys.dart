@@ -1,4 +1,5 @@
 import 'package:flutter_compositions/flutter_compositions.dart';
+import 'package:tw_reporter_app/core/cache/video_cache_service.dart';
 import 'package:tw_reporter_app/core/repositories/article_repository.dart';
 import 'package:tw_reporter_app/core/repositories/home_repository.dart';
 import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
@@ -32,5 +33,10 @@ class AppKeys {
   static const themeNotifier =
       InjectionKey<ThemeNotifier>(
     'app.themeNotifier',
+  );
+
+  static const videoCacheService =
+      InjectionKey<VideoCacheService>(
+    'app.videoCacheService',
   );
 }
