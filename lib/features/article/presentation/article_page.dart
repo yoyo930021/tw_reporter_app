@@ -44,6 +44,13 @@ String? _getImageUrl(Article article) {
       heroImage.resizedTargets.tiny?.url;
 }
 
+String? _getLowResImageUrl(Article article) {
+  final heroImage = article.heroImage ?? article.ogImage;
+  if (heroImage == null) return null;
+  return heroImage.resizedTargets.w400?.url ??
+      heroImage.resizedTargets.tiny?.url;
+}
+
 String _markExternalLinks(String html) {
   return html.replaceAllMapped(
     RegExp(r'<a\s([^>]*?)href="(https?://[^"]*)"([^>]*)>([\s\S]*?)</a>'),
@@ -170,6 +177,7 @@ Widget? _buildFlexibleBackground({
   required String slug,
   required String? imageUrl,
   required bool hasImage,
+  String? lowResImageUrl,
 }) {
   if (!hasImage || imageUrl == null) return null;
   return Stack(
@@ -179,15 +187,26 @@ Widget? _buildFlexibleBackground({
         tag: 'article-image-$slug',
         child: CachedNetworkImage(
           imageUrl: imageUrl,
-          cacheManager:
-              AppCacheManager.instance.imageCacheManager,
+          cacheManager: AppCacheManager.instance.imageCacheManager,
           fit: BoxFit.cover,
-          placeholder: (_, _) => const ColoredBox(
-            color: AppColors.grey200,
-            child: Center(
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          ),
+          placeholder: (_, _) => lowResImageUrl != null
+              ? CachedNetworkImage(
+                  imageUrl: lowResImageUrl,
+                  cacheManager: AppCacheManager.instance.imageCacheManager,
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => const ColoredBox(
+                    color: AppColors.grey200,
+                  ),
+                  errorWidget: (_, _, _) => const ColoredBox(
+                    color: AppColors.grey200,
+                  ),
+                )
+              : const ColoredBox(
+                  color: AppColors.grey200,
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
           errorWidget: (_, _, _) => const ColoredBox(
             color: AppColors.grey200,
             child: Icon(
@@ -333,6 +352,9 @@ class _ArticlePageContent extends CompositionWidget {
       recordReadingIfNeeded(article);
 
       final imageUrl = article != null ? _getImageUrl(article) : heroImageUrl;
+      final lowResImageUrl = article != null
+          ? _getLowResImageUrl(article)
+          : heroImageUrl;
       final title = article?.title ?? '';
       final hasImage = imageUrl != null;
 
@@ -473,8 +495,8 @@ class _ArticlePageContent extends CompositionWidget {
                   return FlexibleSpaceBar(
                     titlePadding: EdgeInsetsDirectional.only(
                       start: lerpDouble(56, 16, ratio)!,
-                      bottom: 16,
-                      end: lerpDouble(100, 16, ratio)!,
+                      bottom: 18,
+                      end: lerpDouble(56, 16, ratio)!,
                     ),
                     title: Text(
                       title,
@@ -506,6 +528,7 @@ class _ArticlePageContent extends CompositionWidget {
                       slug: slug,
                       imageUrl: imageUrl,
                       hasImage: hasImage,
+                      lowResImageUrl: lowResImageUrl,
                     ),
                   );
                 },
@@ -678,7 +701,7 @@ class _ArticleBodyView extends StatelessWidget {
                   ],
                 ),
                 // 贊助報導者
-                const DonateBanner(compact: true),
+                DonateBanner(pagePath: '/a/$slug'),
                 AppSpacing.verticalSpacerXl,
               ],
             ),
@@ -1271,8 +1294,7 @@ class _RelatedArticlesCarousel extends StatelessWidget {
                 if (relatedImageUrl != null)
                   CachedNetworkImage(
                     imageUrl: relatedImageUrl,
-                    cacheManager:
-                        AppCacheManager.instance.imageCacheManager,
+                    cacheManager: AppCacheManager.instance.imageCacheManager,
                     height: 140,
                     width: double.infinity,
                     fit: BoxFit.cover,

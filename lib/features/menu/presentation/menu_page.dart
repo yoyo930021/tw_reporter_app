@@ -30,18 +30,6 @@ class MenuPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('選單'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(20),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              '非官方開源客戶端',
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-          ),
-        ),
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: AppSpacing.xl),

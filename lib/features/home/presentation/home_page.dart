@@ -85,10 +85,14 @@ class _HomePageContent extends CompositionWidget {
       return Builder(
         builder: (context) => GestureDetector(
           onTap: () {
-            unawaited(context.router.push(ArticleRoute(
-              slug: article.slug,
-              heroImageUrl: imageUrl,
-            )));
+            unawaited(
+              context.router.push(
+                ArticleRoute(
+                  slug: article.slug,
+                  heroImageUrl: imageUrl,
+                ),
+              ),
+            );
           },
           child: Padding(
             padding: AppSpacing.edgeInsetsHorizontalMd,
@@ -96,29 +100,32 @@ class _HomePageContent extends CompositionWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 if (imageUrl != null)
-                  ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.radiusMd),
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      cacheManager:
-                          AppCacheManager.instance.imageCacheManager,
-                      height: 220,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
+                  Hero(
+                    tag: 'article-image-${article.slug}',
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        cacheManager:
+                            AppCacheManager.instance.imageCacheManager,
                         height: 220,
-                        color: AppColors.grey200,
-                        child: const Center(
-                          child:
-                              CircularProgressIndicator(strokeWidth: 2),
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) => Container(
+                          height: 220,
+                          color: AppColors.grey200,
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         ),
-                      ),
-                      errorWidget: (_, _, _) => Container(
-                        height: 220,
-                        color: AppColors.grey200,
-                        child: const Icon(Icons.image_not_supported,
-                            color: AppColors.grey400),
+                        errorWidget: (_, _, _) => Container(
+                          height: 220,
+                          color: AppColors.grey200,
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            color: AppColors.grey400,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -132,11 +139,8 @@ class _HomePageContent extends CompositionWidget {
                 AppSpacing.verticalSpacerXs,
                 Text(
                   article.ogDescription,
-                  style:
-                      Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurfaceVariant,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -162,37 +166,45 @@ class _HomePageContent extends CompositionWidget {
 
           return GestureDetector(
             onTap: () {
-              unawaited(context.router.push(ArticleRoute(
-                slug: article.slug,
-                heroImageUrl: imageUrl,
-              )));
+              unawaited(
+                context.router.push(
+                  ArticleRoute(
+                    slug: article.slug,
+                    heroImageUrl: imageUrl,
+                  ),
+                ),
+              );
             },
             child: Card(
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(AppSpacing.radiusMd),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   if (imageUrl != null)
-                    CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      cacheManager:
-                          AppCacheManager.instance.imageCacheManager,
-                      height: imageHeight,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
+                    Hero(
+                      tag: 'article-image-${article.slug}',
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        cacheManager:
+                            AppCacheManager.instance.imageCacheManager,
                         height: imageHeight,
-                        color: AppColors.grey200,
-                      ),
-                      errorWidget: (_, _, _) => Container(
-                        height: imageHeight,
-                        color: AppColors.grey200,
-                        child: const Icon(Icons.image_not_supported,
-                            color: AppColors.grey400),
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) => Container(
+                          height: imageHeight,
+                          color: AppColors.grey200,
+                        ),
+                        errorWidget: (_, _, _) => Container(
+                          height: imageHeight,
+                          color: AppColors.grey200,
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            color: AppColors.grey400,
+                          ),
+                        ),
                       ),
                     ),
                   Expanded(
@@ -203,10 +215,9 @@ class _HomePageContent extends CompositionWidget {
                         children: <Widget>[
                           Text(
                             article.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .displaySmall!
-                                .copyWith(fontSize: 15),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displaySmall!.copyWith(fontSize: 15),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -214,14 +225,12 @@ class _HomePageContent extends CompositionWidget {
                           Expanded(
                             child: Text(
                               article.ogDescription,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall!
+                              style: Theme.of(context).textTheme.bodySmall!
                                   .copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                              ),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -253,10 +262,14 @@ class _HomePageContent extends CompositionWidget {
           return TopicCard(
             topic: topic,
             onTap: () {
-              unawaited(context.router.push(TopicDetailRoute(
-                slug: topic.slug,
-                topic: topic,
-              )));
+              unawaited(
+                context.router.push(
+                  TopicDetailRoute(
+                    slug: topic.slug,
+                    topic: topic,
+                  ),
+                ),
+              );
             },
           );
         },
@@ -268,10 +281,14 @@ class _HomePageContent extends CompositionWidget {
         builder: (context) => ArticleCard(
           article: article,
           onTap: () {
-            unawaited(context.router.push(ArticleRoute(
-              slug: article.slug,
-              heroImageUrl: ArticleCard.getArticleImageUrl(article),
-            )));
+            unawaited(
+              context.router.push(
+                ArticleRoute(
+                  slug: article.slug,
+                  heroImageUrl: ArticleCard.getArticleImageUrl(article),
+                ),
+              ),
+            );
           },
         ),
       );
@@ -293,43 +310,50 @@ class _HomePageContent extends CompositionWidget {
         height: 140 + 136,
         itemCount: items.length,
         itemBuilder: (context, index) {
-          final (String label, String slug, Article article) =
-              items[index];
+          final (String label, String slug, Article article) = items[index];
           final imageUrl = ArticleCard.getArticleImageUrl(article);
 
           return GestureDetector(
             onTap: () {
-              unawaited(context.router.push(ArticleRoute(
-                slug: article.slug,
-                heroImageUrl: imageUrl,
-              )));
+              unawaited(
+                context.router.push(
+                  ArticleRoute(
+                    slug: article.slug,
+                    heroImageUrl: imageUrl,
+                  ),
+                ),
+              );
             },
             child: Card(
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(AppSpacing.radiusMd),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   if (imageUrl != null)
-                    CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      cacheManager:
-                          AppCacheManager.instance.imageCacheManager,
-                      height: 140,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
+                    Hero(
+                      tag: 'article-image-${article.slug}',
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        cacheManager:
+                            AppCacheManager.instance.imageCacheManager,
                         height: 140,
-                        color: AppColors.grey200,
-                      ),
-                      errorWidget: (_, _, _) => Container(
-                        height: 140,
-                        color: AppColors.grey200,
-                        child: const Icon(Icons.image_not_supported,
-                            color: AppColors.grey400),
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) => Container(
+                          height: 140,
+                          color: AppColors.grey200,
+                        ),
+                        errorWidget: (_, _, _) => Container(
+                          height: 140,
+                          color: AppColors.grey200,
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            color: AppColors.grey400,
+                          ),
+                        ),
                       ),
                     ),
                   Expanded(
@@ -340,21 +364,18 @@ class _HomePageContent extends CompositionWidget {
                         children: <Widget>[
                           Text(
                             label,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall!
+                            style: Theme.of(context).textTheme.bodySmall!
                                 .copyWith(
-                              color: AppColors.secondary,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                  color: AppColors.secondary,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                           AppSpacing.verticalSpacerXs,
                           Text(
                             article.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .displaySmall!
-                                .copyWith(fontSize: 15),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displaySmall!.copyWith(fontSize: 15),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -362,14 +383,12 @@ class _HomePageContent extends CompositionWidget {
                           Expanded(
                             child: Text(
                               article.ogDescription,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall!
+                              style: Theme.of(context).textTheme.bodySmall!
                                   .copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                              ),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -408,7 +427,7 @@ class _HomePageContent extends CompositionWidget {
 
       final hasTopics =
           (indexData.latestTopicSection?.isNotEmpty ?? false) ||
-              (indexData.topicsSection?.isNotEmpty ?? false);
+          (indexData.topicsSection?.isNotEmpty ?? false);
 
       // 正常顯示
       return ListView(
@@ -418,17 +437,14 @@ class _HomePageContent extends CompositionWidget {
           buildCategoriesRow(indexData),
 
           // 2. 編輯精選
-          if (indexData.editorPicksSection?.isNotEmpty ??
-              false) ...<Widget>[
+          if (indexData.editorPicksSection?.isNotEmpty ?? false) ...<Widget>[
             const Padding(
               padding: AppSpacing.edgeInsetsHorizontalMd,
               child: SectionHeader(title: '編輯精選'),
             ),
             AppSpacing.verticalSpacerSm,
-            buildFeaturedArticle(
-                indexData.editorPicksSection!.first),
-            if (indexData.editorPicksSection!.length >
-                1) ...<Widget>[
+            buildFeaturedArticle(indexData.editorPicksSection!.first),
+            if (indexData.editorPicksSection!.length > 1) ...<Widget>[
               AppSpacing.verticalSpacerSm,
               buildHorizontalArticleSection(
                 indexData.editorPicksSection!.sublist(1),
@@ -449,8 +465,7 @@ class _HomePageContent extends CompositionWidget {
           ],
 
           // 4. 最新報導
-          if (indexData.latestSection?.isNotEmpty ??
-              false) ...<Widget>[
+          if (indexData.latestSection?.isNotEmpty ?? false) ...<Widget>[
             const Padding(
               padding: AppSpacing.edgeInsetsHorizontalMd,
               child: SectionHeader(title: '最新報導'),
@@ -461,21 +476,18 @@ class _HomePageContent extends CompositionWidget {
           ],
 
           // 5. 評論
-          if (indexData.reviewsSection?.isNotEmpty ??
-              false) ...<Widget>[
+          if (indexData.reviewsSection?.isNotEmpty ?? false) ...<Widget>[
             const Padding(
               padding: AppSpacing.edgeInsetsHorizontalMd,
               child: SectionHeader(title: '評論'),
             ),
             AppSpacing.verticalSpacerSm,
-            buildHorizontalArticleSection(
-                indexData.reviewsSection!),
+            buildHorizontalArticleSection(indexData.reviewsSection!),
             AppSpacing.verticalSpacerLg,
           ],
 
           // 6. 攝影
-          if (indexData.photosSection?.isNotEmpty ??
-              false) ...<Widget>[
+          if (indexData.photosSection?.isNotEmpty ?? false) ...<Widget>[
             const Padding(
               padding: AppSpacing.edgeInsetsHorizontalMd,
               child: SectionHeader(title: '攝影'),
@@ -489,21 +501,19 @@ class _HomePageContent extends CompositionWidget {
           ],
 
           // 7. 多媒體
-          if (indexData.infographicsSection?.isNotEmpty ??
-              false) ...<Widget>[
+          if (indexData.infographicsSection?.isNotEmpty ?? false) ...<Widget>[
             const Padding(
               padding: AppSpacing.edgeInsetsHorizontalMd,
               child: SectionHeader(title: '多媒體'),
             ),
             AppSpacing.verticalSpacerSm,
-            buildHorizontalArticleSection(
-                indexData.infographicsSection!),
+            buildHorizontalArticleSection(indexData.infographicsSection!),
             AppSpacing.verticalSpacerLg,
           ],
 
           // 8. 贊助報導者
           AppSpacing.verticalSpacerLg,
-          const DonateBanner(),
+          DonateBanner(),
           AppSpacing.verticalSpacerLg,
         ],
       );
@@ -517,11 +527,25 @@ class _HomePageContent extends CompositionWidget {
 
       return Scaffold(
         appBar: AppBar(
-          title: SvgPicture.asset(
-            logoAsset,
-            key: ValueKey<String>(logoAsset),
-            height: 24,
-            semanticsLabel: '報導者',
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            spacing: 8,
+            children: <Widget>[
+              SvgPicture.asset(
+                logoAsset,
+                key: ValueKey<String>(logoAsset),
+                height: 24,
+                semanticsLabel: '報導者',
+              ),
+              Text(
+                '非官方開源客戶端',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1,
+                ),
+              ),
+            ],
           ),
           actions: <Widget>[
             SearchAnchor(
@@ -537,13 +561,11 @@ class _HomePageContent extends CompositionWidget {
                   tooltip: '搜尋文章',
                 );
               },
-              suggestionsBuilder:
-                  (searchContext, controller) async {
+              suggestionsBuilder: (searchContext, controller) async {
                 final query = controller.text.trim();
                 if (query.isEmpty) return <Widget>[];
 
-                await Future<void>.delayed(
-                    const Duration(milliseconds: 300));
+                await Future<void>.delayed(const Duration(milliseconds: 300));
                 if (controller.text.trim() != query) {
                   return <Widget>[];
                 }
@@ -564,24 +586,20 @@ class _HomePageContent extends CompositionWidget {
                   }
 
                   return results.map((article) {
-                    final imageUrl =
-                        ArticleCard.getArticleImageUrl(article);
+                    final imageUrl = ArticleCard.getArticleImageUrl(article);
                     return ListTile(
                       leading: imageUrl != null
                           ? ClipRRect(
-                              borderRadius:
-                                  BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(4),
                               child: Image.network(
                                 imageUrl,
                                 width: 56,
                                 height: 42,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) =>
-                                    const SizedBox(
+                                errorBuilder: (_, _, _) => const SizedBox(
                                   width: 56,
                                   height: 42,
-                                  child: Icon(Icons.image,
-                                      color: Colors.grey),
+                                  child: Icon(Icons.image, color: Colors.grey),
                                 ),
                               ),
                             )
@@ -591,8 +609,7 @@ class _HomePageContent extends CompositionWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      subtitle: article
-                              .ogDescription.isNotEmpty
+                      subtitle: article.ogDescription.isNotEmpty
                           ? Text(
                               article.ogDescription,
                               maxLines: 1,
@@ -602,10 +619,13 @@ class _HomePageContent extends CompositionWidget {
                       onTap: () {
                         controller.closeView('');
                         unawaited(
-                            context.router.push(ArticleRoute(
-                          slug: article.slug,
-                          heroImageUrl: imageUrl,
-                        )));
+                          context.router.push(
+                            ArticleRoute(
+                              slug: article.slug,
+                              heroImageUrl: imageUrl,
+                            ),
+                          ),
+                        );
                       },
                     );
                   });
