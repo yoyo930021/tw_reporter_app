@@ -20,6 +20,7 @@ dependencies:
   flutter_compositions:
     path: /Users/yoyo930021/git/flutter_compositions/packages/flutter_compositions
   flutter_html: ^3.0.0-beta.2  # HTML 渲染
+  flutter_inappwebview: ^6.1.0  # 內嵌 WebView（跨平台統一 API）
   flutter_local_notifications: ^18.0.0  # 本地通知
   flutter_svg: ^2.0.17  # SVG 圖片顯示
   freezed_annotation: ^3.0.0
@@ -33,9 +34,6 @@ dependencies:
   unifiedpush: ^6.0.1  # UnifiedPush 推播
   url_launcher: ^6.3.1  # 外部連結
   video_player: ^2.9.2  # 原生影片播放
-  webview_flutter: ^4.10.0  # 內嵌 WebView
-  webview_flutter_android: ^4.10.0  # Android WebView 平台實作
-  webview_flutter_wkwebview: ^3.16.0  # iOS WebView 平台實作
 
 dev_dependencies:
   auto_route_generator: ^10.2.6

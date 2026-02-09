@@ -3,15 +3,15 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/shared/composables/use_scroll_visibility.dart';
 import 'package:tw_reporter_app/shared/composables/use_web_view_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 const kWebviewDefaultHeight = 150.0;
 
-/// Widget that displays embedded web content using WebView.
+/// Widget that displays embedded web content using InAppWebView.
 /// Lazily initializes the WebView when first visible.
 ///
 /// Supports two modes:
@@ -118,9 +118,9 @@ class _EmbeddedWebViewContent extends CompositionWidget {
     final (visibilityKey, isVisible) = useScrollVisibility();
 
     watch(() => isVisible.value, (visible, _) {
-      if (visible && webView.controller.value == null) {
+      if (visible && !webView.isInitialized.value) {
         unawaited(webView.initialize());
-      } else if (!visible && webView.controller.value != null) {
+      } else if (!visible && webView.isInitialized.value) {
         webView.destroy();
       }
     });
@@ -128,13 +128,22 @@ class _EmbeddedWebViewContent extends CompositionWidget {
     return (BuildContext context) {
       dialogContext = context;
       final colors = Theme.of(context).colorScheme;
-      final controller = webView.controller.value;
+      final isInitialized = webView.isInitialized.value;
 
       Widget content;
-      if (controller != null) {
+      if (isInitialized) {
         content = Stack(
           children: <Widget>[
-            WebViewWidget(controller: controller),
+            InAppWebView(
+              initialSettings: webView.settings,
+              initialData: webView.initialData,
+              initialUrlRequest: webView.initialUrlRequest,
+              onWebViewCreated: webView.onWebViewCreated,
+              onContentSizeChanged: webView.onContentSizeChanged,
+              onLoadStop: webView.onLoadStop,
+              shouldOverrideUrlLoading: webView.shouldOverrideUrlLoading,
+              onConsoleMessage: webView.onConsoleMessage,
+            ),
             if (webView.isLoading.value) _buildPlaceholder(context, colors),
           ],
         );
