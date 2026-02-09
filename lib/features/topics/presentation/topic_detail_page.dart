@@ -28,29 +28,54 @@ String? _getTopicImageUrl(Topic topic) {
       leadingImage.resizedTargets.tiny?.url;
 }
 
+String? _getLowResTopicImageUrl(Topic topic) {
+  final ogImage = topic.ogImage ?? topic.leadingImage;
+  if (ogImage == null) return null;
+  return ogImage.resizedTargets.w400?.url ??
+      ogImage.resizedTargets.tiny?.url;
+}
+
 Widget? _buildFlexibleBackground({
+  required String slug,
   required String? imageUrl,
   required bool hasImage,
+  String? lowResImageUrl,
 }) {
   if (!hasImage || imageUrl == null) return null;
   return Stack(
     fit: StackFit.expand,
     children: <Widget>[
-      CachedNetworkImage(
-        imageUrl: imageUrl,
-        cacheManager:
-            AppCacheManager.instance.imageCacheManager,
-        fit: BoxFit.cover,
-        placeholder: (_, _) => const ColoredBox(
-          color: AppColors.grey200,
-          child: Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
+      Hero(
+        tag: 'topic-image-$slug',
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          cacheManager:
+              AppCacheManager.instance.imageCacheManager,
+          fit: BoxFit.cover,
+          placeholder: (_, _) => lowResImageUrl != null
+              ? CachedNetworkImage(
+                  imageUrl: lowResImageUrl,
+                  cacheManager:
+                      AppCacheManager.instance.imageCacheManager,
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => const ColoredBox(
+                    color: AppColors.grey200,
+                  ),
+                  errorWidget: (_, _, _) => const ColoredBox(
+                    color: AppColors.grey200,
+                  ),
+                )
+              : const ColoredBox(
+                  color: AppColors.grey200,
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+          errorWidget: (_, _, _) => const ColoredBox(
+            color: AppColors.grey200,
+            child: Icon(Icons.image_not_supported,
+                color: AppColors.grey400, size: 48),
           ),
-        ),
-        errorWidget: (_, _, _) => const ColoredBox(
-          color: AppColors.grey200,
-          child: Icon(Icons.image_not_supported,
-              color: AppColors.grey400, size: 48),
         ),
       ),
       const DecoratedBox(
@@ -190,6 +215,7 @@ class _TopicDetailPageContent extends CompositionWidget {
       final title =
           currentTopic.shortTitle ?? currentTopic.title;
       final imageUrl = _getTopicImageUrl(currentTopic);
+      final lowResImageUrl = _getLowResTopicImageUrl(currentTopic);
       final hasImage = imageUrl != null;
 
       return Scaffold(
@@ -243,8 +269,10 @@ class _TopicDetailPageContent extends CompositionWidget {
                       ),
                     ),
                     background: _buildFlexibleBackground(
+                      slug: currentTopic.slug,
                       imageUrl: imageUrl,
                       hasImage: hasImage,
+                      lowResImageUrl: lowResImageUrl,
                     ),
                   );
                 },
