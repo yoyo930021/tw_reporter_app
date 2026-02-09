@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
+import 'package:tw_reporter_app/core/cache/video_cache_service.dart';
 import 'package:tw_reporter_app/core/di/app_providers.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
@@ -60,6 +62,7 @@ void main() {
           homeRepository: mockHomeRepo,
           readingRepository: mockReadingRepo,
           themeNotifier: ThemeNotifier(),
+          videoCacheService: VideoCacheService(Dio()),
           child: MaterialApp.router(
             title: '報導者',
             theme: AppTheme.lightTheme,
@@ -83,6 +86,7 @@ void main() {
           homeRepository: mockHomeRepo,
           readingRepository: mockReadingRepo,
           themeNotifier: ThemeNotifier(),
+          videoCacheService: VideoCacheService(Dio()),
           child: MaterialApp.router(
             title: '報導者',
             theme: AppTheme.lightTheme,

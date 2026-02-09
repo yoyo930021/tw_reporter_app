@@ -13,9 +13,9 @@ void main() {
     test('should have routes configured', () {
       // Assert
       expect(router.routes, isNotEmpty);
-      // 7 個頂層路由: MainShell, Article,
-      // TopicDetail, Category, TagDetail, AuthorDetail, Settings
-      expect(router.routes, hasLength(7));
+      // 8 個頂層路由: MainShell, Article,
+      // TopicDetail, Category, TagDetail, AuthorDetail, Settings, Welcome
+      expect(router.routes, hasLength(8));
     });
 
     test('should have MainShellRoute as initial route', () {

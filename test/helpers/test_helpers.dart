@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:tw_reporter_app/core/cache/video_cache_service.dart';
 import 'package:tw_reporter_app/core/di/app_providers.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/category.dart';
@@ -60,6 +62,7 @@ Widget wrapWithProviders(
   HomeRepository? homeRepository,
   ReadingRepository? readingRepository,
   ThemeNotifier? themeNotifier,
+  VideoCacheService? videoCacheService,
 }) {
   return MaterialApp(
     home: AppProviders(
@@ -71,6 +74,8 @@ Widget wrapWithProviders(
       readingRepository:
           readingRepository ?? MockReadingRepository(),
       themeNotifier: themeNotifier ?? ThemeNotifier(),
+      videoCacheService:
+          videoCacheService ?? VideoCacheService(Dio()),
       child: child,
     ),
   );
