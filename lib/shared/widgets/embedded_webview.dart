@@ -4,8 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:tw_reporter_app/core/di/composables.dart';
-import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/shared/composables/use_scroll_visibility.dart';
 import 'package:tw_reporter_app/shared/composables/use_web_view_controller.dart';
@@ -115,24 +113,12 @@ class _EmbeddedWebViewContent extends CompositionWidget {
       },
     );
 
-    final mediaLoadModeRef = useMediaLoadMode();
-    final (visibilityKey, isVisible) = useScrollVisibility();
-
-    // In preloadAll mode, initialize immediately on mount.
-    onMounted(() {
-      if (mediaLoadModeRef.value == MediaLoadMode.preloadAll) {
-        unawaited(webView.initialize());
-      }
-    });
+    final isVisible = useScrollVisibility();
 
     watch(() => isVisible.value, (visible, _) {
-      final isPreload =
-          mediaLoadModeRef.value == MediaLoadMode.preloadAll;
-
       if (visible && !webView.isInitialized.value) {
         unawaited(webView.initialize());
-      } else if (!visible && webView.isInitialized.value && !isPreload) {
-        // In preloadAll mode, don't destroy when scrolled off-screen.
+      } else if (!visible && webView.isInitialized.value) {
         webView.destroy();
       }
     });
@@ -163,7 +149,6 @@ class _EmbeddedWebViewContent extends CompositionWidget {
       }
 
       return Column(
-        key: visibilityKey,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[

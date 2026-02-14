@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/di/composables.dart';
-import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/shared/composables/use_scroll_visibility.dart';
@@ -67,7 +65,6 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext context) setup() {
-    final mediaLoadModeRef = useMediaLoadMode();
     final player = useVideoPlayerController(
       url: url,
       loop: loop,
@@ -80,15 +77,7 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
     // button during the brief gap between init and autoplay start.
     final hasEverPlayed = ref(false);
 
-    final (visibilityKey, isVisible) = useScrollVisibility();
-
-    // In preloadAll mode, initialize (but don't play) immediately on mount.
-    // Playback still waits for the widget to become visible.
-    onMounted(() {
-      if (mediaLoadModeRef.value == MediaLoadMode.preloadAll) {
-        unawaited(player.initialize());
-      }
-    });
+    final isVisible = useScrollVisibility();
 
     watch(() => isVisible.value, (visible, _) {
       if (visible) {
@@ -103,7 +92,7 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
             }),
           );
         } else if (shouldAutoResume) {
-          // Already initialized (e.g. preloadAll) — start playback now.
+          // Already initialized — start playback now.
           unawaited(player.play());
           hasEverPlayed.value = true;
         }
@@ -198,7 +187,6 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
       }
 
       return Column(
-        key: visibilityKey,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ClipRRect(

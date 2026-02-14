@@ -66,8 +66,24 @@ class _SettingsPageContent extends CompositionWidget {
     final mediaLoadModeRef = useMediaLoadMode();
     final readingRepo = useReadingRepository();
 
-    final pushServiceRef = manageListenable(PushService.instance);
+    final pushEnabled = ref(PushService.instance.enabled);
+    final pushError = ref<String?>(PushService.instance.registrationError);
+    final pushService = PushService.instance;
     final cacheSize = ref<int?>(null);
+
+    void syncPushState() {
+      pushEnabled.value = pushService.enabled;
+      pushError.value = pushService.registrationError;
+    }
+
+    onMounted(() {
+      pushService.addStateListener(syncPushState);
+      syncPushState();
+    });
+
+    onUnmounted(() {
+      pushService.removeStateListener(syncPushState);
+    });
 
     Future<void> refreshCacheSize() async {
       cacheSize.value =
@@ -240,9 +256,6 @@ class _SettingsPageContent extends CompositionWidget {
     }
 
     return (BuildContext context) {
-      // Access refs to establish reactive tracking
-      final pushService = pushServiceRef.value;
-
       return Scaffold(
         appBar: AppBar(
           title: const Text('設定'),
@@ -331,15 +344,6 @@ class _SettingsPageContent extends CompositionWidget {
                     subtitle: Text('媒體捲動至可見時自動載入'),
                     value: MediaLoadMode.normal,
                   ),
-                  RadioListTile<MediaLoadMode>(
-                    title: Text('預先載入（實驗性）'),
-                    subtitle: Text(
-                      '所有媒體立即載入（含影片和嵌入內容）\n'
-                      '⚠ 會佔用大量記憶體，建議高階裝置使用',
-                    ),
-                    value: MediaLoadMode.preloadAll,
-                    isThreeLine: true,
-                  ),
                 ],
               ),
             ),
@@ -363,11 +367,13 @@ class _SettingsPageContent extends CompositionWidget {
               SwitchListTile(
                 title: const Text('推播通知'),
                 subtitle: Text(
-                  pushService.enabled
-                      ? '已啟用推播通知'
-                      : '啟用後可接收報導者最新文章通知',
+                  pushError.value != null
+                      ? '${pushError.value}'
+                      : pushEnabled.value
+                          ? '已啟用推播通知'
+                          : '啟用後可接收報導者最新文章通知',
                 ),
-                value: pushService.enabled,
+                value: pushEnabled.value,
                 onChanged: (value) async {
                   if (value) {
                     await handleEnablePush(

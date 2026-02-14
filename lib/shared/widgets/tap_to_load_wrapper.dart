@@ -16,7 +16,7 @@ enum MediaType {
 
 /// 根據 [MediaLoadMode] 決定是否延遲載入媒體內容。
 ///
-/// - [MediaLoadMode.normal] / [MediaLoadMode.preloadAll]：直接渲染 [child]
+/// - [MediaLoadMode.normal]：直接渲染 [child]
 /// - [MediaLoadMode.dataSaving]：顯示佔位符（對應圖示 + 「點擊載入」），
 ///   tap 後渲染 [child]
 class TapToLoadWrapper extends StatelessWidget {

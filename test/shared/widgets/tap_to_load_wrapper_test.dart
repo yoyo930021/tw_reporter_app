@@ -24,23 +24,6 @@ void main() {
       expect(find.text('點擊載入影片'), findsNothing);
     });
 
-    testWidgets('renders child directly in preloadAll mode',
-        (tester) async {
-      await tester.pumpWidget(
-        wrapWithProviders(
-          const TapToLoadWrapper(
-            mediaType: MediaType.video,
-            child: Text('Video Content'),
-          ),
-          mediaLoadMode:
-              Ref<MediaLoadMode>(MediaLoadMode.preloadAll),
-        ),
-      );
-
-      expect(find.text('Video Content'), findsOneWidget);
-      expect(find.text('點擊載入影片'), findsNothing);
-    });
-
     testWidgets('shows placeholder in dataSaving mode',
         (tester) async {
       await tester.pumpWidget(
