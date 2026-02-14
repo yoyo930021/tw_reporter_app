@@ -1,35 +1,39 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
-import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:http_cache_file_store/http_cache_file_store.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:tw_reporter_app/core/cache/cache_file_system.dart';
 import 'package:tw_reporter_app/core/cache/dio_http_file_service.dart';
 
 /// 統一快取管理器
 ///
-/// 管理 API、圖片、影片三種快取，共用 200MB 上限。
+/// 管理圖片快取（flutter_cache_manager）和 HTTP 回應快取（dio_cache_interceptor）。
+/// 影片快取由 `http_cache_stream` 的本地代理伺服器自動管理。
 /// 使用 [AppCacheManager.instance] 取得單例。
 class AppCacheManager {
   AppCacheManager._();
 
   static final AppCacheManager instance = AppCacheManager._();
 
-  /// 所有快取共用上限 200MB
-  static const int maxTotalCacheSize = 200 * 1024 * 1024;
-
   static const Duration _imageCacheStalePeriod = Duration(days: 14);
-  static const Duration _videoCacheMaxAge = Duration(days: 7);
 
-  late CacheStore _apiStore;
+  /// HTTP 回應快取子目錄名稱
+  static const String _httpCacheDirName = 'http_cache';
+
+  /// 影片快取子目錄名稱
+  static const String _videoCacheDirName = 'video_cache';
+
+  /// flutter_cache_manager 使用的 cacheKey（同時也是 tempDir 下的子目錄名）
+  static const String _imageCacheKey = 'tw_reporter_images';
+
   BaseCacheManager? _imageCacheManager;
-  late String _videoCacheDir;
   late String _baseCacheDir;
+  late CacheOptions _httpCacheOptions;
 
   bool _initialized = false;
-
-  /// API 快取儲存
-  CacheStore get apiStore => _apiStore;
 
   /// 圖片快取管理器（供 CachedNetworkImage 使用）
   ///
@@ -37,35 +41,40 @@ class AppCacheManager {
   BaseCacheManager get imageCacheManager =>
       _imageCacheManager ?? DefaultCacheManager();
 
-  /// 影片快取目錄路徑
-  String get videoCacheDir => _videoCacheDir;
-
   /// 是否已初始化
   bool get isInitialized => _initialized;
 
+  /// HTTP 回應快取選項（供 DioCacheInterceptor 使用）
+  CacheOptions get httpCacheOptions => _httpCacheOptions;
+
+  /// 影片快取目錄路徑
+  String get videoCachePath => '$_baseCacheDir/$_videoCacheDirName';
+
   /// 初始化所有快取（需在 app 啟動時呼叫）
-  Future<void> init({String? basePath}) async {
+  Future<void> init({required Dio imageDio, String? basePath}) async {
     if (_initialized) return;
 
-    _baseCacheDir =
+    final resolvedBase =
         basePath ?? (await getApplicationCacheDirectory()).path;
+    _baseCacheDir = resolvedBase;
 
-    // API 快取（Hive）
-    final apiCacheDir = '$_baseCacheDir/api_cache';
-    await Directory(apiCacheDir).create(recursive: true);
-    _apiStore = HiveCacheStore(apiCacheDir);
+    // HTTP 回應快取（FileCacheStore）
+    final httpCacheDir = Directory('$resolvedBase/$_httpCacheDirName');
+    await httpCacheDir.create(recursive: true);
+    _httpCacheOptions = CacheOptions(
+      store: FileCacheStore(httpCacheDir.path),
+      hitCacheOnNetworkFailure: true,
+      maxStale: const Duration(days: 7),
+    );
 
-    // 影片快取
-    _videoCacheDir = '$_baseCacheDir/video_cache';
-    await Directory(_videoCacheDir).create(recursive: true);
-
-    // 圖片快取（flutter_cache_manager + Dio FileService）
+    // 圖片快取（flutter_cache_manager + Dio FileService + 自訂 FileSystem）
     _imageCacheManager = CacheManager(
       Config(
-        'tw_reporter_images',
+        _imageCacheKey,
         stalePeriod: _imageCacheStalePeriod,
         maxNrOfCacheObjects: 500,
-        fileService: DioHttpFileService(),
+        fileSystem: CacheFileSystem(_imageCacheKey),
+        fileService: DioHttpFileService(imageDio),
       ),
     );
 
@@ -73,24 +82,26 @@ class AppCacheManager {
   }
 
   /// 計算所有快取的總大小（bytes）
+  ///
+  /// 包含圖片快取、HTTP 回應快取和影片快取目錄。
   Future<int> getTotalCacheSize() async {
+    if (!_initialized) return 0;
+
     var total = 0;
 
-    // 圖片快取目錄
-    final imageDir =
-        Directory('$_baseCacheDir/libCachedImageData');
-    if (imageDir.existsSync()) {
-      total += await _dirSize(imageDir);
+    // 圖片快取（透過 flutter_cache_manager store）
+    final imgMgr = _imageCacheManager;
+    if (imgMgr is CacheManager) {
+      total += await imgMgr.store.getCacheSize();
     }
 
-    // API 快取目錄
-    final apiDir = Directory('$_baseCacheDir/api_cache');
-    if (apiDir.existsSync()) {
-      total += await _dirSize(apiDir);
+    // HTTP 回應快取目錄
+    final httpDir = Directory('$_baseCacheDir/$_httpCacheDirName');
+    if (httpDir.existsSync()) {
+      total += await _dirSize(httpDir);
     }
-
     // 影片快取目錄
-    final videoDir = Directory(_videoCacheDir);
+    final videoDir = Directory('$_baseCacheDir/$_videoCacheDirName');
     if (videoDir.existsSync()) {
       total += await _dirSize(videoDir);
     }
@@ -100,79 +111,19 @@ class AppCacheManager {
 
   /// 清除所有快取
   Future<void> clearAll() async {
-    await _apiStore.clean();
+    if (!_initialized) return;
     await _imageCacheManager?.emptyCache();
-    await _clearDir(Directory(_videoCacheDir));
-  }
-
-  /// 超過上限時按 LRU 清理最舊檔案
-  Future<void> enforceLimit() async {
-    final totalSize = await getTotalCacheSize();
-    if (totalSize <= maxTotalCacheSize) return;
-
-    // 收集所有可清理的快取檔案
-    final files = <File>[];
-    for (final dirPath in [
-      '$_baseCacheDir/api_cache',
-      _videoCacheDir,
-    ]) {
-      final dir = Directory(dirPath);
-      if (dir.existsSync()) {
-        await for (final entity
-            in dir.list(recursive: true)) {
-          if (entity is File) {
-            files.add(entity);
-          }
-        }
-      }
-    }
-
-    // 按最後存取時間排序（最舊的先刪）
-    final fileTimes = <File, DateTime>{};
-    for (final file in files) {
-      try {
-        fileTimes[file] = file.lastModifiedSync();
-      } on FileSystemException catch (_) {
-        // 忽略無法讀取的檔案
-      }
-    }
-    files.sort((a, b) =>
-        (fileTimes[a] ?? DateTime.now())
-            .compareTo(fileTimes[b] ?? DateTime.now()));
-
-    var currentSize = totalSize;
-    for (final file in files) {
-      if (currentSize <= maxTotalCacheSize) break;
-      try {
-        final fileSize = await file.length();
-        await file.delete();
-        currentSize -= fileSize;
-      } on FileSystemException catch (_) {
-        // 忽略刪除失敗
-      }
-    }
+    await _clearDir(Directory('$_baseCacheDir/$_httpCacheDirName'));
+    await _clearDir(Directory('$_baseCacheDir/$_videoCacheDirName'));
   }
 
   /// 清理過期快取
+  ///
+  /// flutter_cache_manager 自動管理圖片過期，
+  /// HTTP 快取遵循 HTTP headers 自動管理過期。
+  /// 此方法為預留介面，目前無需額外處理。
   Future<void> cleanExpired() async {
-    // API 快取由 dio_cache_interceptor 的 maxStale 自動管理
-    // 清理過期影片
-    final videoDir = Directory(_videoCacheDir);
-    if (videoDir.existsSync()) {
-      final now = DateTime.now();
-      await for (final entity in videoDir.list()) {
-        if (entity is File) {
-          try {
-            final modified = entity.lastModifiedSync();
-            if (now.difference(modified) > _videoCacheMaxAge) {
-              await entity.delete();
-            }
-          } on FileSystemException catch (_) {
-            // 忽略
-          }
-        }
-      }
-    }
+    // flutter_cache_manager 內部自動清理過期快取，無需手動處理
   }
 
   Future<int> _dirSize(Directory dir) async {

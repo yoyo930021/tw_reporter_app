@@ -7,14 +7,19 @@ class CategoryBadge extends StatelessWidget {
   const CategoryBadge({
     required this.categoryName,
     super.key,
+    this.subcategoryName,
   });
 
   final String categoryName;
+  final String? subcategoryName;
 
   @override
   Widget build(BuildContext context) {
     final color =
         AppColors.categoryColors[categoryName] ?? AppColors.grey600;
+    final label = subcategoryName != null
+        ? '$categoryName / $subcategoryName'
+        : categoryName;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -26,7 +31,7 @@ class CategoryBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
       ),
       child: Text(
-        categoryName,
+        label,
         style: Theme.of(context).textTheme.categoryTag.copyWith(color: color),
       ),
     );

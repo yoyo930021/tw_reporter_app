@@ -89,6 +89,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.4"
+  build_cli_annotations:
+    dependency: transitive
+    description:
+      name: build_cli_annotations
+      sha256: e563c2e01de8974566a1998410d3f6f03521788160a02503b0b1f1a46c7b3d95
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   build_config:
     dependency: transitive
     description:
@@ -217,14 +225,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
-  cronet_http:
-    dependency: transitive
-    description:
-      name: cronet_http
-      sha256: "1fff7f26ac0c4cda97fe2a9aa082494baee4775f167c27ba45f6c8e88571e3ab"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.7.0"
   cross_file:
     dependency: transitive
     description:
@@ -249,14 +249,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
-  cupertino_http:
-    dependency: transitive
-    description:
-      name: cupertino_http
-      sha256: "82cbec60c90bf785a047a9525688b6dacac444e177e1d5a5876963d3c50369e8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.0"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -293,18 +285,18 @@ packages:
     dependency: "direct main"
     description:
       name: dio_cache_interceptor
-      sha256: "1346705a2057c265014d7696e3e2318b560bfb00b484dac7f9b01e2ceaebb07d"
+      sha256: ac9f312e5a81d79cbccb15f56b78aeae7343a981c1d7c169b11194fae806ec0b
       url: "https://pub.dev"
     source: hosted
-    version: "3.5.1"
-  dio_cache_interceptor_hive_store:
+    version: "4.0.5"
+  dio_compatibility_layer:
     dependency: "direct main"
     description:
-      name: dio_cache_interceptor_hive_store
-      sha256: "127cda24a485f5b6469172edd8b81fac819147318bedd654be167527c498bf55"
+      name: dio_compatibility_layer
+      sha256: bb7ea1dd6fe98b8f5e3d90da408802fc3abf14d4485416e882cf1b2c8fb4b209
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "0.1.0"
   dio_web_adapter:
     dependency: transitive
     description:
@@ -330,7 +322,7 @@ packages:
     source: hosted
     version: "2.1.5"
   file:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: file
       sha256: a3b4f84adafef897088c160faf7dfffb7696046cb13ae90b508c2cbc95d3b8d4
@@ -477,6 +469,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.7"
+  flutter_rust_bridge:
+    dependency: transitive
+    description:
+      name: flutter_rust_bridge
+      sha256: "37ef40bc6f863652e865f0b2563ea07f0d3c58d8efad803cc01933a4b2ee067e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.1"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -535,14 +535,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
-  hive_ce:
-    dependency: transitive
-    description:
-      name: hive_ce
-      sha256: "8e9980e68643afb1e765d3af32b47996552a64e190d03faf622cea07c1294418"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.19.3"
   hooks:
     dependency: transitive
     description:
@@ -575,6 +567,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.6.0"
+  http_cache_core:
+    dependency: transitive
+    description:
+      name: http_cache_core
+      sha256: ff0b6e6c3766d774d59b806f928b39e6a48f7b2c47ae1fe27410bfd792bee511
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.3"
+  http_cache_file_store:
+    dependency: "direct main"
+    description:
+      name: http_cache_file_store
+      sha256: b7d2d67ad262a4b5c6ccde4378228100ab0e58371d40cb2f0443177922638c01
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
+  http_cache_stream:
+    dependency: "direct main"
+    description:
+      name: http_cache_stream
+      sha256: e4559875a37d95cf58117c5b4a13a41b6385c7f5db0018a7dee4ebb0641d5307
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   http_multi_server:
     dependency: transitive
     description:
@@ -623,22 +639,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  isolate_channel:
-    dependency: transitive
-    description:
-      name: isolate_channel
-      sha256: a9d3d620695bc984244dafae00b95e4319d6974b2d77f4b9e1eb4f2efe099094
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.1"
-  jni:
-    dependency: transitive
-    description:
-      name: jni
-      sha256: "8706a77e94c76fe9ec9315e18949cc9479cc03af97085ca9c1077b61323ea12d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.15.2"
   json_annotation:
     dependency: "direct main"
     description:
@@ -751,14 +751,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
-  native_dio_adapter:
-    dependency: "direct main"
-    description:
-      name: native_dio_adapter
-      sha256: "9bbfa5221fd287eb063962bbe6534290e5f87933e576fac210149fb80253b89a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.5.1"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -951,6 +943,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1"
+  rhttp:
+    dependency: "direct main"
+    description:
+      name: rhttp
+      sha256: b111638045b730f825a85cb045017b5bd3dfb47b38e98eb293b0519ee6050f2e
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.15.1"
   rxdart:
     dependency: transitive
     description:

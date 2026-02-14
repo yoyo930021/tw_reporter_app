@@ -27,28 +27,19 @@ class TwReporterArticleRepository implements ArticleRepository {
     required String category,
     required int page,
     int limit = 10,
+    String? subcategoryId,
   }) async {
-    // 由於 API 不支援分類過濾，需要獲取更多文章再客戶端過濾
-    // TODO(API): 待後端 API 支援分類過濾功能後改用伺服器端過濾
-    final fetchLimit = limit * 8;
-    final offset = (page - 1) * fetchLimit;
+    final categoryId = _categorySlugToId[category.toLowerCase()];
+    if (categoryId == null) return <Article>[];
 
+    final offset = (page - 1) * limit;
     final response = await _api.fetchPosts(
-      limit: fetchLimit,
+      limit: limit,
       offset: offset,
+      categoryId: categoryId,
+      subcategoryId: subcategoryId,
     );
-
-    final mappedName = _mapCategoryNameToApiName(category).toLowerCase();
-    final lowerCategory = category.toLowerCase();
-
-    return response.data.records.where((article) {
-      return article.categorySet.any((cs) {
-        final name = cs.category?.name;
-        if (name == null) return false;
-        final lowerName = name.toLowerCase();
-        return lowerName == mappedName || lowerName == lowerCategory;
-      });
-    }).take(limit).toList();
+    return response.data.records;
   }
 
   @override
@@ -104,19 +95,13 @@ class TwReporterArticleRepository implements ArticleRepository {
     required int page,
     int limit = 10,
   }) async {
-    // 客戶端過濾：獲取大量文章後篩選含有指定 tag 的文章
-    // TODO(API): 待後端 API 支援 tag 過濾後改用伺服器端過濾
-    final fetchLimit = limit * 8;
-    final offset = (page - 1) * fetchLimit;
-
+    final offset = (page - 1) * limit;
     final response = await _api.fetchPosts(
-      limit: fetchLimit,
+      limit: limit,
       offset: offset,
+      tagId: tagId,
     );
-
-    return response.data.records.where((article) {
-      return article.tags?.any((tag) => tag.id == tagId) ?? false;
-    }).take(limit).toList();
+    return response.data.records;
   }
 
   @override
@@ -147,17 +132,15 @@ class TwReporterArticleRepository implements ArticleRepository {
     return response.data.records;
   }
 
-  String _mapCategoryNameToApiName(String category) {
-    const categoryMap = <String, String>{
-      'culture': '文化生活',
-      'econ': '經濟產業',
-      'education': '教育校園',
-      'environment': '環境永續',
-      'health': '醫療健康',
-      'humanrights': '人權司法',
-      'politics_and_society': '政治社會',
-      'world': '國際兩岸',
-    };
-    return categoryMap[category.toLowerCase()] ?? category;
-  }
+  /// 分類 slug → MongoDB ObjectId 映射
+  static const _categorySlugToId = <String, String>{
+    'culture': '63206383207bf7c5f8716259',
+    'econ': '63206383207bf7c5f8716254',
+    'education': '63206383207bf7c5f8716260',
+    'environment': '63206383207bf7c5f871624d',
+    'health': '63206383207bf7c5f8716245',
+    'humanrights': '63206383207bf7c5f8716234',
+    'politics_and_society': '63206383207bf7c5f871623d',
+    'world': '63206383207bf7c5f871622c',
+  };
 }

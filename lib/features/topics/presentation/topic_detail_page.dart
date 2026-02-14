@@ -6,7 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
-import 'package:tw_reporter_app/core/di/injection_keys.dart';
+import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
@@ -45,37 +45,34 @@ Widget? _buildFlexibleBackground({
   return Stack(
     fit: StackFit.expand,
     children: <Widget>[
-      Hero(
-        tag: 'topic-image-$slug',
-        child: CachedNetworkImage(
-          imageUrl: imageUrl,
-          cacheManager:
-              AppCacheManager.instance.imageCacheManager,
-          fit: BoxFit.cover,
-          placeholder: (_, _) => lowResImageUrl != null
-              ? CachedNetworkImage(
-                  imageUrl: lowResImageUrl,
-                  cacheManager:
-                      AppCacheManager.instance.imageCacheManager,
-                  fit: BoxFit.cover,
-                  placeholder: (_, _) => const ColoredBox(
-                    color: AppColors.grey200,
-                  ),
-                  errorWidget: (_, _, _) => const ColoredBox(
-                    color: AppColors.grey200,
-                  ),
-                )
-              : const ColoredBox(
+      CachedNetworkImage(
+        imageUrl: imageUrl,
+        cacheManager:
+            AppCacheManager.instance.imageCacheManager,
+        fit: BoxFit.cover,
+        placeholder: (_, _) => lowResImageUrl != null
+            ? CachedNetworkImage(
+                imageUrl: lowResImageUrl,
+                cacheManager:
+                    AppCacheManager.instance.imageCacheManager,
+                fit: BoxFit.cover,
+                placeholder: (_, _) => const ColoredBox(
                   color: AppColors.grey200,
-                  child: Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
                 ),
-          errorWidget: (_, _, _) => const ColoredBox(
-            color: AppColors.grey200,
-            child: Icon(Icons.image_not_supported,
-                color: AppColors.grey400, size: 48),
-          ),
+                errorWidget: (_, _, _) => const ColoredBox(
+                  color: AppColors.grey200,
+                ),
+              )
+            : const ColoredBox(
+                color: AppColors.grey200,
+                child: Center(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+        errorWidget: (_, _, _) => const ColoredBox(
+          color: AppColors.grey200,
+          child: Icon(Icons.image_not_supported,
+              color: AppColors.grey400, size: 48),
         ),
       ),
       const DecoratedBox(
@@ -124,14 +121,163 @@ class _TopicDetailPageContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    final repo = inject(AppKeys.articleRepository);
+    final repo = useArticleRepository();
     final detail = useTopicDetail(
       repo,
       topic: topic,
     );
-    final theme = useTheme();
 
-    Widget buildRelatedArticles(BuildContext context) {
+    final title = computed(() {
+      final t = detail.topic.value;
+      return t.shortTitle ?? t.title;
+    });
+    final imageUrl = computed(() => _getTopicImageUrl(detail.topic.value));
+    final lowResImageUrl =
+        computed(() => _getLowResTopicImageUrl(detail.topic.value));
+    final hasImage = computed(() => imageUrl.value != null);
+
+    return (BuildContext context) {
+      final currentTopic = detail.topic.value;
+
+      return Scaffold(
+        body: CustomScrollView(
+          slivers: <Widget>[
+            SliverAppBar(
+              expandedHeight: hasImage.value ? 300.0 : 160.0,
+              pinned: true,
+              flexibleSpace: LayoutBuilder(
+                builder: (context, constraints) {
+                  final statusBarHeight =
+                      MediaQuery.of(context).padding.top;
+                  final minExtent =
+                      kToolbarHeight + statusBarHeight;
+                  final expandedHeight =
+                      hasImage.value ? 300.0 : 160.0;
+                  final maxExtent =
+                      expandedHeight + statusBarHeight;
+                  final expandRatio =
+                      ((constraints.maxHeight - minExtent) /
+                              (maxExtent - minExtent))
+                          .clamp(0.0, 1.0);
+
+                  return FlexibleSpaceBar(
+                    titlePadding: EdgeInsetsDirectional.only(
+                      start:
+                          lerpDouble(56, 16, expandRatio)!,
+                      bottom: 16,
+                      end:
+                          lerpDouble(16, 16, expandRatio)!,
+                    ),
+                    title: Text(
+                      title.value,
+                      maxLines:
+                          expandRatio > 0.4 ? 4 : 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: hasImage.value
+                            ? Colors.white
+                            : null,
+                        shadows: hasImage.value
+                            ? const <Shadow>[
+                                Shadow(
+                                  color: Colors.black54,
+                                  blurRadius: 4,
+                                ),
+                              ]
+                            : null,
+                      ),
+                    ),
+                    background: _buildFlexibleBackground(
+                      slug: currentTopic.slug,
+                      imageUrl: imageUrl.value,
+                      hasImage: hasImage.value,
+                      lowResImageUrl: lowResImageUrl.value,
+                    ),
+                  );
+                },
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _TopicBody(
+                detail: detail,
+              ),
+            ),
+          ],
+        ),
+      );
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private CompositionWidget: Topic body
+// ---------------------------------------------------------------------------
+
+class _TopicBody extends CompositionWidget {
+  const _TopicBody({
+    required this.detail,
+  });
+
+  final TopicDetailResult detail;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    return (BuildContext context) {
+      final currentTopic = detail.topic.value;
+      final themeData = Theme.of(context);
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: AppSpacing.edgeInsetsMd,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                AppSpacing.verticalSpacerSm,
+                Text(
+                  formatDate(currentTopic.publishedDate),
+                  style: themeData.textTheme.timestamp,
+                ),
+                AppSpacing.verticalSpacerMd,
+                if (currentTopic.ogDescription !=
+                    null) ...<Widget>[
+                  Text(
+                    currentTopic.ogDescription!,
+                    style: themeData.textTheme.bodyLarge,
+                  ),
+                  AppSpacing.verticalSpacerLg,
+                ],
+                const Divider(),
+                AppSpacing.verticalSpacerMd,
+                const SectionHeader(title: '相關文章'),
+                AppSpacing.verticalSpacerMd,
+              ],
+            ),
+          ),
+          _TopicRelatedArticles(detail: detail),
+        ],
+      );
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private CompositionWidget: Topic related articles
+// ---------------------------------------------------------------------------
+
+class _TopicRelatedArticles extends CompositionWidget {
+  const _TopicRelatedArticles({
+    required this.detail,
+  });
+
+  final TopicDetailResult detail;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    return (BuildContext context) {
       if (detail.hasError.value) {
         return Padding(
           padding: AppSpacing.edgeInsetsMd,
@@ -169,120 +315,6 @@ class _TopicDetailPageContent extends CompositionWidget {
             },
           );
         }).toList(),
-      );
-    }
-
-    Widget buildBody(BuildContext context) {
-      final currentTopic = detail.topic.value;
-      final themeData = theme.value;
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: AppSpacing.edgeInsetsMd,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                AppSpacing.verticalSpacerSm,
-                Text(
-                  formatDate(currentTopic.publishedDate),
-                  style: themeData.textTheme.timestamp,
-                ),
-                AppSpacing.verticalSpacerMd,
-                if (currentTopic.ogDescription !=
-                    null) ...<Widget>[
-                  Text(
-                    currentTopic.ogDescription!,
-                    style: themeData.textTheme.bodyLarge,
-                  ),
-                  AppSpacing.verticalSpacerLg,
-                ],
-                const Divider(),
-                AppSpacing.verticalSpacerMd,
-                const SectionHeader(title: '相關文章'),
-                AppSpacing.verticalSpacerMd,
-              ],
-            ),
-          ),
-          buildRelatedArticles(context),
-        ],
-      );
-    }
-
-    return (BuildContext context) {
-      final currentTopic = detail.topic.value;
-      final title =
-          currentTopic.shortTitle ?? currentTopic.title;
-      final imageUrl = _getTopicImageUrl(currentTopic);
-      final lowResImageUrl = _getLowResTopicImageUrl(currentTopic);
-      final hasImage = imageUrl != null;
-
-      return Scaffold(
-        body: CustomScrollView(
-          slivers: <Widget>[
-            SliverAppBar(
-              expandedHeight: hasImage ? 300.0 : 160.0,
-              pinned: true,
-              flexibleSpace: LayoutBuilder(
-                builder: (context, constraints) {
-                  final statusBarHeight =
-                      MediaQuery.of(context).padding.top;
-                  final minExtent =
-                      kToolbarHeight + statusBarHeight;
-                  final expandedHeight =
-                      hasImage ? 300.0 : 160.0;
-                  final maxExtent =
-                      expandedHeight + statusBarHeight;
-                  final expandRatio =
-                      ((constraints.maxHeight - minExtent) /
-                              (maxExtent - minExtent))
-                          .clamp(0.0, 1.0);
-
-                  return FlexibleSpaceBar(
-                    titlePadding: EdgeInsetsDirectional.only(
-                      start:
-                          lerpDouble(56, 16, expandRatio)!,
-                      bottom: 16,
-                      end:
-                          lerpDouble(16, 16, expandRatio)!,
-                    ),
-                    title: Text(
-                      title,
-                      maxLines:
-                          expandRatio > 0.4 ? 4 : 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: hasImage
-                            ? Colors.white
-                            : null,
-                        shadows: hasImage
-                            ? const <Shadow>[
-                                Shadow(
-                                  color: Colors.black54,
-                                  blurRadius: 4,
-                                ),
-                              ]
-                            : null,
-                      ),
-                    ),
-                    background: _buildFlexibleBackground(
-                      slug: currentTopic.slug,
-                      imageUrl: imageUrl,
-                      hasImage: hasImage,
-                      lowResImageUrl: lowResImageUrl,
-                    ),
-                  );
-                },
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: buildBody(context),
-            ),
-          ],
-        ),
       );
     };
   }

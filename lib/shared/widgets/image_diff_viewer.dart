@@ -34,6 +34,12 @@ class ImageDiffViewer extends CompositionWidget {
     final props = widget();
     final theme = useTheme();
 
+    final hasDescriptions = computed(() {
+      final p = props.value;
+      return (p.beforeDesc != null && p.beforeDesc!.isNotEmpty) ||
+          (p.afterDesc != null && p.afterDesc!.isNotEmpty);
+    });
+
     return (BuildContext context) {
       final colors = theme.value.colorScheme;
       final textTheme = theme.value.textTheme;
@@ -42,12 +48,6 @@ class ImageDiffViewer extends CompositionWidget {
       // changes trigger a rebuild. LayoutBuilder.builder is NOT
       // tracked by the reactive system.
       final position = dividerPosition.value;
-
-      final hasDescriptions =
-          (props.value.beforeDesc != null &&
-              props.value.beforeDesc!.isNotEmpty) ||
-          (props.value.afterDesc != null &&
-              props.value.afterDesc!.isNotEmpty);
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +157,7 @@ class ImageDiffViewer extends CompositionWidget {
             ),
           ),
           // Descriptions
-          if (hasDescriptions) ...<Widget>[
+          if (hasDescriptions.value) ...<Widget>[
             const SizedBox(height: AppSpacing.xs),
             Row(
               children: <Widget>[

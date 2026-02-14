@@ -5,12 +5,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
-import 'package:tw_reporter_app/core/di/injection_keys.dart';
+import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
-import 'package:tw_reporter_app/core/storage/reading_storage.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/features/author/logic/use_author_articles.dart';
+import 'package:tw_reporter_app/shared/composables/use_reading.dart';
 import 'package:tw_reporter_app/shared/widgets/article_card.dart';
 import 'package:tw_reporter_app/shared/widgets/empty_state.dart';
 import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
@@ -61,15 +61,9 @@ class _AuthorDetailPageContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    final repo = inject(AppKeys.articleRepository);
+    final repo = useArticleRepository();
     final authorArticles = useAuthorArticles(repo, authorId: authorId);
-    final readSlugs = ref<Set<String>>(<String>{});
-    final theme = useTheme();
-
-    onMounted(() async {
-      final storage = await ReadingStorage.create();
-      readSlugs.value = storage.getReadSlugs();
-    });
+    final (:readSlugs) = useReadingSlugs();
 
     final scrollControllerRef = useScrollController();
 
@@ -87,119 +81,182 @@ class _AuthorDetailPageContent extends CompositionWidget {
       }
     });
 
-    Widget buildAuthorHeader() {
-      final colors = theme.value.colorScheme;
-      final textTheme = theme.value.textTheme;
-
-      return Padding(
-        padding: AppSpacing.edgeInsetsMd,
-        child: Column(
-          children: <Widget>[
-            AppSpacing.verticalSpacerMd,
-            if (authorThumbnailUrl != null)
-              CircleAvatar(
-                radius: 40,
-                backgroundImage:
-                    CachedNetworkImageProvider(
-                      authorThumbnailUrl!,
-                      cacheManager:
-                          AppCacheManager.instance.imageCacheManager,
-                    ),
-                backgroundColor: AppColors.grey200,
-              )
-            else
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: colors.primaryContainer,
-                child: Text(
-                  authorName.isNotEmpty ? authorName[0] : '?',
-                  style: textTheme.headlineMedium?.copyWith(
-                    color: colors.onPrimaryContainer,
-                  ),
-                ),
-              ),
-            AppSpacing.verticalSpacerMd,
-            Text(
-              authorName,
-              style: textTheme.headlineSmall,
-            ),
-            if (authorJobTitle != null &&
-                authorJobTitle!.isNotEmpty) ...<Widget>[
-              AppSpacing.verticalSpacerXs,
-              Text(
-                authorJobTitle!,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
-            ],
-            if (authorBio != null &&
-                authorBio!.isNotEmpty) ...<Widget>[
-              AppSpacing.verticalSpacerSm,
-              Text(
-                authorBio!,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-            AppSpacing.verticalSpacerMd,
-            const Divider(),
-          ],
+    return (BuildContext context) => Scaffold(
+      appBar: AppBar(
+        title: Text(authorName),
+      ),
+      body: _AuthorBody(
+        authorArticles: authorArticles,
+        readSlugs: readSlugs,
+        scrollControllerRef: scrollControllerRef,
+        authorHeader: _AuthorHeader(
+          authorName: authorName,
+          authorJobTitle: authorJobTitle,
+          authorBio: authorBio,
+          authorThumbnailUrl: authorThumbnailUrl,
         ),
-      );
-    }
+      ),
+    );
+  }
+}
 
-    Widget buildBody() {
-      final articles = authorArticles.articles.value;
-      final isLoading = authorArticles.isLoading.value;
+// ---------------------------------------------------------------------------
+// Private StatelessWidget: Author header
+// ---------------------------------------------------------------------------
+
+class _AuthorHeader extends StatelessWidget {
+  const _AuthorHeader({
+    required this.authorName,
+    this.authorJobTitle,
+    this.authorBio,
+    this.authorThumbnailUrl,
+  });
+
+  final String authorName;
+  final String? authorJobTitle;
+  final String? authorBio;
+  final String? authorThumbnailUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: AppSpacing.edgeInsetsMd,
+      child: Column(
+        children: <Widget>[
+          AppSpacing.verticalSpacerMd,
+          if (authorThumbnailUrl != null)
+            CircleAvatar(
+              radius: 40,
+              backgroundImage:
+                  CachedNetworkImageProvider(
+                    authorThumbnailUrl!,
+                    cacheManager:
+                        AppCacheManager.instance.imageCacheManager,
+                  ),
+              backgroundColor: AppColors.grey200,
+            )
+          else
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: colors.primaryContainer,
+              child: Text(
+                authorName.isNotEmpty ? authorName[0] : '?',
+                style: textTheme.headlineMedium?.copyWith(
+                  color: colors.onPrimaryContainer,
+                ),
+              ),
+            ),
+          AppSpacing.verticalSpacerMd,
+          Text(
+            authorName,
+            style: textTheme.headlineSmall,
+          ),
+          if (authorJobTitle != null &&
+              authorJobTitle!.isNotEmpty) ...<Widget>[
+            AppSpacing.verticalSpacerXs,
+            Text(
+              authorJobTitle!,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ],
+          if (authorBio != null &&
+              authorBio!.isNotEmpty) ...<Widget>[
+            AppSpacing.verticalSpacerSm,
+            Text(
+              authorBio!,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+          AppSpacing.verticalSpacerMd,
+          const Divider(),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Private CompositionWidget: Author body (reads reactive state)
+// ---------------------------------------------------------------------------
+
+class _AuthorBody extends CompositionWidget {
+  const _AuthorBody({
+    required this.authorArticles,
+    required this.readSlugs,
+    required this.scrollControllerRef,
+    required this.authorHeader,
+  });
+
+  final AuthorArticlesResult authorArticles;
+  final ReadonlyRef<Set<String>> readSlugs;
+  final ReadonlyRef<ScrollController> scrollControllerRef;
+  final Widget authorHeader;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final articles = computed(() => authorArticles.articles.value);
+    final isLoading = computed(() => authorArticles.isLoading.value);
+    final hasMore = computed(() => authorArticles.hasMore.value);
+
+    final itemCount = computed(() {
+      final a = articles.value;
+      final loading = isLoading.value;
+      return 1 + // header
+          (loading && a.isEmpty ? 1 : 0) +
+          (a.isEmpty && !loading ? 1 : 0) +
+          a.length +
+          (hasMore.value ? 1 : 0);
+    });
+
+    return (BuildContext context) {
+      final textTheme = Theme.of(context).textTheme;
 
       return RefreshIndicator(
         onRefresh: authorArticles.refresh,
         child: ListView.builder(
           controller: scrollControllerRef.raw,
-          itemCount:
-              1 + // header
-              (isLoading && articles.isEmpty ? 1 : 0) +
-              (articles.isEmpty && !isLoading ? 1 : 0) +
-              articles.length +
-              (authorArticles.hasMore.value ? 1 : 0),
+          itemCount: itemCount.value,
           itemBuilder: (context, index) {
-            // Author header
             if (index == 0) {
-              return buildAuthorHeader();
+              return authorHeader;
             }
 
             final contentIndex = index - 1;
+            final currentArticles = articles.value;
+            final currentIsLoading = isLoading.value;
 
-            // Loading state
-            if (isLoading && articles.isEmpty) {
+            if (currentIsLoading && currentArticles.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.only(top: 64),
                 child: LoadingIndicator(),
               );
             }
 
-            // Empty state
-            if (articles.isEmpty && !isLoading) {
+            if (currentArticles.isEmpty && !currentIsLoading) {
               return const EmptyState(message: '此作者目前沒有文章');
             }
 
-            // Load more indicator
-            if (contentIndex == articles.length) {
+            if (contentIndex == currentArticles.length) {
               return Padding(
                 padding: AppSpacing.edgeInsetsMd,
                 child: Center(
                   child: Text(
                     '載入更多...',
-                    style: theme.value.textTheme.bodySmall,
+                    style: textTheme.bodySmall,
                   ),
                 ),
               );
             }
 
-            final article = articles[contentIndex];
+            final article = currentArticles[contentIndex];
             return ArticleCard(
               article: article,
               isRead: readSlugs.value.contains(article.slug),
@@ -218,13 +275,6 @@ class _AuthorDetailPageContent extends CompositionWidget {
           },
         ),
       );
-    }
-
-    return (BuildContext context) => Scaffold(
-      appBar: AppBar(
-        title: Text(authorName),
-      ),
-      body: buildBody(),
-    );
+    };
   }
 }

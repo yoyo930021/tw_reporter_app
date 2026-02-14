@@ -2,14 +2,13 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:tw_reporter_app/core/api/api_client.dart';
 
 /// 使用 Dio 下載圖片的 [FileService] 實作
 ///
 /// 讓 `CachedNetworkImage` 的圖片請求走統一的 Dio 客戶端，
-/// 享有 HTTP/2+3 和平台原生網路堆疊的優勢。
+/// 享有 rhttp (Rust HTTP) 傳輸層的優勢。
 class DioHttpFileService extends FileService {
-  DioHttpFileService([Dio? dio]) : _dio = dio ?? ApiClient.createImageDio();
+  DioHttpFileService(Dio dio) : _dio = dio;
 
   final Dio _dio;
 

@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/di/injection_keys.dart';
+import 'package:tw_reporter_app/core/di/composables.dart';
+import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/shared/composables/use_scroll_visibility.dart';
@@ -66,12 +67,11 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext context) setup() {
-    final videoCacheService = inject(AppKeys.videoCacheService);
+    final mediaLoadModeRef = useMediaLoadMode();
     final player = useVideoPlayerController(
       url: url,
       loop: loop,
       muted: muted,
-      videoCacheService: videoCacheService,
     );
 
     // Track whether we should auto-resume when scrolling back into view.
@@ -82,23 +82,34 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
 
     final (visibilityKey, isVisible) = useScrollVisibility();
 
+    // In preloadAll mode, initialize (but don't play) immediately on mount.
+    // Playback still waits for the widget to become visible.
+    onMounted(() {
+      if (mediaLoadModeRef.value == MediaLoadMode.preloadAll) {
+        unawaited(player.initialize());
+      }
+    });
+
     watch(() => isVisible.value, (visible, _) {
       if (visible) {
         if (!player.isInitialized.value) {
-          unawaited(player.initialize().then((_) {
-            if (player.isInitialized.value && shouldAutoResume) {
-              unawaited(player.play());
-              hasEverPlayed.value = true;
-            }
-          }));
+          // Not yet initialized — start init and autoplay when ready.
+          unawaited(
+            player.initialize().then((_) {
+              if (player.isInitialized.value && shouldAutoResume) {
+                unawaited(player.play());
+                hasEverPlayed.value = true;
+              }
+            }),
+          );
         } else if (shouldAutoResume) {
+          // Already initialized (e.g. preloadAll) — start playback now.
           unawaited(player.play());
           hasEverPlayed.value = true;
         }
       } else {
         if (player.isInitialized.value) {
-          shouldAutoResume =
-              player.isPlaying.value || autoplay;
+          shouldAutoResume = player.isPlaying.value || autoplay;
           unawaited(player.pause());
         }
       }
@@ -130,21 +141,31 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
           ),
         );
       } else if (!player.isInitialized.value) {
-        content = const ColoredBox(
-          color: AppColors.grey200,
-          child: Center(
-            child: Icon(
-              Icons.play_circle_outline,
-              color: AppColors.grey400,
-              size: 48,
+        content = GestureDetector(
+          onTap: () {
+            hasEverPlayed.value = true;
+            unawaited(
+              player.initialize().then((_) {
+                if (player.isInitialized.value) {
+                  unawaited(player.play());
+                }
+              }),
+            );
+          },
+          child: const ColoredBox(
+            color: AppColors.grey200,
+            child: Center(
+              child: Icon(
+                Icons.play_circle_outline,
+                color: AppColors.grey400,
+                size: 48,
+              ),
             ),
           ),
         );
       } else {
-        final controller = player.controllerRef.value;
         final isPlaying = player.isPlaying.value;
-        final showPlayOverlay =
-            !isPlaying && hasEverPlayed.value;
+        final showPlayOverlay = !isPlaying && hasEverPlayed.value;
         content = GestureDetector(
           onTap: () {
             hasEverPlayed.value = true;
@@ -153,7 +174,7 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: <Widget>[
-              VideoPlayer(controller),
+              VideoPlayer(player.controllerRef.raw),
               if (showPlayOverlay)
                 const Center(
                   child: Icon(
@@ -163,7 +184,7 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
                   ),
                 ),
               VideoProgressIndicator(
-                controller,
+                player.controllerRef.raw,
                 allowScrubbing: true,
                 colors: const VideoProgressColors(
                   playedColor: AppColors.secondary,

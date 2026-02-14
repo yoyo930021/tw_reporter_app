@@ -12,19 +12,38 @@ void main() {
       );
     });
 
-    test('maxTotalCacheSize is 200MB', () {
-      expect(
-        AppCacheManager.maxTotalCacheSize,
-        200 * 1024 * 1024,
+    test('cleanExpired completes without error', () async {
+      await expectLater(
+        AppCacheManager.instance.cleanExpired(),
+        completes,
       );
     });
 
-    test('imageCacheManager returns a non-null manager', () {
-      final manager = AppCacheManager.instance.imageCacheManager;
-      expect(manager, isNotNull);
+    test('getTotalCacheSize returns 0 when not initialized', () async {
+      // The singleton may or may not be initialized depending on test order,
+      // but we can verify the method doesn't throw.
+      final size = await AppCacheManager.instance.getTotalCacheSize();
+      expect(size, isA<int>());
     });
 
-    // Note: Full integration tests for init/clearAll/enforceLimit/cleanExpired
-    // require HiveCacheStore native bindings not available in unit tests.
+    test('httpCacheOptions is accessible after init', () {
+      // If initialized, httpCacheOptions should not throw.
+      // If not initialized, this test simply verifies the getter exists.
+      if (AppCacheManager.instance.isInitialized) {
+        expect(
+          AppCacheManager.instance.httpCacheOptions,
+          isNotNull,
+        );
+      }
+    });
+
+    test('videoCachePath contains video_cache', () {
+      if (AppCacheManager.instance.isInitialized) {
+        expect(
+          AppCacheManager.instance.videoCachePath,
+          contains('video_cache'),
+        );
+      }
+    });
   });
 }

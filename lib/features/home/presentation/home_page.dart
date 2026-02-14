@@ -7,7 +7,7 @@ import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
 import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
-import 'package:tw_reporter_app/core/di/injection_keys.dart';
+import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
@@ -74,16 +74,17 @@ class _HomePageContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    final homeRepo = inject(AppKeys.homeRepository);
-    final articleRepo = inject(AppKeys.articleRepository);
+    final homeRepo = useHomeRepository();
+    final articleRepo = useArticleRepository();
     final homeData = useHomeData(homeRepo);
     final theme = useTheme();
 
+    final isDark = computed(() => theme.value.brightness == Brightness.dark);
+    final logoAsset = computed(() => isDark.value
+        ? 'assets/images/logo-header-dark.svg'
+        : 'assets/images/logo-header.svg');
+
     return (BuildContext context) {
-      final isDark = theme.value.brightness == Brightness.dark;
-      final logoAsset = isDark
-          ? 'assets/images/logo-header-dark.svg'
-          : 'assets/images/logo-header.svg';
 
       return Scaffold(
         appBar: AppBar(
@@ -93,8 +94,8 @@ class _HomePageContent extends CompositionWidget {
             spacing: 8,
             children: <Widget>[
               SvgPicture.asset(
-                logoAsset,
-                key: ValueKey<String>(logoAsset),
+                logoAsset.value,
+                key: ValueKey<String>(logoAsset.value),
                 height: 24,
                 semanticsLabel: '報導者',
               ),
@@ -371,31 +372,28 @@ class _FeaturedArticleCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             if (imageUrl != null)
-              Hero(
-                tag: 'article-image-${article.slug}',
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                  child: CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    cacheManager:
-                        AppCacheManager.instance.imageCacheManager,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  cacheManager:
+                      AppCacheManager.instance.imageCacheManager,
+                  height: 220,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => Container(
                     height: 220,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      height: 220,
-                      color: AppColors.grey200,
-                      child: const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
+                    color: AppColors.grey200,
+                    child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-                    errorWidget: (_, _, _) => Container(
-                      height: 220,
-                      color: AppColors.grey200,
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        color: AppColors.grey400,
-                      ),
+                  ),
+                  errorWidget: (_, _, _) => Container(
+                    height: 220,
+                    color: AppColors.grey200,
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      color: AppColors.grey400,
                     ),
                   ),
                 ),
@@ -466,26 +464,23 @@ class _HorizontalArticleSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 if (imageUrl != null)
-                  Hero(
-                    tag: 'article-image-${article.slug}',
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      cacheManager:
-                          AppCacheManager.instance.imageCacheManager,
+                  CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    cacheManager:
+                        AppCacheManager.instance.imageCacheManager,
+                    height: imageHeight,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(
                       height: imageHeight,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
-                        height: imageHeight,
-                        color: AppColors.grey200,
-                      ),
-                      errorWidget: (_, _, _) => Container(
-                        height: imageHeight,
-                        color: AppColors.grey200,
-                        child: const Icon(
-                          Icons.image_not_supported,
-                          color: AppColors.grey400,
-                        ),
+                      color: AppColors.grey200,
+                    ),
+                    errorWidget: (_, _, _) => Container(
+                      height: imageHeight,
+                      color: AppColors.grey200,
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: AppColors.grey400,
                       ),
                     ),
                   ),
@@ -658,26 +653,23 @@ class _CategoriesRow extends CompositionWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   if (imageUrl != null)
-                    Hero(
-                      tag: 'article-image-${article.slug}',
-                      child: CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        cacheManager:
-                            AppCacheManager.instance.imageCacheManager,
+                    CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      cacheManager:
+                          AppCacheManager.instance.imageCacheManager,
+                      height: 140,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) => Container(
                         height: 140,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) => Container(
-                          height: 140,
-                          color: AppColors.grey200,
-                        ),
-                        errorWidget: (_, _, _) => Container(
-                          height: 140,
-                          color: AppColors.grey200,
-                          child: const Icon(
-                            Icons.image_not_supported,
-                            color: AppColors.grey400,
-                          ),
+                        color: AppColors.grey200,
+                      ),
+                      errorWidget: (_, _, _) => Container(
+                        height: 140,
+                        color: AppColors.grey200,
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: AppColors.grey400,
                         ),
                       ),
                     ),

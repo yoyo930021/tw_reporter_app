@@ -9,11 +9,12 @@ import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
-import 'package:tw_reporter_app/core/di/injection_keys.dart';
+import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/author.dart';
 import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
+import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/core/theme/app_theme.dart';
@@ -30,6 +31,7 @@ import 'package:tw_reporter_app/shared/widgets/horizontal_carousel.dart';
 import 'package:tw_reporter_app/shared/widgets/image_diff_viewer.dart';
 import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
 import 'package:tw_reporter_app/shared/widgets/slideshow_viewer.dart';
+import 'package:tw_reporter_app/shared/widgets/tap_to_load_wrapper.dart';
 import 'package:tw_reporter_app/shared/widgets/youtube_player_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -184,37 +186,34 @@ Widget? _buildFlexibleBackground({
   return Stack(
     fit: StackFit.expand,
     children: <Widget>[
-      Hero(
-        tag: 'article-image-$slug',
-        child: CachedNetworkImage(
-          imageUrl: imageUrl,
-          cacheManager: AppCacheManager.instance.imageCacheManager,
-          fit: BoxFit.cover,
-          placeholder: (_, _) => lowResImageUrl != null
-              ? CachedNetworkImage(
-                  imageUrl: lowResImageUrl,
-                  cacheManager: AppCacheManager.instance.imageCacheManager,
-                  fit: BoxFit.cover,
-                  placeholder: (_, _) => const ColoredBox(
-                    color: AppColors.grey200,
-                  ),
-                  errorWidget: (_, _, _) => const ColoredBox(
-                    color: AppColors.grey200,
-                  ),
-                )
-              : const ColoredBox(
+      CachedNetworkImage(
+        imageUrl: imageUrl,
+        cacheManager: AppCacheManager.instance.imageCacheManager,
+        fit: BoxFit.cover,
+        placeholder: (_, _) => lowResImageUrl != null
+            ? CachedNetworkImage(
+                imageUrl: lowResImageUrl,
+                cacheManager: AppCacheManager.instance.imageCacheManager,
+                fit: BoxFit.cover,
+                placeholder: (_, _) => const ColoredBox(
                   color: AppColors.grey200,
-                  child: Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
                 ),
-          errorWidget: (_, _, _) => const ColoredBox(
-            color: AppColors.grey200,
-            child: Icon(
-              Icons.image_not_supported,
-              color: AppColors.grey400,
-              size: 48,
-            ),
+                errorWidget: (_, _, _) => const ColoredBox(
+                  color: AppColors.grey200,
+                ),
+              )
+            : const ColoredBox(
+                color: AppColors.grey200,
+                child: Center(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+        errorWidget: (_, _, _) => const ColoredBox(
+          color: AppColors.grey200,
+          child: Icon(
+            Icons.image_not_supported,
+            color: AppColors.grey400,
+            size: 48,
           ),
         ),
       ),
@@ -267,8 +266,8 @@ class _ArticlePageContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    final articleRepo = inject(AppKeys.articleRepository);
-    final readingRepo = inject(AppKeys.readingRepository);
+    final articleRepo = useArticleRepository();
+    final readingRepo = useReadingRepository();
     final articleDetail = useArticleDetail(
       articleRepo,
       slug: slug,
@@ -279,6 +278,17 @@ class _ArticlePageContent extends CompositionWidget {
     // the CompositionWidget render function to re-run, avoiding
     // expensive rebuilds of the article body / HTML widget.
     final expandRatio = ValueNotifier<double>(1);
+
+    final imageUrl = computed(() {
+      final a = articleDetail.article.value;
+      return a != null ? _getImageUrl(a) : heroImageUrl;
+    });
+    final lowResImageUrl = computed(() {
+      final a = articleDetail.article.value;
+      return a != null ? _getLowResImageUrl(a) : heroImageUrl;
+    });
+    final title = computed(() => articleDetail.article.value?.title ?? '');
+    final hasImage = computed(() => imageUrl.value != null);
 
     onMounted(() {
       isBookmarked.value = readingRepo.isBookmarked(slug);
@@ -322,25 +332,18 @@ class _ArticlePageContent extends CompositionWidget {
       final article = articleDetail.article.value;
       recordReadingIfNeeded(article);
 
-      final imageUrl = article != null ? _getImageUrl(article) : heroImageUrl;
-      final lowResImageUrl = article != null
-          ? _getLowResImageUrl(article)
-          : heroImageUrl;
-      final title = article?.title ?? '';
-      final hasImage = imageUrl != null;
-
       return Scaffold(
         body: CustomScrollView(
           slivers: <Widget>[
             SliverAppBar(
-              expandedHeight: hasImage ? 300.0 : 160.0,
+              expandedHeight: hasImage.value ? 300.0 : 160.0,
               pinned: true,
               // Animate icon colors via ListenableBuilder so
               // only the icons rebuild on scroll, not the body.
               leading: ListenableBuilder(
                 listenable: expandRatio,
                 builder: (context, _) {
-                  final color = hasImage
+                  final color = hasImage.value
                       ? Color.lerp(
                           Theme.of(context).colorScheme.onSurface,
                           Colors.white,
@@ -354,7 +357,7 @@ class _ArticlePageContent extends CompositionWidget {
                 ListenableBuilder(
                   listenable: expandRatio,
                   builder: (context, _) {
-                    final iconColor = hasImage
+                    final iconColor = hasImage.value
                         ? Color.lerp(
                             Theme.of(context).colorScheme.onSurface,
                             Colors.white,
@@ -371,7 +374,7 @@ class _ArticlePageContent extends CompositionWidget {
                           case 'bookmark':
                             toggleBookmark();
                           case 'share':
-                            shareArticle(title);
+                            shareArticle(title.value);
                           case 'browser':
                             unawaited(
                               launchUrl(
@@ -443,7 +446,7 @@ class _ArticlePageContent extends CompositionWidget {
                 builder: (context, constraints) {
                   final statusBarHeight = MediaQuery.of(context).padding.top;
                   final minExtent = kToolbarHeight + statusBarHeight;
-                  final expandedHeight = hasImage ? 300.0 : 160.0;
+                  final expandedHeight = hasImage.value ? 300.0 : 160.0;
                   final maxExtent = expandedHeight + statusBarHeight;
                   final ratio =
                       ((constraints.maxHeight - minExtent) /
@@ -463,20 +466,20 @@ class _ArticlePageContent extends CompositionWidget {
                       end: lerpDouble(56, 16, ratio)!,
                     ),
                     title: Text(
-                      title,
+                      title.value,
                       maxLines: ratio > 0.4 ? 4 : 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: hasImage
+                        color: hasImage.value
                             ? Color.lerp(
                                 Theme.of(context).colorScheme.onSurface,
                                 Colors.white,
                                 ratio,
                               )
                             : Theme.of(context).colorScheme.onSurface,
-                        shadows: hasImage && ratio > 0.3
+                        shadows: hasImage.value && ratio > 0.3
                             ? <Shadow>[
                                 Shadow(
                                   color: Colors.black54.withValues(
@@ -490,9 +493,9 @@ class _ArticlePageContent extends CompositionWidget {
                     ),
                     background: _buildFlexibleBackground(
                       slug: slug,
-                      imageUrl: imageUrl,
-                      hasImage: hasImage,
-                      lowResImageUrl: lowResImageUrl,
+                      imageUrl: imageUrl.value,
+                      hasImage: hasImage.value,
+                      lowResImageUrl: lowResImageUrl.value,
                     ),
                   );
                 },
@@ -638,6 +641,8 @@ class _ArticleBodyView extends StatelessWidget {
                     article.categorySet.first.category != null) ...<Widget>[
                   CategoryBadge(
                     categoryName: article.categorySet.first.category!.name,
+                    subcategoryName:
+                        article.categorySet.first.subcategory?.name,
                   ),
                   AppSpacing.verticalSpacerSm,
                 ],
@@ -768,7 +773,7 @@ class _ArticleBodyView extends StatelessWidget {
 // Internal StatelessWidget: HTML content with extensions
 // ---------------------------------------------------------------------------
 
-class _ArticleHtmlContent extends StatelessWidget {
+class _ArticleHtmlContent extends CompositionWidget {
   const _ArticleHtmlContent({
     required this.htmlContent,
     required this.textColor,
@@ -780,6 +785,38 @@ class _ArticleHtmlContent extends StatelessWidget {
   final Color textColor;
   final Color secondaryTextColor;
   final Color linkColor;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final mediaLoadModeRef = useMediaLoadMode();
+
+    return (BuildContext context) {
+      return _ArticleHtmlContentView(
+        htmlContent: htmlContent,
+        textColor: textColor,
+        secondaryTextColor: secondaryTextColor,
+        linkColor: linkColor,
+        isDataSaving:
+            mediaLoadModeRef.value == MediaLoadMode.dataSaving,
+      );
+    };
+  }
+}
+
+class _ArticleHtmlContentView extends StatelessWidget {
+  const _ArticleHtmlContentView({
+    required this.htmlContent,
+    required this.textColor,
+    required this.secondaryTextColor,
+    required this.linkColor,
+    required this.isDataSaving,
+  });
+
+  final String htmlContent;
+  final Color textColor;
+  final Color secondaryTextColor;
+  final Color linkColor;
+  final bool isDataSaving;
 
   @override
   Widget build(BuildContext context) {
@@ -808,12 +845,15 @@ class _ArticleHtmlContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 vertical: AppSpacing.md,
               ),
-              child: EmbeddedVideoPlayer(
-                url: src,
-                autoplay: autoplay,
-                muted: muted,
-                loop: loop,
-                caption: caption.isNotEmpty ? caption : null,
+              child: TapToLoadWrapper(
+                mediaType: MediaType.video,
+                child: EmbeddedVideoPlayer(
+                  url: src,
+                  autoplay: autoplay,
+                  muted: muted,
+                  loop: loop,
+                  caption: caption.isNotEmpty ? caption : null,
+                ),
               ),
             );
           },
@@ -830,10 +870,13 @@ class _ArticleHtmlContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 vertical: AppSpacing.md,
               ),
-              child: EmbeddedWebView(
-                src: src,
-                height: height,
-                caption: caption.isNotEmpty ? caption : null,
+              child: TapToLoadWrapper(
+                mediaType: MediaType.webview,
+                child: EmbeddedWebView(
+                  src: src,
+                  height: height,
+                  caption: caption.isNotEmpty ? caption : null,
+                ),
               ),
             );
           },
@@ -859,9 +902,12 @@ class _ArticleHtmlContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 vertical: AppSpacing.md,
               ),
-              child: EmbeddedWebView(
-                htmlData: htmlData,
-                caption: caption.isNotEmpty ? caption : null,
+              child: TapToLoadWrapper(
+                mediaType: MediaType.webview,
+                child: EmbeddedWebView(
+                  htmlData: htmlData,
+                  caption: caption.isNotEmpty ? caption : null,
+                ),
               ),
             );
           },
@@ -876,9 +922,12 @@ class _ArticleHtmlContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 vertical: AppSpacing.md,
               ),
-              child: YoutubePlayerWidget(
-                videoId: id,
-                caption: caption.isNotEmpty ? caption : null,
+              child: TapToLoadWrapper(
+                mediaType: MediaType.youtube,
+                child: YoutubePlayerWidget(
+                  videoId: id,
+                  caption: caption.isNotEmpty ? caption : null,
+                ),
               ),
             );
           },
@@ -903,11 +952,14 @@ class _ArticleHtmlContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 vertical: AppSpacing.md,
               ),
-              child: ImageDiffViewer(
-                beforeUrl: images[0].url,
-                afterUrl: images[1].url,
-                beforeDesc: images[0].desc.isNotEmpty ? images[0].desc : null,
-                afterDesc: images[1].desc.isNotEmpty ? images[1].desc : null,
+              child: TapToLoadWrapper(
+                mediaType: MediaType.imagediff,
+                child: ImageDiffViewer(
+                  beforeUrl: images[0].url,
+                  afterUrl: images[1].url,
+                  beforeDesc: images[0].desc.isNotEmpty ? images[0].desc : null,
+                  afterDesc: images[1].desc.isNotEmpty ? images[1].desc : null,
+                ),
               ),
             );
           },
@@ -934,7 +986,86 @@ class _ArticleHtmlContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 vertical: AppSpacing.md,
               ),
-              child: SlideshowViewer(slides: slides),
+              child: TapToLoadWrapper(
+                mediaType: MediaType.slideshow,
+                child: SlideshowViewer(slides: slides),
+              ),
+            );
+          },
+        ),
+        if (isDataSaving)
+          ImageExtension(
+            builder: (extensionContext) {
+              final src = extensionContext.attributes['src'] ?? '';
+              if (src.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return TapToLoadWrapper(
+                mediaType: MediaType.image,
+                child: CachedNetworkImage(
+                  imageUrl: src,
+                  cacheManager:
+                      AppCacheManager.instance.imageCacheManager,
+                  fit: BoxFit.contain,
+                  width: double.infinity,
+                  placeholder: (_, _) => const AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: ColoredBox(color: AppColors.grey200),
+                  ),
+                  errorWidget: (_, _, _) => const AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: ColoredBox(
+                      color: AppColors.grey200,
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: AppColors.grey400,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        TagExtension(
+          tagsToExtend: <String>{'quoteby'},
+          builder: (extensionContext) {
+            final quote = extensionContext.attributes['quote'] ?? '';
+            final quoteByAuthor =
+                extensionContext.attributes['quoteby-author'] ?? '';
+            return Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    width: 2,
+                    height: 80,
+                    color: AppColors.secondary,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    quote,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontStyle: FontStyle.italic,
+                      color: textColor,
+                      height: 1.6,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (quoteByAuthor.isNotEmpty) ...<Widget>[
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      '── $quoteByAuthor',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colors.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ],
+              ),
             );
           },
         ),

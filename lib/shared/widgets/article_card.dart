@@ -41,30 +41,27 @@ class ArticleCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             if (imageUrl != null)
-              Hero(
-                tag: 'article-image-${article.slug}',
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  cacheManager:
-                      AppCacheManager.instance.imageCacheManager,
+              CachedNetworkImage(
+                imageUrl: imageUrl,
+                cacheManager:
+                    AppCacheManager.instance.imageCacheManager,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
                   height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    height: 200,
-                    color: colors.surfaceContainerHighest,
-                    child: const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
+                  color: colors.surfaceContainerHighest,
+                  child: const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  errorWidget:
-                      (context, url, error) =>
-                          Container(
-                    height: 200,
-                    color: colors.surfaceContainerHighest,
-                    child: Icon(Icons.image_not_supported,
-                        color: colors.outline),
-                  ),
+                ),
+                errorWidget:
+                    (context, url, error) =>
+                        Container(
+                  height: 200,
+                  color: colors.surfaceContainerHighest,
+                  child: Icon(Icons.image_not_supported,
+                      color: colors.outline),
                 ),
               ),
             Padding(

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/di/injection_keys.dart';
+import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/features/topics/logic/use_topics.dart';
@@ -26,7 +26,7 @@ class _TopicsPageContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    final repo = inject(AppKeys.topicRepository);
+    final repo = useTopicRepository();
     final topics = useTopics(repo);
     final theme = useTheme();
 

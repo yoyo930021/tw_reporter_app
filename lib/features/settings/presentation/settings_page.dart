@@ -4,10 +4,14 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
-import 'package:tw_reporter_app/core/di/injection_keys.dart';
+import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/push/push_service.dart';
-import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
+import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
+
+const String _themeModeKey = 'theme_mode';
+const String _mediaLoadModeKey = 'media_load_mode';
 
 String _formatBytes(int bytes) {
   if (bytes < 1024) return '$bytes B';
@@ -58,12 +62,10 @@ class _SettingsPageContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    final themeNotifier = inject(AppKeys.themeNotifier);
-    final readingRepo = inject(AppKeys.readingRepository);
+    final themeModeRef = useThemeMode();
+    final mediaLoadModeRef = useMediaLoadMode();
+    final readingRepo = useReadingRepository();
 
-    // Must read the returned ref's .value in the render function
-    // to establish a reactive dependency for rebuilds.
-    final themeNotifierRef = manageListenable(themeNotifier);
     final pushServiceRef = manageListenable(PushService.instance);
     final cacheSize = ref<int?>(null);
 
@@ -75,6 +77,13 @@ class _SettingsPageContent extends CompositionWidget {
     onMounted(() async {
       await refreshCacheSize();
     });
+
+    Future<void> setThemeMode(ThemeMode mode) async {
+      if (themeModeRef.value == mode) return;
+      themeModeRef.value = mode;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_themeModeKey, mode.name);
+    }
 
     void showNoDistributorDialog(BuildContext context) {
       unawaited(
@@ -180,7 +189,7 @@ class _SettingsPageContent extends CompositionWidget {
           builder: (context) => AlertDialog(
             title: const Text('清除快取'),
             content:
-                const Text('確定要清除所有快取資料嗎？包含 API 快取、圖片快取和影片快取。'),
+                const Text('確定要清除所有快取資料嗎？包含 HTTP 快取、圖片快取和影片快取。'),
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -202,7 +211,7 @@ class _SettingsPageContent extends CompositionWidget {
       );
     }
 
-    void showClearHistoryDialog(BuildContext context, ReadingRepository repo) {
+    void showClearHistoryDialog(BuildContext context) {
       unawaited(
         showDialog<void>(
           context: context,
@@ -217,7 +226,7 @@ class _SettingsPageContent extends CompositionWidget {
               ),
               TextButton(
                 onPressed: () {
-                  repo.clearHistory();
+                  readingRepo.clearHistory();
                   if (context.mounted) {
                     Navigator.pop(context);
                   }
@@ -232,7 +241,6 @@ class _SettingsPageContent extends CompositionWidget {
 
     return (BuildContext context) {
       // Access refs to establish reactive tracking
-      final notifier = themeNotifierRef.value;
       final pushService = pushServiceRef.value;
 
       return Scaffold(
@@ -257,12 +265,10 @@ class _SettingsPageContent extends CompositionWidget {
               ),
             ),
             RadioGroup<ThemeMode>(
-              groupValue: notifier.themeMode,
+              groupValue: themeModeRef.value,
               onChanged: (value) {
                 if (value != null) {
-                  unawaited(
-                    notifier.setThemeMode(value),
-                  );
+                  unawaited(setThemeMode(value));
                 }
               },
               child: const Column(
@@ -281,6 +287,58 @@ class _SettingsPageContent extends CompositionWidget {
                   RadioListTile<ThemeMode>(
                     title: Text('暗色模式'),
                     value: ThemeMode.dark,
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            Padding(
+              padding:
+                  const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Text(
+                '網路',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary,
+                    ),
+              ),
+            ),
+            RadioGroup<MediaLoadMode>(
+              groupValue: mediaLoadModeRef.value,
+              onChanged: (value) async {
+                if (value == null) return;
+                mediaLoadModeRef.value = value;
+                final prefs =
+                    await SharedPreferences.getInstance();
+                await prefs.setString(
+                  _mediaLoadModeKey,
+                  value.name,
+                );
+              },
+              child: const Column(
+                children: <Widget>[
+                  RadioListTile<MediaLoadMode>(
+                    title: Text('省流量'),
+                    subtitle: Text('所有媒體和圖片需手動點擊載入'),
+                    value: MediaLoadMode.dataSaving,
+                  ),
+                  RadioListTile<MediaLoadMode>(
+                    title: Text('一般'),
+                    subtitle: Text('媒體捲動至可見時自動載入'),
+                    value: MediaLoadMode.normal,
+                  ),
+                  RadioListTile<MediaLoadMode>(
+                    title: Text('預先載入（實驗性）'),
+                    subtitle: Text(
+                      '所有媒體立即載入（含影片和嵌入內容）\n'
+                      '⚠ 會佔用大量記憶體，建議高階裝置使用',
+                    ),
+                    value: MediaLoadMode.preloadAll,
+                    isThreeLine: true,
                   ),
                 ],
               ),
@@ -342,10 +400,7 @@ class _SettingsPageContent extends CompositionWidget {
               leading: const Icon(Icons.delete_outline),
               title: const Text('清除閱讀記錄'),
               subtitle: const Text('刪除所有閱讀歷史紀錄'),
-              onTap: () => showClearHistoryDialog(
-                context,
-                readingRepo,
-              ),
+              onTap: () => showClearHistoryDialog(context),
             ),
             ListTile(
               leading: const Icon(Icons.storage_outlined),

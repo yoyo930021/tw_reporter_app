@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/cache/video_cache_service.dart';
 import 'package:tw_reporter_app/core/repositories/article_repository.dart';
 import 'package:tw_reporter_app/core/repositories/home_repository.dart';
 import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
 import 'package:tw_reporter_app/core/repositories/topic_repository.dart';
-import 'package:tw_reporter_app/core/theme/theme_notifier.dart';
+import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
 
 /// DI Injection Keys
 ///
@@ -30,13 +30,13 @@ class AppKeys {
     'app.readingRepository',
   );
 
-  static const themeNotifier =
-      InjectionKey<ThemeNotifier>(
-    'app.themeNotifier',
+  static const themeMode =
+      InjectionKey<Ref<ThemeMode>>(
+    'app.themeMode',
   );
 
-  static const videoCacheService =
-      InjectionKey<VideoCacheService>(
-    'app.videoCacheService',
+  static const mediaLoadMode =
+      InjectionKey<Ref<MediaLoadMode>>(
+    'app.mediaLoadMode',
   );
 }

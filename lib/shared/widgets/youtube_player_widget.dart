@@ -5,6 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
+import 'package:tw_reporter_app/core/di/composables.dart';
+import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/shared/widgets/embedded_webview.dart';
 
@@ -64,10 +66,15 @@ class YoutubePlayerWidget extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
+    final mediaLoadModeRef = useMediaLoadMode();
     final isPlaying = ref(false);
     final videoTitle = ref<String?>(null);
 
     onMounted(() async {
+      // In preloadAll mode, skip thumbnail and load embed immediately.
+      if (mediaLoadModeRef.value == MediaLoadMode.preloadAll) {
+        isPlaying.value = true;
+      }
       videoTitle.value = await _fetchYoutubeTitle(videoId);
     });
 

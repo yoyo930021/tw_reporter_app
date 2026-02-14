@@ -1,15 +1,13 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
-import 'package:tw_reporter_app/core/cache/video_cache_service.dart';
-import 'package:tw_reporter_app/core/di/app_providers.dart';
+import 'package:tw_reporter_app/core/di/providers.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/core/theme/app_theme.dart';
-import 'package:tw_reporter_app/core/theme/theme_notifier.dart';
 
 import 'helpers/test_helpers.dart';
 
@@ -56,13 +54,11 @@ void main() {
     (tester) async {
       final router = AppRouter();
       await tester.pumpWidget(
-        AppProviders(
+        _TestAppProviders(
           articleRepository: mockArticleRepo,
           topicRepository: mockTopicRepo,
           homeRepository: mockHomeRepo,
           readingRepository: mockReadingRepo,
-          themeNotifier: ThemeNotifier(),
-          videoCacheService: VideoCacheService(Dio()),
           child: MaterialApp.router(
             title: '報導者',
             theme: AppTheme.lightTheme,
@@ -80,13 +76,11 @@ void main() {
     (tester) async {
       final router = AppRouter();
       await tester.pumpWidget(
-        AppProviders(
+        _TestAppProviders(
           articleRepository: mockArticleRepo,
           topicRepository: mockTopicRepo,
           homeRepository: mockHomeRepo,
           readingRepository: mockReadingRepo,
-          themeNotifier: ThemeNotifier(),
-          videoCacheService: VideoCacheService(Dio()),
           child: MaterialApp.router(
             title: '報導者',
             theme: AppTheme.lightTheme,
@@ -107,4 +101,31 @@ void main() {
       expect(find.text('選單'), findsOneWidget);
     },
   );
+}
+
+class _TestAppProviders extends CompositionWidget {
+  const _TestAppProviders({
+    required this.articleRepository,
+    required this.topicRepository,
+    required this.homeRepository,
+    required this.readingRepository,
+    required this.child,
+  });
+
+  final MockArticleRepository articleRepository;
+  final MockTopicRepository topicRepository;
+  final MockHomeRepository homeRepository;
+  final MockReadingRepository readingRepository;
+  final Widget child;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    provideArticleRepository(articleRepository);
+    provideTopicRepository(topicRepository);
+    provideHomeRepository(homeRepository);
+    provideReadingRepository(readingRepository);
+    provideThemeMode(ref(ThemeMode.system));
+
+    return (context) => child;
+  }
 }

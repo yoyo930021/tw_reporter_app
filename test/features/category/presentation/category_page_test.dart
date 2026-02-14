@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
-import 'package:tw_reporter_app/core/models/category.dart';
 import 'package:tw_reporter_app/features/category/presentation/category_page.dart';
 
 import '../../../helpers/test_helpers.dart';
@@ -16,14 +15,6 @@ List<Article> _withCat(String cat, int count) {
       slug: 'article-$i',
       title: '$cat文章 $i',
       ogDescription: '描述 $i',
-      categorySet: <CategorySet>[
-        CategorySet(
-          category: Category(
-            id: 'cat-$cat',
-            name: cat,
-          ),
-        ),
-      ],
       publishedDate: DateTime(2024, 1, 1 + i),
     ),
   );
@@ -51,6 +42,7 @@ void main() {
               category: any(named: 'category'),
               page: any(named: 'page'),
               limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
             )).thenAnswer(
           (_) async => <Article>[],
         );
@@ -70,6 +62,7 @@ void main() {
               category: any(named: 'category'),
               page: any(named: 'page'),
               limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
             )).thenAnswer(
           (_) async => _withCat('政治', 5),
         );
@@ -80,7 +73,7 @@ void main() {
         expect(find.text('政治文章 0'), findsOneWidget);
         expect(
           find.byType(ListView),
-          findsOneWidget,
+          findsWidgets,
         );
       },
     );
@@ -92,6 +85,7 @@ void main() {
               category: any(named: 'category'),
               page: any(named: 'page'),
               limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
             )).thenAnswer((_) async {
           await Future<void>.delayed(
             const Duration(milliseconds: 50),
@@ -122,6 +116,7 @@ void main() {
               category: any(named: 'category'),
               page: any(named: 'page'),
               limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
             )).thenAnswer(
           (_) async => <Article>[],
         );
@@ -143,6 +138,7 @@ void main() {
               category: any(named: 'category'),
               page: any(named: 'page'),
               limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
             )).thenAnswer(
           (_) async => _withCat('環境', 3),
         );
@@ -165,6 +161,7 @@ void main() {
               category: any(named: 'category'),
               page: any(named: 'page'),
               limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
             )).thenAnswer((_) async {
           callCount++;
           return _withCat('經濟', 10);
@@ -176,7 +173,7 @@ void main() {
         expect(find.text('經濟文章 0'), findsOneWidget);
 
         await tester.drag(
-          find.byType(ListView),
+          find.byType(ListView).last,
           const Offset(0, -500),
         );
         await tester.pumpAndSettle();
@@ -193,6 +190,7 @@ void main() {
               category: any(named: 'category'),
               page: any(named: 'page'),
               limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
             )).thenAnswer(
           (_) async => _withCat('文化', 3),
         );
@@ -210,14 +208,6 @@ void main() {
         final articles = <Article>[
           createTestArticle(
             title: '教育文章',
-            categorySet: <CategorySet>[
-              const CategorySet(
-                category: Category(
-                  id: 'cat-教育',
-                  name: '教育',
-                ),
-              ),
-            ],
             publishedDate: DateTime(2024, 3, 15),
           ),
         ];
@@ -225,6 +215,7 @@ void main() {
               category: any(named: 'category'),
               page: any(named: 'page'),
               limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
             )).thenAnswer((_) async => articles);
 
         await tester.pumpWidget(buildPage('教育'));
@@ -245,6 +236,7 @@ void main() {
               category: any(named: 'category'),
               page: any(named: 'page'),
               limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
             )).thenAnswer(
           (_) async => _withCat('國際', 1),
         );
@@ -257,6 +249,120 @@ void main() {
           find.text('國際文章 0'),
           findsOneWidget,
         );
+      },
+    );
+  });
+
+  group('CategoryPage subcategory filtering', () {
+    testWidgets(
+      'should display subcategory chips for known categories',
+      (tester) async {
+        when(() => mockRepo.fetchByCategory(
+              category: any(named: 'category'),
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
+            )).thenAnswer((_) async => _withCat('教育', 5));
+
+        await tester.pumpWidget(buildPage('education'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('全部'), findsOneWidget);
+        expect(find.text('科學研究'), findsOneWidget);
+        expect(find.text('高等教育'), findsOneWidget);
+        expect(find.text('青少年'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'should not display subcategory chips for unknown categories',
+      (tester) async {
+        when(() => mockRepo.fetchByCategory(
+              category: any(named: 'category'),
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
+            )).thenAnswer(
+          (_) async => _withCat('未知', 3),
+        );
+
+        await tester.pumpWidget(buildPage('unknown'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('全部'), findsNothing);
+        expect(find.byType(ChoiceChip), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'should call API with subcategoryId when chip is tapped',
+      (tester) async {
+        when(() => mockRepo.fetchByCategory(
+              category: any(named: 'category'),
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
+            )).thenAnswer((_) async => _withCat('教育', 5));
+
+        await tester.pumpWidget(buildPage('education'));
+        await tester.pumpAndSettle();
+
+        // Reset mock to track new calls
+        clearInteractions(mockRepo);
+        when(() => mockRepo.fetchByCategory(
+              category: any(named: 'category'),
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
+            )).thenAnswer((_) async => _withCat('青少年', 3));
+
+        // Tap '青少年' chip (id: 63206383207bf7c5f8716263)
+        await tester.tap(find.text('青少年'));
+        await tester.pumpAndSettle();
+
+        // Verify API was called with subcategoryId
+        verify(() => mockRepo.fetchByCategory(
+              category: 'education',
+              page: 1,
+              subcategoryId: '63206383207bf7c5f8716263',
+            )).called(1);
+      },
+    );
+
+    testWidgets(
+      'should call API without subcategoryId when "全部" is tapped',
+      (tester) async {
+        when(() => mockRepo.fetchByCategory(
+              category: any(named: 'category'),
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
+            )).thenAnswer((_) async => _withCat('教育', 5));
+
+        await tester.pumpWidget(buildPage('education'));
+        await tester.pumpAndSettle();
+
+        // Select a subcategory first
+        await tester.tap(find.text('青少年'));
+        await tester.pumpAndSettle();
+
+        // Reset and tap 全部
+        clearInteractions(mockRepo);
+        when(() => mockRepo.fetchByCategory(
+              category: any(named: 'category'),
+              page: any(named: 'page'),
+              limit: any(named: 'limit'),
+              subcategoryId: any(named: 'subcategoryId'),
+            )).thenAnswer((_) async => _withCat('教育', 5));
+
+        await tester.tap(find.text('全部'));
+        await tester.pumpAndSettle();
+
+        // Verify API was called without subcategoryId
+        verify(() => mockRepo.fetchByCategory(
+              category: 'education',
+              page: 1,
+            )).called(1);
       },
     );
   });

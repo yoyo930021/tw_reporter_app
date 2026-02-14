@@ -29,11 +29,13 @@ class SlideshowViewer extends CompositionWidget {
     final theme = useTheme();
 
     void goToPage(int page) {
-      unawaited(pageControllerRef.value.animateToPage(
-        page,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      ));
+      unawaited(
+        pageControllerRef.value.animateToPage(
+          page,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        ),
+      );
     }
 
     return (BuildContext context) {
@@ -46,7 +48,7 @@ class SlideshowViewer extends CompositionWidget {
           AspectRatio(
             aspectRatio: 16 / 10,
             child: PageView.builder(
-              controller: pageControllerRef.value,
+              controller: pageControllerRef.raw,
               itemCount: total,
               onPageChanged: (index) {
                 currentPage.value = index;
@@ -55,8 +57,7 @@ class SlideshowViewer extends CompositionWidget {
                 final slide = props.value.slides[index];
                 return CachedNetworkImage(
                   imageUrl: slide.url,
-                  cacheManager:
-                      AppCacheManager.instance.imageCacheManager,
+                  cacheManager: AppCacheManager.instance.imageCacheManager,
                   fit: BoxFit.cover,
                   placeholder: (_, _) => const ColoredBox(
                     color: AppColors.grey200,

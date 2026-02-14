@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/cache/video_cache_service.dart';
+import 'package:http_cache_stream/http_cache_stream.dart';
 import 'package:video_player/video_player.dart';
 
 /// Result returned by [useVideoPlayerController].
@@ -40,46 +39,38 @@ typedef VideoPlayerState = ({
 
 /// Creates a [VideoPlayerController] with automatic lifecycle management.
 ///
-/// The controller is created eagerly and managed by `manageChangeNotifier`,
-/// which handles both listener tracking and disposal on unmount — the same
-/// pattern used by `useScrollController`.
-///
-/// If [videoCacheService] is provided and the video is already cached locally,
-/// the controller is created from the local file. Otherwise it uses the
-/// network URL. Background caching is triggered during `initialize` so that
-/// subsequent plays use the local file.
-///
-/// The returned `isPlaying` is a `computed` derived from the controller's
-/// change notifications — it re-evaluates on every notification but only
-/// triggers a widget rebuild when the playing state actually changes.
+/// Video caching is handled by `http_cache_stream`'s local proxy server.
+/// The URL is routed through the proxy via
+/// `HttpCacheManager.instance.createStream()`,
+/// which enables play-while-caching and supports m3u8/mp4.
 VideoPlayerState useVideoPlayerController({
   required String url,
   bool loop = false,
   bool muted = false,
-  VideoCacheService? videoCacheService,
 }) {
-  // Create controller eagerly — check local cache synchronously.
-  VideoPlayerController createController() {
-    if (videoCacheService != null) {
-      final cachedPath = videoCacheService.getCachedFilePath(url);
-      if (File(cachedPath).existsSync()) {
-        return VideoPlayerController.file(File(cachedPath));
-      }
-    }
-    return VideoPlayerController.networkUrl(Uri.parse(url));
-  }
+  final cacheStream =
+      HttpCacheManager.instance.createStream(Uri.parse(url));
 
-  final controllerRef = manageChangeNotifier(createController());
+  // useController handles reactive tracking + automatic disposal.
+  final controllerRef = useController(
+    () => VideoPlayerController.networkUrl(cacheStream.cacheUrl),
+  );
 
   final isInitialized = ref(false);
   final hasError = ref(false);
   final aspectRatio = ref(16.0 / 9.0);
   var isInitializing = false;
 
-  // Derived from controller notifications via manageChangeNotifier.
+  // Cache stream is not a ChangeNotifier — clean up manually.
+  onUnmounted(() {
+    unawaited(cacheStream.dispose());
+  });
+
+  // Derived playing state — re-evaluates on controller notifications
+  // but only triggers rebuilds when actual playing state changes.
   final isPlaying = computed(() {
-    controllerRef.value; // Establish reactive dependency
-    return controllerRef.value.value.isPlaying;
+    final ctrl = controllerRef.value;
+    return ctrl.value.isPlaying;
   });
 
   Future<void> initialize() async {
@@ -87,17 +78,12 @@ VideoPlayerState useVideoPlayerController({
     isInitializing = true;
     hasError.value = false;
     try {
-      final controller = controllerRef.value;
-      await controller.setLooping(loop);
-      if (muted) await controller.setVolume(0);
-      await controller.initialize();
-      aspectRatio.value = controller.value.aspectRatio;
+      final ctrl = controllerRef.value;
+      await ctrl.setLooping(loop);
+      if (muted) await ctrl.setVolume(0);
+      await ctrl.initialize();
+      aspectRatio.value = ctrl.value.aspectRatio;
       isInitialized.value = true;
-
-      // Trigger background caching for next time
-      if (videoCacheService != null) {
-        unawaited(videoCacheService.getVideoPath(url));
-      }
     } on Exception catch (_) {
       hasError.value = true;
     } finally {
@@ -117,11 +103,11 @@ VideoPlayerState useVideoPlayerController({
 
   Future<void> togglePlayPause() async {
     if (!isInitialized.value) return;
-    final controller = controllerRef.value;
-    if (controller.value.isPlaying) {
-      await controller.pause();
+    final ctrl = controllerRef.value;
+    if (ctrl.value.isPlaying) {
+      await ctrl.pause();
     } else {
-      await controller.play();
+      await ctrl.play();
     }
   }
 

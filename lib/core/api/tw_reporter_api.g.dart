@@ -26,12 +26,18 @@ class _TwReporterApi implements TwReporterApi {
     int limit = 10,
     int offset = 0,
     List<String>? ids,
+    String? categoryId,
+    String? subcategoryId,
+    String? tagId,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'limit': limit,
       r'offset': offset,
       r'id': ids,
+      r'category_id': categoryId,
+      r'subcategory_id': subcategoryId,
+      r'tag_id': tagId,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};

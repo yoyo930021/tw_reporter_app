@@ -191,11 +191,16 @@ abstract class TwReporterApi {
   /// [limit] 每頁文章數量，預設 10
   /// [offset] 偏移量，用於分頁
   /// [ids] 文章 ID 列表（用於按 ID 過濾）
+  /// [categoryId] 分類 MongoDB ObjectId（伺服器端分類過濾）
+  /// [tagId] 標籤 MongoDB ObjectId（伺服器端標籤過濾）
   @GET('/posts')
   Future<ListResponse<Article>> fetchPosts({
     @Query('limit') int limit = 10,
     @Query('offset') int offset = 0,
     @Query('id') List<String>? ids,
+    @Query('category_id') String? categoryId,
+    @Query('subcategory_id') String? subcategoryId,
+    @Query('tag_id') String? tagId,
   });
 
   /// 獲取單篇文章詳情
@@ -267,10 +272,9 @@ extension TwReporterApiExtensions on TwReporterApi {
 
   /// 獲取分類文章列表（wrapper method）
   ///
-  /// 注意：此方法使用客戶端過濾，效率較低
-  // TODO(API): 待後端 API 支援分類過濾功能後改用伺服器端過濾
+  /// 使用伺服器端 `category_id` 參數過濾，直接返回該分類的文章。
   ///
-  /// [category] 分類名稱（如 'world', 'econ' 等）
+  /// [category] 分類 slug（如 'world', 'econ' 等）
   /// [page] 頁碼（從 1 開始）
   /// [limit] 每頁文章數量
   Future<List<Article>> fetchCategoryArticles({
@@ -278,31 +282,16 @@ extension TwReporterApiExtensions on TwReporterApi {
     required int page,
     int limit = 10,
   }) async {
-    // 由於 API 不支援分類過濾，我們需要獲取更多文章然後客戶端過濾
-    // 假設需要的文章數是請求數的 3 倍（因為有 8 個分類）
-    final fetchLimit = limit * 8;
-    final offset = (page - 1) * fetchLimit;
+    final categoryId = _categorySlugToId[category.toLowerCase()];
+    if (categoryId == null) return <Article>[];
 
+    final offset = (page - 1) * limit;
     final response = await fetchPosts(
-      limit: fetchLimit,
+      limit: limit,
       offset: offset,
+      categoryId: categoryId,
     );
-
-    // 客戶端過濾分類
-    final filteredArticles =
-        response.data.records.where((article) {
-      // 檢查 category_set 中是否有匹配的分類
-      return article.categorySet.any((dynamic cs) {
-        // ignore: avoid_dynamic_calls - categorySet contains dynamic objects from API
-        final name = cs.category?.name as String?;
-        if (name == null) return false;
-        return name.toLowerCase() ==
-                _mapCategoryNameToApiName(category).toLowerCase() ||
-            name.toLowerCase() == category.toLowerCase();
-      });
-    }).take(limit).toList();
-
-    return filteredArticles;
+    return response.data.records;
   }
 
   /// 搜尋文章（wrapper method）
@@ -368,18 +357,17 @@ extension TwReporterApiExtensions on TwReporterApi {
     return response.data.records;
   }
 
-  /// 映射分類名稱到 API 名稱
-  String _mapCategoryNameToApiName(String category) {
-    const categoryMap = <String, String>{
-      'culture': '文化',
-      'econ': '經濟產業',
-      'education': '教育',
-      'environment': '環境',
-      'health': '健康',
-      'humanrights': '人權司法',
-      'politics_and_society': '政治社會',
-      'world': '國際',
-    };
-    return categoryMap[category.toLowerCase()] ?? category;
-  }
+  /// 分類 slug → MongoDB ObjectId 映射
+  ///
+  /// 資料來源：@twreporter/core/lib/constants/category-set
+  static const _categorySlugToId = <String, String>{
+    'culture': '63206383207bf7c5f8716259',
+    'econ': '63206383207bf7c5f8716254',
+    'education': '63206383207bf7c5f8716260',
+    'environment': '63206383207bf7c5f871624d',
+    'health': '63206383207bf7c5f8716245',
+    'humanrights': '63206383207bf7c5f8716234',
+    'politics_and_society': '63206383207bf7c5f871623d',
+    'world': '63206383207bf7c5f871622c',
+  };
 }

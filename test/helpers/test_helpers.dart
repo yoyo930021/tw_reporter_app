@@ -1,9 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tw_reporter_app/core/cache/video_cache_service.dart';
-import 'package:tw_reporter_app/core/di/app_providers.dart';
+import 'package:tw_reporter_app/core/di/providers.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/category.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
@@ -11,8 +9,8 @@ import 'package:tw_reporter_app/core/repositories/article_repository.dart';
 import 'package:tw_reporter_app/core/repositories/home_repository.dart';
 import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
 import 'package:tw_reporter_app/core/repositories/topic_repository.dart';
+import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
 import 'package:tw_reporter_app/core/storage/reading_storage.dart';
-import 'package:tw_reporter_app/core/theme/theme_notifier.dart';
 
 // Mock repositories
 class MockArticleRepository extends Mock
@@ -54,18 +52,18 @@ class TestWidget extends CompositionWidget {
   Widget Function(BuildContext) setup() => setupFn();
 }
 
-/// Wraps a widget with AppProviders for testing
+/// Wraps a widget with DI providers for testing
 Widget wrapWithProviders(
   Widget child, {
   ArticleRepository? articleRepository,
   TopicRepository? topicRepository,
   HomeRepository? homeRepository,
   ReadingRepository? readingRepository,
-  ThemeNotifier? themeNotifier,
-  VideoCacheService? videoCacheService,
+  Ref<ThemeMode>? themeMode,
+  Ref<MediaLoadMode>? mediaLoadMode,
 }) {
   return MaterialApp(
-    home: AppProviders(
+    home: _TestProviders(
       articleRepository:
           articleRepository ?? MockArticleRepository(),
       topicRepository:
@@ -73,12 +71,45 @@ Widget wrapWithProviders(
       homeRepository: homeRepository ?? MockHomeRepository(),
       readingRepository:
           readingRepository ?? MockReadingRepository(),
-      themeNotifier: themeNotifier ?? ThemeNotifier(),
-      videoCacheService:
-          videoCacheService ?? VideoCacheService(Dio()),
+      themeMode: themeMode,
+      mediaLoadMode: mediaLoadMode,
       child: child,
     ),
   );
+}
+
+class _TestProviders extends CompositionWidget {
+  const _TestProviders({
+    required this.articleRepository,
+    required this.topicRepository,
+    required this.homeRepository,
+    required this.readingRepository,
+    required this.child,
+    this.themeMode,
+    this.mediaLoadMode,
+  });
+
+  final ArticleRepository articleRepository;
+  final TopicRepository topicRepository;
+  final HomeRepository homeRepository;
+  final ReadingRepository readingRepository;
+  final Ref<ThemeMode>? themeMode;
+  final Ref<MediaLoadMode>? mediaLoadMode;
+  final Widget child;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    provideArticleRepository(articleRepository);
+    provideTopicRepository(topicRepository);
+    provideHomeRepository(homeRepository);
+    provideReadingRepository(readingRepository);
+    provideThemeMode(themeMode ?? ref(ThemeMode.system));
+    provideMediaLoadMode(
+      mediaLoadMode ?? ref(MediaLoadMode.normal),
+    );
+
+    return (context) => child;
+  }
 }
 
 /// Create a test article with minimal required fields

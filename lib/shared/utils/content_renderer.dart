@@ -57,6 +57,8 @@ String convertContentToHtml(Map<String, dynamic>? content) {
         _renderImageDiff(html, blockContent);
       case 'slideshow':
         _renderSlideshow(html, blockContent);
+      case 'quoteby':
+        _renderQuoteBy(html, blockContent);
       case 'youtube':
         _renderYoutube(html, blockContent);
       default:
@@ -396,6 +398,25 @@ void _renderYoutube(StringBuffer html, dynamic content) {
       }
     }
   }
+}
+
+void _renderQuoteBy(StringBuffer html, dynamic content) {
+  if (content is! List || content.isEmpty) return;
+  final item =
+      content[0] is Map<String, dynamic>
+          ? content[0] as Map<String, dynamic>
+          : null;
+  if (item == null) return;
+
+  final quote = item['quote'] as String? ?? '';
+  final quoteBy = item['quoteBy'] as String? ?? '';
+  if (quote.isEmpty) return;
+
+  html.write(
+    '<quoteby quote="${_escapeHtml(quote)}" '
+    'quoteby-author="${_escapeHtml(quoteBy)}">'
+    '</quoteby>',
+  );
 }
 
 void _renderUnsupported(StringBuffer html, String type) {

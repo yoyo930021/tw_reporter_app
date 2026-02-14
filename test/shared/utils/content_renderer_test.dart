@@ -460,6 +460,135 @@ void main() {
     });
   });
 
+  group('convertContentToHtml - quoteby', () {
+    test('should render quoteby with quote and quoteBy', () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'type': 'quoteby',
+            'content': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'quote': '引述文字內容',
+                'quoteBy': '出處人名',
+              },
+            ],
+          },
+        ],
+      };
+
+      final result = convertContentToHtml(content);
+
+      expect(result, contains('<quoteby'));
+      expect(result, contains('quote="引述文字內容"'));
+      expect(result, contains('quoteby-author="出處人名"'));
+      expect(result, contains('</quoteby>'));
+    });
+
+    test('should render quoteby with empty quoteBy', () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'type': 'quoteby',
+            'content': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'quote': '只有引述文字',
+                'quoteBy': '',
+              },
+            ],
+          },
+        ],
+      };
+
+      final result = convertContentToHtml(content);
+
+      expect(result, contains('<quoteby'));
+      expect(result, contains('quote="只有引述文字"'));
+      expect(result, contains('quoteby-author=""'));
+    });
+
+    test('should render quoteby with missing quoteBy field', () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'type': 'quoteby',
+            'content': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'quote': '沒有出處欄位',
+              },
+            ],
+          },
+        ],
+      };
+
+      final result = convertContentToHtml(content);
+
+      expect(result, contains('<quoteby'));
+      expect(result, contains('quote="沒有出處欄位"'));
+      expect(result, contains('quoteby-author=""'));
+    });
+
+    test('should not render quoteby with empty content', () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'type': 'quoteby',
+            'content': <dynamic>[],
+          },
+        ],
+      };
+
+      final result = convertContentToHtml(content);
+
+      expect(result, isEmpty);
+    });
+
+    test('should not render quoteby with non-list content', () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'type': 'quoteby',
+            'content': 'not a list',
+          },
+        ],
+      };
+
+      final result = convertContentToHtml(content);
+
+      expect(result, isEmpty);
+    });
+
+    test('should escape HTML in quote and quoteBy', () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'type': 'quoteby',
+            'content': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'quote': 'Test <b>bold</b> & "quotes"',
+                'quoteBy': 'Author <script>alert("xss")</script>',
+              },
+            ],
+          },
+        ],
+      };
+
+      final result = convertContentToHtml(content);
+
+      expect(
+        result,
+        contains(
+          'quote="Test &lt;b&gt;bold&lt;/b&gt; &amp; &quot;quotes&quot;"',
+        ),
+      );
+      expect(
+        result,
+        contains(
+          'quoteby-author="Author &lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;"',
+        ),
+      );
+    });
+  });
+
   group('convertContentToHtml - slideshow', () {
     test('should render slideshow with multiple slides', () {
       final content = <String, dynamic>{

@@ -51,5 +51,31 @@ void main() {
         AppColors.grey600.withValues(alpha: 0.1),
       );
     });
+
+    testWidgets('displays subcategory name when provided',
+        (tester) async {
+      await tester.pumpWidget(const MaterialApp(
+        home: Scaffold(
+          body: CategoryBadge(
+            categoryName: 'culture',
+            subcategoryName: '電影',
+          ),
+        ),
+      ));
+
+      expect(find.text('culture / 電影'), findsOneWidget);
+    });
+
+    testWidgets('displays only category name when no subcategory',
+        (tester) async {
+      await tester.pumpWidget(const MaterialApp(
+        home: Scaffold(
+          body: CategoryBadge(categoryName: 'culture'),
+        ),
+      ));
+
+      expect(find.text('culture'), findsOneWidget);
+      expect(find.textContaining('/'), findsNothing);
+    });
   });
 }

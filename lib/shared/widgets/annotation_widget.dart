@@ -26,17 +26,16 @@ class AnnotationWidget extends CompositionWidget {
     final props = widget();
     final theme = useTheme();
 
-    String decodeContent() {
+    final decodedContent = computed(() {
       try {
         return utf8.decode(base64Decode(props.value.contentBase64));
       } on Object catch (_) {
         return '';
       }
-    }
+    });
 
     return (BuildContext context) {
       final colors = theme.value.colorScheme;
-      final decodedContent = decodeContent();
 
       final arrow = expanded.value ? ' ▲' : ' ▼';
       final trigger = GestureDetector(
@@ -75,7 +74,7 @@ class AnnotationWidget extends CompositionWidget {
               ),
             ),
             child: Text(
-              decodedContent,
+              decodedContent.value,
               style: theme.value.textTheme.bodyMedium!.copyWith(
                 color: colors.onSurfaceVariant,
                 height: 1.6,

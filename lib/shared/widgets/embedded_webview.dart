@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:tw_reporter_app/core/di/composables.dart';
+import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/shared/composables/use_scroll_visibility.dart';
 import 'package:tw_reporter_app/shared/composables/use_web_view_controller.dart';
@@ -75,9 +77,7 @@ class _EmbeddedWebViewContent extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    // Capture the latest BuildContext for showing dialogs from
-    // the onExternalUrl callback (which fires asynchronously).
-    BuildContext? dialogContext;
+    final contextRef = useContext();
 
     final webView = useWebViewController(
       src: src,
@@ -85,7 +85,7 @@ class _EmbeddedWebViewContent extends CompositionWidget {
       fallbackHeight: height,
       baseUrl: baseUrl,
       onExternalUrl: (uri) {
-        final ctx = dialogContext;
+        final ctx = contextRef.value;
         if (ctx == null || !ctx.mounted) return;
         unawaited(showDialog<void>(
           context: ctx,
@@ -115,18 +115,29 @@ class _EmbeddedWebViewContent extends CompositionWidget {
       },
     );
 
+    final mediaLoadModeRef = useMediaLoadMode();
     final (visibilityKey, isVisible) = useScrollVisibility();
 
+    // In preloadAll mode, initialize immediately on mount.
+    onMounted(() {
+      if (mediaLoadModeRef.value == MediaLoadMode.preloadAll) {
+        unawaited(webView.initialize());
+      }
+    });
+
     watch(() => isVisible.value, (visible, _) {
+      final isPreload =
+          mediaLoadModeRef.value == MediaLoadMode.preloadAll;
+
       if (visible && !webView.isInitialized.value) {
         unawaited(webView.initialize());
-      } else if (!visible && webView.isInitialized.value) {
+      } else if (!visible && webView.isInitialized.value && !isPreload) {
+        // In preloadAll mode, don't destroy when scrolled off-screen.
         webView.destroy();
       }
     });
 
     return (BuildContext context) {
-      dialogContext = context;
       final colors = Theme.of(context).colorScheme;
       final isInitialized = webView.isInitialized.value;
 

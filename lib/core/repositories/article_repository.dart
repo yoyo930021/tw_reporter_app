@@ -14,6 +14,7 @@ abstract class ArticleRepository {
     required String category,
     required int page,
     int limit = 10,
+    String? subcategoryId,
   });
 
   /// 搜尋文章
@@ -28,14 +29,14 @@ abstract class ArticleRepository {
   /// 根據 ID 列表獲取文章
   Future<List<Article>> fetchByIds(List<String> ids);
 
-  /// 獲取標籤相關文章（客戶端過濾）
+  /// 獲取標籤相關文章（伺服器端過濾）
   Future<List<Article>> fetchByTag({
     required String tagId,
     required int page,
     int limit = 10,
   });
 
-  /// 獲取作者相關文章（客戶端過濾）
+  /// 獲取作者相關文章（伺服器端過濾）
   Future<List<Article>> fetchByAuthor({
     required String authorId,
     required int page,

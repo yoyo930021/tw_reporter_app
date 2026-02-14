@@ -17,30 +17,6 @@ const _defaultFallback = 300.0;
 
 // ── JS helpers ───────────────────────────────────────────────────────
 
-/// JS that expands scrollable elements once (Android only).
-/// Inner overflow causes clipping on Android; this makes them visible.
-const _expandScrollableJs = '''
-  (function() {
-    var all = document.querySelectorAll('*');
-    for (var i = 0; i < all.length; i++) {
-      var el = all[i];
-      var tag = el.tagName;
-      if (tag === 'IFRAME' || tag === 'VIDEO' || tag === 'CANVAS'
-          || tag === 'SCRIPT' || tag === 'STYLE') continue;
-      if (el.scrollHeight > el.clientHeight + 2) {
-        var cs = getComputedStyle(el);
-        var ov = cs.overflow + ' ' + cs.overflowY;
-        if (ov.indexOf('hidden') >= 0 || ov.indexOf('auto') >= 0
-            || ov.indexOf('scroll') >= 0) {
-          el.style.setProperty('overflow', 'visible', 'important');
-          el.style.setProperty('max-height', 'none', 'important');
-          el.style.setProperty('height', 'auto', 'important');
-        }
-      }
-    }
-  })();
-''';
-
 /// Height measurement JS injected on all platforms.
 /// On iOS/macOS this supplements `onContentSizeChanged` which may not
 /// fire correctly when `disableVerticalScroll` is true.
@@ -362,8 +338,6 @@ html,body{margin:0;padding:0;height:auto;$overflowCss}
       isLoading.value = false;
     }
 
-    // On Android, expand scrollable elements before measuring.
-    final expandJs = isAndroid ? _expandScrollableJs : '';
     // On macOS/iOS, forward wheel events to parent ScrollView.
     final scrollJs = needsScrollFix
         ? 'document.addEventListener("wheel",function(e){'
@@ -375,7 +349,7 @@ html,body{margin:0;padding:0;height:auto;$overflowCss}
     // Inject height measurement JS on all platforms.
     unawaited(
       controller.evaluateJavascript(
-        source: '$expandJs$scrollJs$_measureJs',
+        source: '$scrollJs$_measureJs',
       ),
     );
   }
@@ -523,7 +497,10 @@ html,body{margin:0;padding:0;height:auto;$overflowCss}
   onUnmounted(() {
     isDisposed = true;
     pollTimer?.cancel();
-    controllerRef.value = null;
+    if (initialized.value) {
+      controllerRef.value = null;
+      initialized.value = false;
+    }
   });
 
   return (
