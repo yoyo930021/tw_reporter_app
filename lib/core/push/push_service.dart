@@ -11,7 +11,7 @@ import 'package:unifiedpush/unifiedpush.dart';
 ///
 /// 使用 UnifiedPush 接收報導者推播通知
 /// 僅在 Android 平台上運作
-class PushService extends ChangeNotifier {
+class PushService {
   PushService._();
 
   static PushService? _instance;
@@ -39,9 +39,17 @@ class PushService extends ChangeNotifier {
 
   bool _enabled = false;
   bool _initialized = false;
+  bool _userDisabling = false;
+  String? _registrationError;
+
+  /// 狀態變更回調列表
+  final List<VoidCallback> _stateListeners = <VoidCallback>[];
 
   /// 推播是否已啟用
   bool get enabled => _enabled;
+
+  /// 最近一次註冊錯誤
+  String? get registrationError => _registrationError;
 
   /// 當前平台是否支援推播
   bool get isSupported => defaultTargetPlatform == TargetPlatform.android;
@@ -56,6 +64,22 @@ class PushService extends ChangeNotifier {
     final payload = _pendingNotificationPayload;
     _pendingNotificationPayload = null;
     return payload;
+  }
+
+  /// 新增狀態變更監聽
+  void addStateListener(VoidCallback listener) {
+    _stateListeners.add(listener);
+  }
+
+  /// 移除狀態變更監聽
+  void removeStateListener(VoidCallback listener) {
+    _stateListeners.remove(listener);
+  }
+
+  void _notifyStateChanged() {
+    for (final listener in List<VoidCallback>.of(_stateListeners)) {
+      listener();
+    }
   }
 
   /// 初始化推播服務
@@ -84,7 +108,7 @@ class PushService extends ChangeNotifier {
     if (_enabled) {
       final distributors = await UnifiedPush.getDistributors();
       _hasDistributor = distributors.isNotEmpty;
-      notifyListeners();
+      _notifyStateChanged();
     }
   }
 
@@ -106,7 +130,7 @@ class PushService extends ChangeNotifier {
   void _onNotificationTap(NotificationResponse response) {
     if (response.payload != null) {
       _pendingNotificationPayload = response.payload;
-      notifyListeners();
+      _notifyStateChanged();
     }
   }
 
@@ -131,7 +155,7 @@ class PushService extends ChangeNotifier {
         final distributors = await UnifiedPush.getDistributors();
         _hasDistributor = distributors.isNotEmpty;
         if (distributors.isEmpty) {
-          notifyListeners();
+          _notifyStateChanged();
           return false;
         }
         // 只有一個時自動選擇
@@ -146,9 +170,10 @@ class PushService extends ChangeNotifier {
     );
 
     _enabled = true;
+    _registrationError = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefKeyEnabled, true);
-    notifyListeners();
+    _notifyStateChanged();
     return true;
   }
 
@@ -156,32 +181,41 @@ class PushService extends ChangeNotifier {
   Future<void> disable() async {
     if (!isSupported) return;
 
+    _userDisabling = true;
     await UnifiedPush.unregister(_instanceName);
+    _userDisabling = false;
     _enabled = false;
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_prefKeyEnabled, false);
     await prefs.remove(_prefKeyEndpoint);
-    notifyListeners();
+    _notifyStateChanged();
   }
 
   /// UnifiedPush 回調：收到新端點
   void _onNewEndpoint(PushEndpoint endpoint, String instance) {
+    _enabled = true;
+    _registrationError = null;
+    _notifyStateChanged();
     unawaited(_subscribeToServer(endpoint));
   }
 
   /// UnifiedPush 回調：註冊失敗
   void _onRegistrationFailed(FailedReason reason, String instance) {
     debugPrint('UnifiedPush registration failed: $reason');
-    _enabled = false;
-    notifyListeners();
+    _registrationError = '註冊失敗：$reason';
+    // 不設 _enabled = false，保留用戶意圖以便重試
+    _notifyStateChanged();
   }
 
   /// UnifiedPush 回調：已取消註冊
   void _onUnregistered(String instance) {
     debugPrint('UnifiedPush unregistered');
-    _enabled = false;
-    notifyListeners();
+    // 只有用戶主動停用才改 _enabled
+    if (_userDisabling) {
+      _enabled = false;
+      _notifyStateChanged();
+    }
   }
 
   /// UnifiedPush 回調：收到推播訊息
@@ -216,6 +250,9 @@ class PushService extends ChangeNotifier {
       // 儲存端點
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefKeyEndpoint, endpoint.url);
+      _enabled = true;
+      _registrationError = null;
+      _notifyStateChanged();
       debugPrint('Subscribed to push notifications');
     } on Object catch (e) {
       debugPrint('Error subscribing to push: $e');

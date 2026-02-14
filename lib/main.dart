@@ -162,7 +162,7 @@ class _MyAppContent extends CompositionWidget {
     }
 
     onMounted(() {
-      PushService.instance.addListener(handlePushNotificationTap);
+      PushService.instance.addStateListener(handlePushNotificationTap);
 
       // 首次啟動導航到歡迎頁面
       if (showWelcome) {
@@ -171,7 +171,7 @@ class _MyAppContent extends CompositionWidget {
     });
 
     onUnmounted(() {
-      PushService.instance.removeListener(handlePushNotificationTap);
+      PushService.instance.removeStateListener(handlePushNotificationTap);
     });
 
     return (BuildContext context) {
