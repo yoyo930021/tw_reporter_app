@@ -10,11 +10,13 @@ class TopicCard extends StatelessWidget {
   const TopicCard({
     required this.topic,
     required this.onTap,
+    this.margin,
     super.key,
   });
 
   final Topic topic;
   final VoidCallback onTap;
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +25,11 @@ class TopicCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
+      margin: margin ??
+          const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),

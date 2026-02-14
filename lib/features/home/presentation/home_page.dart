@@ -456,6 +456,7 @@ class _HorizontalArticleSection extends StatelessWidget {
             );
           },
           child: Card(
+            margin: EdgeInsets.zero,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
@@ -554,6 +555,7 @@ class _TopicsCarousel extends CompositionWidget {
           final topic = topicList[index];
           return TopicCard(
             topic: topic,
+            margin: EdgeInsets.zero,
             onTap: () {
               unawaited(
                 context.router.push(
@@ -645,6 +647,7 @@ class _CategoriesRow extends CompositionWidget {
               );
             },
             child: Card(
+              margin: EdgeInsets.zero,
               clipBehavior: Clip.antiAlias,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
