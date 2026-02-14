@@ -546,6 +546,69 @@ String _buildHtmlDocument({
   return doc.toString();
 }
 
+/// 將報導者 API 的結構化內容轉換為獨立 HTML block 列表，
+/// 每個 block 對應一個段落/元素，供虛擬列表逐一渲染。
+List<String> convertContentToBlocks(Map<String, dynamic>? content) {
+  if (content == null) return <String>[];
+
+  final apiData = content['api_data'] as List<dynamic>?;
+  if (apiData == null || apiData.isEmpty) return <String>[];
+
+  final blocks = <String>[];
+  final assets = _ComponentAssets();
+
+  for (final dynamic block in apiData) {
+    if (block is! Map<String, dynamic>) continue;
+
+    final type = block['type'] as String? ?? 'unstyled';
+    final dynamic blockContent = block['content'];
+    final html = StringBuffer();
+
+    switch (type) {
+      case 'unstyled':
+      case 'annotation':
+        _renderParagraph(html, blockContent);
+      case 'header-one':
+        _renderHeader(html, blockContent, 'h1');
+      case 'header-two':
+        _renderHeader(html, blockContent, 'h2');
+      case 'header-three':
+        _renderHeader(html, blockContent, 'h3');
+      case 'header-four':
+        _renderHeader(html, blockContent, 'h4');
+      case 'blockquote':
+        _renderBlockquote(html, blockContent);
+      case 'unordered-list-item':
+        _renderListItem(html, blockContent, ordered: false);
+      case 'ordered-list-item':
+        _renderListItem(html, blockContent, ordered: true);
+      case 'image':
+        _renderImage(html, blockContent);
+      case 'infobox':
+        _renderInfobox(html, blockContent);
+      case 'embeddedcode':
+        _renderEmbeddedCode(html, blockContent, assets);
+      case 'imagediff':
+        _renderImageDiff(html, blockContent);
+      case 'slideshow':
+        _renderSlideshow(html, blockContent);
+      case 'quoteby':
+        _renderQuoteBy(html, blockContent);
+      case 'youtube':
+        _renderYoutube(html, blockContent);
+      default:
+        _renderUnsupported(html, type);
+    }
+
+    final result = html.toString();
+    if (result.isNotEmpty) {
+      blocks.add(result);
+    }
+  }
+
+  return blocks;
+}
+
 String _escapeHtml(String text) {
   return text
       .replaceAll('&', '&amp;')

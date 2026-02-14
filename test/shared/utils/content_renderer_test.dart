@@ -589,6 +589,105 @@ void main() {
     });
   });
 
+  group('convertContentToBlocks', () {
+    test('should return empty list for null content', () {
+      expect(convertContentToBlocks(null), isEmpty);
+    });
+
+    test('should return empty list for empty api_data', () {
+      final content = <String, dynamic>{
+        'api_data': <dynamic>[],
+      };
+      expect(convertContentToBlocks(content), isEmpty);
+    });
+
+    test('should return one block per content element', () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{'type': 'unstyled', 'content': 'First paragraph'},
+          <String, dynamic>{'type': 'unstyled', 'content': 'Second paragraph'},
+          <String, dynamic>{'type': 'header-one', 'content': 'A heading'},
+        ],
+      };
+
+      final blocks = convertContentToBlocks(content);
+
+      expect(blocks.length, equals(3));
+      expect(blocks[0], equals('<p>First paragraph</p>'));
+      expect(blocks[1], equals('<p>Second paragraph</p>'));
+      expect(blocks[2], equals('<h1>A heading</h1>'));
+    });
+
+    test('should skip blocks with empty rendered content', () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{'type': 'unstyled', 'content': 'Has text'},
+          <String, dynamic>{'type': 'unstyled', 'content': ''},
+          <String, dynamic>{'type': 'header-two', 'content': 'Heading'},
+        ],
+      };
+
+      final blocks = convertContentToBlocks(content);
+
+      expect(blocks.length, equals(2));
+      expect(blocks[0], contains('Has text'));
+      expect(blocks[1], contains('Heading'));
+    });
+
+    test('should produce same output as convertContentToHtml when joined',
+        () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{'type': 'unstyled', 'content': 'Paragraph one'},
+          <String, dynamic>{'type': 'header-two', 'content': 'Title'},
+          <String, dynamic>{'type': 'blockquote', 'content': 'A quote'},
+          <String, dynamic>{
+            'type': 'image',
+            'content': <String, dynamic>{
+              'description': 'Photo',
+              'mobile': <String, dynamic>{
+                'url': 'https://example.com/img.jpg',
+              },
+            },
+          },
+        ],
+      };
+
+      final html = convertContentToHtml(content);
+      final blocks = convertContentToBlocks(content);
+
+      expect(blocks.join(), equals(html));
+    });
+
+    test('should handle mixed block types including embeddedcode', () {
+      final content = <String, dynamic>{
+        'api_data': <Map<String, dynamic>>[
+          <String, dynamic>{'type': 'unstyled', 'content': 'Intro'},
+          <String, dynamic>{
+            'type': 'embeddedcode',
+            'content': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'caption': '',
+                'embeddedCodeWithoutScript':
+                    '<iframe src="https://example.com/map"></iframe>',
+                'embeddedCode':
+                    '<iframe src="https://example.com/map"></iframe>',
+              },
+            ],
+          },
+          <String, dynamic>{'type': 'unstyled', 'content': 'Outro'},
+        ],
+      };
+
+      final blocks = convertContentToBlocks(content);
+
+      expect(blocks.length, equals(3));
+      expect(blocks[0], contains('Intro'));
+      expect(blocks[1], contains('embedded-iframe'));
+      expect(blocks[2], contains('Outro'));
+    });
+  });
+
   group('convertContentToHtml - slideshow', () {
     test('should render slideshow with multiple slides', () {
       final content = <String, dynamic>{

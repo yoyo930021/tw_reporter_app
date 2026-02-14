@@ -334,6 +334,7 @@ class _ArticlePageContent extends CompositionWidget {
 
       return Scaffold(
         body: CustomScrollView(
+          cacheExtent: 300,
           slivers: <Widget>[
             SliverAppBar(
               expandedHeight: hasImage.value ? 300.0 : 160.0,
@@ -501,15 +502,14 @@ class _ArticlePageContent extends CompositionWidget {
                 },
               ),
             ),
-            SliverToBoxAdapter(
-              child: _ArticleContentView(
-                articleDetail: articleDetail,
-                isBookmarked: isBookmarked,
-                readingRepo: readingRepo,
-                slug: slug,
-                onShare: shareArticle,
-                onToggleBookmark: toggleBookmark,
-              ),
+            ..._ArticleContentView.buildSlivers(
+              context: context,
+              articleDetail: articleDetail,
+              isBookmarked: isBookmarked,
+              readingRepo: readingRepo,
+              slug: slug,
+              onShare: shareArticle,
+              onToggleBookmark: toggleBookmark,
             ),
           ],
         ),
@@ -519,105 +519,98 @@ class _ArticlePageContent extends CompositionWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Private CompositionWidget: Article content (replaces buildContent)
+// Static helper: builds article content as a list of Slivers
 // ---------------------------------------------------------------------------
 
-class _ArticleContentView extends CompositionWidget {
-  const _ArticleContentView({
-    required this.articleDetail,
-    required this.isBookmarked,
-    required this.readingRepo,
-    required this.slug,
-    required this.onShare,
-    required this.onToggleBookmark,
-  });
+class _ArticleContentView {
+  _ArticleContentView._();
 
-  final ArticleDetailResult articleDetail;
-  final Ref<bool> isBookmarked;
-  final ReadingRepository readingRepo;
-  final String slug;
-  final void Function(String title) onShare;
-  final VoidCallback onToggleBookmark;
+  static List<Widget> buildSlivers({
+    required BuildContext context,
+    required ArticleDetailResult articleDetail,
+    required Ref<bool> isBookmarked,
+    required ReadingRepository readingRepo,
+    required String slug,
+    required void Function(String title) onShare,
+    required VoidCallback onToggleBookmark,
+  }) {
+    if (articleDetail.hasError.value) {
+      return <Widget>[
+        SliverToBoxAdapter(
+          child: ErrorView(
+            message: articleDetail.error.value ?? '未知錯誤',
+            onRetry: articleDetail.refresh,
+          ),
+        ),
+      ];
+    }
 
-  @override
-  Widget Function(BuildContext) setup() {
-    final htmlContent = computed(() {
-      final a = articleDetail.article.value;
-      if (a == null) return '';
-      return _markExternalLinks(convertContentToHtml(a.content));
-    });
+    if (articleDetail.isLoading.value) {
+      return <Widget>[
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.only(top: 64),
+            child: LoadingIndicator(),
+          ),
+        ),
+      ];
+    }
 
-    return (BuildContext context) {
-      if (articleDetail.hasError.value) {
-        return ErrorView(
-          message: articleDetail.error.value ?? '未知錯誤',
-          onRetry: articleDetail.refresh,
-        );
-      }
+    final article = articleDetail.article.value;
+    if (article == null) {
+      return <Widget>[
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.only(top: 64),
+            child: Center(child: Text('文章不存在')),
+          ),
+        ),
+      ];
+    }
 
-      if (articleDetail.isLoading.value) {
-        return const Padding(
-          padding: EdgeInsets.only(top: 64),
-          child: LoadingIndicator(),
-        );
-      }
-
-      if (articleDetail.article.value == null) {
-        return const Padding(
-          padding: EdgeInsets.only(top: 64),
-          child: Center(child: Text('文章不存在')),
-        );
-      }
-
-      return _ArticleBodyView(
-        article: articleDetail.article.value!,
-        relatedArticles: articleDetail.relatedArticles.value,
-        htmlContent: htmlContent.value,
-        isBookmarked: isBookmarked,
-        onToggleBookmark: onToggleBookmark,
-        onShare: onShare,
-        slug: slug,
-      );
-    };
+    return _ArticleBodySlivers.build(
+      context: context,
+      article: article,
+      relatedArticles: articleDetail.relatedArticles.value,
+      isBookmarked: isBookmarked,
+      onToggleBookmark: onToggleBookmark,
+      onShare: onShare,
+      slug: slug,
+    );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Internal StatelessWidget: Article body
+// Static helper: builds article body as multiple Slivers
 // ---------------------------------------------------------------------------
 
-class _ArticleBodyView extends StatelessWidget {
-  const _ArticleBodyView({
-    required this.article,
-    required this.relatedArticles,
-    required this.htmlContent,
-    required this.isBookmarked,
-    required this.onToggleBookmark,
-    required this.onShare,
-    required this.slug,
-  });
+class _ArticleBodySlivers {
+  _ArticleBodySlivers._();
 
-  final Article article;
-  final List<Article> relatedArticles;
-  final String htmlContent;
-  final Ref<bool> isBookmarked;
-  final VoidCallback onToggleBookmark;
-  final void Function(String title) onShare;
-  final String slug;
-
-  @override
-  Widget build(BuildContext context) {
+  static List<Widget> build({
+    required BuildContext context,
+    required Article article,
+    required List<Article> relatedArticles,
+    required Ref<bool> isBookmarked,
+    required VoidCallback onToggleBookmark,
+    required void Function(String title) onShare,
+    required String slug,
+  }) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final textColor = colors.onSurface;
     final secondaryTextColor = colors.onSurfaceVariant;
     final linkColor = colors.primary;
 
-    return SelectionArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
+    final contentBlocks = convertContentToBlocks(article.content)
+        .map(_markExternalLinks)
+        .toList();
+
+    return <Widget>[
+      // 1. Metadata sliver (image desc, category, tags, date, byline, brief)
+      SliverToBoxAdapter(
+        child: SelectionArea(
+          child: Padding(
             padding: AppSpacing.edgeInsetsMd,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -689,21 +682,49 @@ class _ArticleBodyView extends StatelessWidget {
                   _BriefSection(brief: article.brief!),
                   AppSpacing.verticalSpacerLg,
                 ],
+              ],
+            ),
+          ),
+        ),
+      ),
 
-                // 正文
-                if (htmlContent.isNotEmpty)
-                  _ArticleHtmlContent(
-                    htmlContent: htmlContent,
-                    textColor: textColor,
-                    secondaryTextColor: secondaryTextColor,
-                    linkColor: linkColor,
-                  )
-                else
-                  Text(
-                    article.ogDescription,
-                    style: textTheme.bodyLarge,
-                  ),
+      // 2. Article content blocks (virtual list with keep-alive)
+      if (contentBlocks.isNotEmpty)
+        SliverList.builder(
+          itemCount: contentBlocks.length,
+          itemBuilder: (context, index) {
+            return SelectionArea(
+              child: Padding(
+                padding: AppSpacing.edgeInsetsHorizontalMd,
+                child: _ArticleHtmlContent(
+                  htmlContent: contentBlocks[index],
+                  textColor: textColor,
+                  secondaryTextColor: secondaryTextColor,
+                  linkColor: linkColor,
+                ),
+              ),
+            );
+          },
+        )
+      else
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: AppSpacing.edgeInsetsMd,
+            child: Text(
+              article.ogDescription,
+              style: textTheme.bodyLarge,
+            ),
+          ),
+        ),
 
+      // 3. Footer sliver (copyright, share/bookmark, donate)
+      SliverToBoxAdapter(
+        child: SelectionArea(
+          child: Padding(
+            padding: AppSpacing.edgeInsetsMd,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
                 // 版權資訊
                 if (article.copyright != null &&
                     article.copyright!.isNotEmpty) ...<Widget>[
@@ -750,22 +771,29 @@ class _ArticleBodyView extends StatelessWidget {
               ],
             ),
           ),
-
-          // 相關報導（全寬水平輪播）
-          if (relatedArticles.isNotEmpty) ...<Widget>[
-            Padding(
-              padding: AppSpacing.edgeInsetsHorizontalMd,
-              child: Text('相關報導', style: textTheme.displaySmall),
-            ),
-            AppSpacing.verticalSpacerSm,
-            _RelatedArticlesCarousel(
-              relatedArticles: relatedArticles,
-            ),
-            AppSpacing.verticalSpacerLg,
-          ],
-        ],
+        ),
       ),
-    );
+
+      // 4. Related articles carousel
+      if (relatedArticles.isNotEmpty) ...<Widget>[
+        SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: AppSpacing.edgeInsetsHorizontalMd,
+                child: Text('相關報導', style: textTheme.displaySmall),
+              ),
+              AppSpacing.verticalSpacerSm,
+              _RelatedArticlesCarousel(
+                relatedArticles: relatedArticles,
+              ),
+              AppSpacing.verticalSpacerLg,
+            ],
+          ),
+        ),
+      ],
+    ];
   }
 }
 
@@ -1454,6 +1482,7 @@ class _RelatedArticlesCarousel extends StatelessWidget {
             );
           },
           child: Card(
+            margin: EdgeInsets.zero,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
