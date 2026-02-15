@@ -8,7 +8,8 @@ class ReadingRecord {
   ReadingRecord({
     required this.slug,
     required this.title,
-    required this.timestamp, this.imageUrl,
+    required this.timestamp,
+    this.imageUrl,
   });
 
   factory ReadingRecord.fromJson(Map<String, dynamic> json) {
@@ -26,11 +27,11 @@ class ReadingRecord {
   final DateTime timestamp;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'slug': slug,
-        'title': title,
-        'image_url': imageUrl,
-        'timestamp': timestamp.toIso8601String(),
-      };
+    'slug': slug,
+    'title': title,
+    'image_url': imageUrl,
+    'timestamp': timestamp.toIso8601String(),
+  };
 }
 
 /// 閱讀記錄與收藏本地儲存服務
@@ -124,8 +125,7 @@ class ReadingStorage {
 
   /// 取消收藏
   void removeBookmark(String slug) {
-    final bookmarks = getBookmarks()
-      ..removeWhere((r) => r.slug == slug);
+    final bookmarks = getBookmarks()..removeWhere((r) => r.slug == slug);
     _saveList(_bookmarksKey, bookmarks);
   }
 
@@ -146,8 +146,7 @@ class ReadingStorage {
     if (jsonStr == null || jsonStr.isEmpty) return <ReadingRecord>[];
 
     try {
-      final jsonList =
-          json.decode(jsonStr) as List<dynamic>;
+      final jsonList = json.decode(jsonStr) as List<dynamic>;
       return jsonList
           .map((e) => ReadingRecord.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -157,8 +156,7 @@ class ReadingStorage {
   }
 
   void _saveList(String key, List<ReadingRecord> list) {
-    final jsonStr =
-        json.encode(list.map((r) => r.toJson()).toList());
+    final jsonStr = json.encode(list.map((r) => r.toJson()).toList());
     unawaited(_prefs.setString(key, jsonStr));
   }
 }

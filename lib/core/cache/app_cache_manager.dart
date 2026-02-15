@@ -35,7 +35,7 @@ class AppCacheManager {
 
   bool _initialized = false;
 
-  /// 圖片快取管理器（供 CachedNetworkImage 使用）
+  /// 圖片快取管理器（供 CachedImage 使用）
   ///
   /// 未初始化時返回 [DefaultCacheManager]。
   BaseCacheManager get imageCacheManager =>

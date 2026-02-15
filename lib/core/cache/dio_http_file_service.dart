@@ -5,7 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// 使用 Dio 下載圖片的 [FileService] 實作
 ///
-/// 讓 `CachedNetworkImage` 的圖片請求走統一的 Dio 客戶端，
+/// 讓圖片快取請求走統一的 Dio 客戶端，
 /// 享有 rhttp (Rust HTTP) 傳輸層的優勢。
 class DioHttpFileService extends FileService {
   DioHttpFileService(Dio dio) : _dio = dio;

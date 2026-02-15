@@ -9,7 +9,6 @@ environment:
 
 dependencies:
   auto_route: ^11.1.0
-  cached_network_image: ^3.4.1  # 圖片快取
   cupertino_icons: ^1.0.8  # iOS 風格圖示
   dio: ^5.7.0
   dio_cache_interceptor: ^4.0.5  # HTTP cache interceptor
