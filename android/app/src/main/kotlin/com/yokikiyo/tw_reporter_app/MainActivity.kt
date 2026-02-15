@@ -1,4 +1,4 @@
-package org.twreporter.tw_reporter_app
+package com.yokikiyo.tw_reporter_app
 
 import io.flutter.embedding.android.FlutterActivity
 

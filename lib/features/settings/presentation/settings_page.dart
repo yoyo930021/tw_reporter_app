@@ -24,7 +24,7 @@ String _formatBytes(int bytes) {
 String _formatDistributorName(String packageName) {
   const knownNames = <String, String>{
     // Embedded FCM (self)
-    'org.twreporter.tw_reporter_app': 'Firebase Cloud Messaging',
+    'com.yokikiyo.tw_reporter_app': 'Firebase Cloud Messaging',
     // Dedicated distributors
     'io.heckel.ntfy': 'ntfy',
     'org.unifiedpush.distributor.fcm': 'UP-FCM Distributor',

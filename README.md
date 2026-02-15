@@ -10,7 +10,7 @@
 
 | 平台 | 連結 |
 |------|------|
-| Android | [Google Play](https://play.google.com/store/apps/details?id=org.twreporter.tw_reporter_app) |
+| Android | [Google Play](https://play.google.com/store/apps/details?id=com.yokikiyo.tw_reporter_app) |
 | iOS | Coming soon |
 
 ## 特色
