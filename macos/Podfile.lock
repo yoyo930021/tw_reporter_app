@@ -75,7 +75,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   flutter_inappwebview_macos: bdf207b8f4ebd58e86ae06cd96b147de99a67c9b
-  flutter_local_notifications: 7062189aabf7f50938a7b8b6614ffa97656eb0bf
+  flutter_local_notifications: 4ccab5b7a22835214a6672e3f9c5e8ae207dab36
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   rhttp: 337afda4c3e4df31087160719ffca6452c225cc2
