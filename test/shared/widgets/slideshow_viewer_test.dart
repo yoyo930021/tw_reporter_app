@@ -69,7 +69,8 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.byIcon(Icons.chevron_right));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
 
       expect(find.text('2 / 3'), findsOneWidget);
     });
@@ -81,9 +82,11 @@ void main() {
 
       // Go to last page
       await tester.tap(find.byIcon(Icons.chevron_right));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.tap(find.byIcon(Icons.chevron_right));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
 
       expect(find.text('3 / 3'), findsOneWidget);
 
