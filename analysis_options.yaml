@@ -1,5 +1,16 @@
 include: package:very_good_analysis/analysis_options.yaml
 
+plugins:
+  flutter_compositions_lints: ^0.2.1
+  diagnostics:
+    flutter_compositions_ensure_reactive_props: true
+    flutter_compositions_no_async_setup: true
+    flutter_compositions_controller_lifecycle: true
+    flutter_compositions_shallow_reactivity: true
+    flutter_compositions_no_conditional_composition: true
+    flutter_compositions_no_logic_in_builder: true
+    flutter_compositions_prefer_raw_controller: true
+
 analyzer:
   exclude:
     - '**/*.g.dart'
