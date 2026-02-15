@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:tw_reporter_app/core/storage/reading_storage.dart';
 import 'package:tw_reporter_app/features/article/presentation/article_page.dart';
 
 import '../../../helpers/test_helpers.dart';
@@ -13,6 +14,10 @@ void main() {
     mockArticleRepo = MockArticleRepository();
     mockReadingRepo = MockReadingRepository();
 
+    when(() => mockReadingRepo.getHistory())
+        .thenReturn(<ReadingRecord>[]);
+    when(() => mockReadingRepo.getBookmarks())
+        .thenReturn(<ReadingRecord>[]);
     when(() => mockReadingRepo.isBookmarked(any()))
         .thenReturn(false);
     when(() => mockReadingRepo.isRead(any()))
