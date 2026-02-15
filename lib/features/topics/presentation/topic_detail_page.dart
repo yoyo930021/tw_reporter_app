@@ -20,6 +20,8 @@ import 'package:tw_reporter_app/shared/widgets/error_view.dart';
 import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
 import 'package:tw_reporter_app/shared/widgets/section_header.dart';
 
+enum _ViewState { error, loading, empty, ready }
+
 String? _getTopicImageUrl(Topic topic) {
   final leadingImage = topic.leadingImage ?? topic.ogImage;
   if (leadingImage == null) return null;
@@ -137,8 +139,6 @@ class _TopicDetailPageContent extends CompositionWidget {
     final hasImage = computed(() => imageUrl.value != null);
 
     return (BuildContext context) {
-      final currentTopic = detail.topic.value;
-
       return Scaffold(
         body: CustomScrollView(
           slivers: <Widget>[
@@ -190,7 +190,7 @@ class _TopicDetailPageContent extends CompositionWidget {
                       ),
                     ),
                     background: _buildFlexibleBackground(
-                      slug: currentTopic.slug,
+                      slug: detail.topic.value.slug,
                       imageUrl: imageUrl.value,
                       hasImage: hasImage.value,
                       lowResImageUrl: lowResImageUrl.value,
@@ -224,10 +224,9 @@ class _TopicBody extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    return (BuildContext context) {
-      final currentTopic = detail.topic.value;
-      final themeData = Theme.of(context);
+    final theme = useTheme();
 
+    return (BuildContext context) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -238,15 +237,15 @@ class _TopicBody extends CompositionWidget {
               children: <Widget>[
                 AppSpacing.verticalSpacerSm,
                 Text(
-                  formatDate(currentTopic.publishedDate),
-                  style: themeData.textTheme.timestamp,
+                  formatDate(detail.topic.value.publishedDate),
+                  style: theme.value.textTheme.timestamp,
                 ),
                 AppSpacing.verticalSpacerMd,
-                if (currentTopic.ogDescription !=
+                if (detail.topic.value.ogDescription !=
                     null) ...<Widget>[
                   Text(
-                    currentTopic.ogDescription!,
-                    style: themeData.textTheme.bodyLarge,
+                    detail.topic.value.ogDescription!,
+                    style: theme.value.textTheme.bodyLarge,
                   ),
                   AppSpacing.verticalSpacerLg,
                 ],
@@ -277,45 +276,45 @@ class _TopicRelatedArticles extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    return (BuildContext context) {
-      if (detail.hasError.value) {
-        return Padding(
-          padding: AppSpacing.edgeInsetsMd,
-          child: ErrorView(
-            message: detail.error.value ?? '載入相關文章失敗',
-            onRetry: detail.refresh,
-          ),
-        );
-      }
+    final state = computed(() {
+      if (detail.hasError.value) return _ViewState.error;
+      if (detail.isLoading.value) return _ViewState.loading;
+      if (detail.relatedArticles.value.isEmpty) return _ViewState.empty;
+      return _ViewState.ready;
+    });
 
-      if (detail.isLoading.value) {
-        return const Padding(
-          padding: EdgeInsets.all(AppSpacing.xl),
-          child: LoadingIndicator(),
-        );
-      }
-
-      if (detail.relatedArticles.value.isEmpty) {
-        return const Padding(
-          padding: EdgeInsets.all(AppSpacing.md),
-          child: EmptyState(message: '沒有相關文章'),
-        );
-      }
-
-      return Column(
-        children: detail.relatedArticles.value.map((article) {
-          return ArticleCard(
-            article: article,
-            onTap: () {
-              unawaited(context.router.push(ArticleRoute(
-                slug: article.slug,
-                heroImageUrl:
-                    ArticleCard.getArticleImageUrl(article),
-              )));
-            },
-          );
-        }).toList(),
-      );
-    };
+    return (BuildContext context) => switch (state.value) {
+          _ViewState.error => Padding(
+              padding: AppSpacing.edgeInsetsMd,
+              child: ErrorView(
+                message: detail.error.value ?? '載入相關文章失敗',
+                onRetry: detail.refresh,
+              ),
+            ),
+          _ViewState.loading => const Padding(
+              padding: EdgeInsets.all(AppSpacing.xl),
+              child: LoadingIndicator(),
+            ),
+          _ViewState.empty => const Padding(
+              padding: EdgeInsets.all(AppSpacing.md),
+              child: EmptyState(message: '沒有相關文章'),
+            ),
+          _ViewState.ready => Column(
+              children: detail.relatedArticles.value.map((article) {
+                return ArticleCard(
+                  article: article,
+                  onTap: () {
+                    unawaited(context.router.push(
+                      ArticleRoute(
+                        slug: article.slug,
+                        heroImageUrl:
+                            ArticleCard.getArticleImageUrl(article),
+                      ),
+                    ));
+                  },
+                );
+              }).toList(),
+            ),
+        };
   }
 }

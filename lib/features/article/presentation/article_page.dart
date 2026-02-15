@@ -273,11 +273,8 @@ class _ArticlePageContent extends CompositionWidget {
       slug: slug,
     );
     final isBookmarked = ref<bool>(false);
-    final hasRecordedReading = ref<bool>(false);
-    // Plain ValueNotifier: scroll-driven changes do NOT trigger
-    // the CompositionWidget render function to re-run, avoiding
-    // expensive rebuilds of the article body / HTML widget.
-    final expandRatio = ValueNotifier<double>(1);
+    var hasRecordedReading = false;
+    final expandRatio = ref<double>(1);
 
     final imageUrl = computed(() {
       final a = articleDetail.article.value;
@@ -294,11 +291,9 @@ class _ArticlePageContent extends CompositionWidget {
       isBookmarked.value = readingRepo.isBookmarked(slug);
     });
 
-    onUnmounted(expandRatio.dispose);
-
     void recordReadingIfNeeded(Article? article) {
-      if (article != null && !hasRecordedReading.value) {
-        hasRecordedReading.value = true;
+      if (article != null && !hasRecordedReading) {
+        hasRecordedReading = true;
         final imageUrl = _getImageUrl(article);
         readingRepo.addToHistory(
           slug,
@@ -312,7 +307,7 @@ class _ArticlePageContent extends CompositionWidget {
     void shareArticle(String title) {
       final url = 'https://www.twreporter.org/a/$slug';
       final shareText = '$title\n$url';
-      unawaited(Share.share(shareText));
+      unawaited(SharePlus.instance.share(ShareParams(text: shareText)));
     }
 
     void toggleBookmark() {
@@ -328,9 +323,12 @@ class _ArticlePageContent extends CompositionWidget {
       }
     }
 
-    return (BuildContext context) {
-      final article = articleDetail.article.value;
+    // Record reading as a side effect when article is loaded
+    watch(() => articleDetail.article.value, (article, _) {
       recordReadingIfNeeded(article);
+    });
+
+    return (BuildContext context) {
 
       return Scaffold(
         body: CustomScrollView(
@@ -339,32 +337,33 @@ class _ArticlePageContent extends CompositionWidget {
             SliverAppBar(
               expandedHeight: hasImage.value ? 300.0 : 160.0,
               pinned: true,
-              // Animate icon colors via ListenableBuilder so
-              // only the icons rebuild on scroll, not the body.
-              leading: ListenableBuilder(
-                listenable: expandRatio,
-                builder: (context, _) {
-                  final color = hasImage.value
-                      ? Color.lerp(
-                          Theme.of(context).colorScheme.onSurface,
-                          Colors.white,
-                          expandRatio.value,
-                        )
-                      : Theme.of(context).colorScheme.onSurface;
-                  return BackButton(color: color);
-                },
-              ),
-              actions: <Widget>[
-                ListenableBuilder(
-                  listenable: expandRatio,
-                  builder: (context, _) {
-                    final iconColor = hasImage.value
+              // ComputedBuilder: only rebuild icons on scroll,
+              // not the entire article body.
+              leading: ComputedBuilder(
+                builder: () => Builder(
+                  builder: (context) {
+                    final color = hasImage.value
                         ? Color.lerp(
                             Theme.of(context).colorScheme.onSurface,
                             Colors.white,
                             expandRatio.value,
                           )
                         : Theme.of(context).colorScheme.onSurface;
+                    return BackButton(color: color);
+                  },
+                ),
+              ),
+              actions: <Widget>[
+                ComputedBuilder(
+                  builder: () => Builder(
+                    builder: (context) {
+                      final iconColor = hasImage.value
+                          ? Color.lerp(
+                              Theme.of(context).colorScheme.onSurface,
+                              Colors.white,
+                              expandRatio.value,
+                            )
+                          : Theme.of(context).colorScheme.onSurface;
                     return PopupMenuButton<String>(
                       icon: Icon(
                         Icons.more_vert,
@@ -440,7 +439,8 @@ class _ArticlePageContent extends CompositionWidget {
                         ];
                       },
                     );
-                  },
+                    },
+                  ),
                 ),
               ],
               flexibleSpace: LayoutBuilder(

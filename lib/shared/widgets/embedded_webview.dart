@@ -11,6 +11,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 const kWebviewDefaultHeight = 150.0;
 
+enum _WebViewState { placeholder, initialized }
+
 /// Widget that displays embedded web content using InAppWebView.
 /// Lazily initializes the WebView when first visible.
 ///
@@ -123,46 +125,53 @@ class _EmbeddedWebViewContent extends CompositionWidget {
       }
     });
 
+    final theme = useTheme();
+
+    final state = computed(() {
+      if (webView.isInitialized.value) return _WebViewState.initialized;
+      return _WebViewState.placeholder;
+    });
+
     return (BuildContext context) {
-      final colors = Theme.of(context).colorScheme;
-      final isInitialized = webView.isInitialized.value;
-
-      Widget content;
-      if (isInitialized) {
-        content = Stack(
-          children: <Widget>[
-            InAppWebView(
-              initialSettings: webView.settings,
-              initialData: webView.initialData,
-              initialUrlRequest: webView.initialUrlRequest,
-              onWebViewCreated: webView.onWebViewCreated,
-              onContentSizeChanged: webView.onContentSizeChanged,
-              onLoadStop: webView.onLoadStop,
-              shouldOverrideUrlLoading: webView.shouldOverrideUrlLoading,
-              onConsoleMessage: webView.onConsoleMessage,
-            ),
-            if (webView.isLoading.value) _buildPlaceholder(context, colors),
-          ],
-        );
-      } else {
-        content = _buildPlaceholder(context, colors);
-      }
-
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           SizedBox(
             height: min(max(webView.viewHeight.value, height), 3000),
-            child: content,
+            child: switch (state.value) {
+              _WebViewState.initialized => Stack(
+                  children: <Widget>[
+                    InAppWebView(
+                      initialSettings: webView.settings,
+                      initialData: webView.initialData,
+                      initialUrlRequest: webView.initialUrlRequest,
+                      onWebViewCreated: webView.onWebViewCreated,
+                      onContentSizeChanged:
+                          webView.onContentSizeChanged,
+                      onLoadStop: webView.onLoadStop,
+                      shouldOverrideUrlLoading:
+                          webView.shouldOverrideUrlLoading,
+                      onConsoleMessage: webView.onConsoleMessage,
+                    ),
+                    if (webView.isLoading.value)
+                      _buildPlaceholder(
+                        theme.value.colorScheme,
+                      ),
+                  ],
+                ),
+              _WebViewState.placeholder => _buildPlaceholder(
+                  theme.value.colorScheme,
+                ),
+            },
           ),
           if (caption != null && caption!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xs),
               child: Text(
                 caption!,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  color: colors.onSurfaceVariant,
+                style: theme.value.textTheme.bodySmall!.copyWith(
+                  color: theme.value.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -172,7 +181,7 @@ class _EmbeddedWebViewContent extends CompositionWidget {
   }
 }
 
-Widget _buildPlaceholder(BuildContext context, ColorScheme colors) {
+Widget _buildPlaceholder(ColorScheme colors) {
   return ColoredBox(
     color: colors.surfaceContainer,
     child: Center(
@@ -187,7 +196,8 @@ Widget _buildPlaceholder(BuildContext context, ColorScheme colors) {
           const SizedBox(height: AppSpacing.xs),
           Text(
             '載入中…',
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            style: TextStyle(
+              fontSize: 12,
               color: colors.onSurfaceVariant,
             ),
           ),

@@ -23,6 +23,8 @@ import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
 import 'package:tw_reporter_app/shared/widgets/section_header.dart';
 import 'package:tw_reporter_app/shared/widgets/topic_card.dart';
 
+enum _ViewState { error, loading, empty, ready }
+
 /// 分類定義
 const List<(String, String)> _categories = <(String, String)>[
   ('文化', 'culture'),
@@ -222,30 +224,47 @@ class _HomeBody extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    return (BuildContext context) {
-      if (homeData.hasError.value) {
-        return ErrorView(
-          message: homeData.error.value ?? '未知錯誤',
-          onRetry: homeData.refresh,
-        );
-      }
+    final state = computed(() {
+      if (homeData.hasError.value) return _ViewState.error;
+      if (homeData.isLoading.value) return _ViewState.loading;
+      if (homeData.indexData.value == null) return _ViewState.empty;
+      return _ViewState.ready;
+    });
 
-      if (homeData.isLoading.value) {
-        return const LoadingIndicator();
-      }
+    return (BuildContext context) => switch (state.value) {
+          _ViewState.error => ErrorView(
+              message: homeData.error.value ?? '未知錯誤',
+              onRetry: homeData.refresh,
+            ),
+          _ViewState.loading => const LoadingIndicator(),
+          _ViewState.empty =>
+            const EmptyState(message: '目前沒有文章'),
+          _ViewState.ready => _HomeContent(
+              homeData: homeData,
+            ),
+        };
+  }
+}
 
-      final indexData = homeData.indexData.value;
-      if (indexData == null) {
-        return const EmptyState(message: '目前沒有文章');
-      }
+// ---------------------------------------------------------------------------
+// Private widget: Home content (ready state)
+// ---------------------------------------------------------------------------
 
-      final hasTopics =
-          (indexData.latestTopicSection?.isNotEmpty ?? false) ||
-          (indexData.topicsSection?.isNotEmpty ?? false);
+class _HomeContent extends StatelessWidget {
+  const _HomeContent({required this.homeData});
 
-      return ListView(
-        padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-        children: <Widget>[
+  final HomeDataResult homeData;
+
+  @override
+  Widget build(BuildContext context) {
+    final indexData = homeData.indexData.value!;
+    final hasTopics =
+        (indexData.latestTopicSection?.isNotEmpty ?? false) ||
+        (indexData.topicsSection?.isNotEmpty ?? false);
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+      children: <Widget>[
           // 1. 分類輪播
           _CategoriesRow(indexData: indexData),
 
@@ -338,7 +357,6 @@ class _HomeBody extends CompositionWidget {
           AppSpacing.verticalSpacerLg,
         ],
       );
-    };
   }
 }
 
@@ -545,14 +563,12 @@ class _TopicsCarousel extends CompositionWidget {
     });
 
     return (BuildContext context) {
-      final topicList = topics.value;
-
       return HorizontalCarousel(
         itemWidth: 280,
         height: 400,
-        itemCount: topicList.length,
+        itemCount: topics.value.length,
         itemBuilder: (context, index) {
-          final topic = topicList[index];
+          final topic = topics.value[index];
           return TopicCard(
             topic: topic,
             margin: EdgeInsets.zero,
@@ -622,17 +638,15 @@ class _CategoriesRow extends CompositionWidget {
       return items;
     });
 
-    return (BuildContext context) {
-      final items = categoryItems.value;
-
-      if (items.isEmpty) return const SizedBox.shrink();
-
-      return HorizontalCarousel(
+    return (BuildContext context) => categoryItems.value.isEmpty
+        ? const SizedBox.shrink()
+        : HorizontalCarousel(
         itemWidth: 280,
         height: 140 + 136,
-        itemCount: items.length,
+        itemCount: categoryItems.value.length,
         itemBuilder: (context, index) {
-          final (String label, String slug, Article article) = items[index];
+          final (String label, String slug, Article article) =
+              categoryItems.value[index];
           final imageUrl = ArticleCard.getArticleImageUrl(article);
 
           return GestureDetector(
@@ -723,6 +737,5 @@ class _CategoriesRow extends CompositionWidget {
           );
         },
       );
-    };
   }
 }

@@ -8,6 +8,8 @@ import 'package:tw_reporter_app/shared/composables/use_scroll_visibility.dart';
 import 'package:tw_reporter_app/shared/composables/use_video_player_controller.dart';
 import 'package:video_player/video_player.dart';
 
+enum _VideoViewState { error, uninitialized, initialized }
+
 /// Widget that plays embedded videos using the video_player package.
 /// Lazily initializes the player when first visible and pauses when off-screen.
 class EmbeddedVideoPlayer extends StatelessWidget {
@@ -104,88 +106,17 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
       }
     });
 
-    return (BuildContext context) {
-      final colors = Theme.of(context).colorScheme;
+    final theme = useTheme();
 
-      Widget content;
-      if (player.hasError.value) {
-        content = const ColoredBox(
-          color: AppColors.grey200,
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(
-                  Icons.error_outline,
-                  color: AppColors.grey400,
-                  size: 48,
-                ),
-                SizedBox(height: 8),
-                Text(
-                  '影片載入失敗',
-                  style: TextStyle(color: AppColors.grey400),
-                ),
-              ],
-            ),
-          ),
-        );
-      } else if (!player.isInitialized.value) {
-        content = GestureDetector(
-          onTap: () {
-            hasEverPlayed.value = true;
-            unawaited(
-              player.initialize().then((_) {
-                if (player.isInitialized.value) {
-                  unawaited(player.play());
-                }
-              }),
-            );
-          },
-          child: const ColoredBox(
-            color: AppColors.grey200,
-            child: Center(
-              child: Icon(
-                Icons.play_circle_outline,
-                color: AppColors.grey400,
-                size: 48,
-              ),
-            ),
-          ),
-        );
-      } else {
-        final isPlaying = player.isPlaying.value;
-        final showPlayOverlay = !isPlaying && hasEverPlayed.value;
-        content = GestureDetector(
-          onTap: () {
-            hasEverPlayed.value = true;
-            unawaited(player.togglePlayPause());
-          },
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: <Widget>[
-              VideoPlayer(player.controllerRef.raw),
-              if (showPlayOverlay)
-                const Center(
-                  child: Icon(
-                    Icons.play_circle_fill,
-                    size: 64,
-                    color: Colors.white70,
-                  ),
-                ),
-              VideoProgressIndicator(
-                player.controllerRef.raw,
-                allowScrubbing: true,
-                colors: const VideoProgressColors(
-                  playedColor: AppColors.secondary,
-                  bufferedColor: AppColors.grey300,
-                  backgroundColor: AppColors.grey200,
-                ),
-              ),
-            ],
-          ),
-        );
+    final state = computed(() {
+      if (player.hasError.value) return _VideoViewState.error;
+      if (!player.isInitialized.value) {
+        return _VideoViewState.uninitialized;
       }
+      return _VideoViewState.initialized;
+    });
 
+    return (BuildContext context) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -195,7 +126,82 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
             ),
             child: AspectRatio(
               aspectRatio: player.aspectRatio.value,
-              child: content,
+              child: switch (state.value) {
+                _VideoViewState.error => const ColoredBox(
+                    color: AppColors.grey200,
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Icon(
+                            Icons.error_outline,
+                            color: AppColors.grey400,
+                            size: 48,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '影片載入失敗',
+                            style: TextStyle(
+                              color: AppColors.grey400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                _VideoViewState.uninitialized => GestureDetector(
+                    onTap: () {
+                      hasEverPlayed.value = true;
+                      unawaited(
+                        player.initialize().then((_) {
+                          if (player.isInitialized.value) {
+                            unawaited(player.play());
+                          }
+                        }),
+                      );
+                    },
+                    child: const ColoredBox(
+                      color: AppColors.grey200,
+                      child: Center(
+                        child: Icon(
+                          Icons.play_circle_outline,
+                          color: AppColors.grey400,
+                          size: 48,
+                        ),
+                      ),
+                    ),
+                  ),
+                _VideoViewState.initialized => GestureDetector(
+                    onTap: () {
+                      hasEverPlayed.value = true;
+                      unawaited(player.togglePlayPause());
+                    },
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: <Widget>[
+                        VideoPlayer(player.controllerRef.raw),
+                        if (!player.isPlaying.value &&
+                            hasEverPlayed.value)
+                          const Center(
+                            child: Icon(
+                              Icons.play_circle_fill,
+                              size: 64,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        VideoProgressIndicator(
+                          player.controllerRef.raw,
+                          allowScrubbing: true,
+                          colors: const VideoProgressColors(
+                            playedColor: AppColors.secondary,
+                            bufferedColor: AppColors.grey300,
+                            backgroundColor: AppColors.grey200,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              },
             ),
           ),
           if (caption != null && caption!.isNotEmpty)
@@ -205,8 +211,8 @@ class _EmbeddedVideoPlayerContent extends CompositionWidget {
               ),
               child: Text(
                 caption!,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  color: colors.onSurfaceVariant,
+                style: theme.value.textTheme.bodySmall!.copyWith(
+                  color: theme.value.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
