@@ -3,16 +3,13 @@ import 'dart:convert' show base64Url, utf8;
 import 'dart:ui' show lerpDouble;
 
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/author.dart';
-import 'package:tw_reporter_app/core/repositories/reading_repository.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/core/settings/media_load_mode.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
@@ -20,9 +17,11 @@ import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/core/theme/app_theme.dart';
 import 'package:tw_reporter_app/features/article/logic/use_article_detail.dart';
 import 'package:tw_reporter_app/shared/composables/use_flexible_space_ratio.dart';
+import 'package:tw_reporter_app/shared/composables/use_reading.dart';
 import 'package:tw_reporter_app/shared/utils/content_renderer.dart';
 import 'package:tw_reporter_app/shared/utils/date_formatter.dart';
 import 'package:tw_reporter_app/shared/widgets/article_card.dart';
+import 'package:tw_reporter_app/shared/widgets/cached_image.dart';
 import 'package:tw_reporter_app/shared/widgets/category_badge.dart';
 import 'package:tw_reporter_app/shared/widgets/donate_banner.dart';
 import 'package:tw_reporter_app/shared/widgets/embedded_video_player.dart';
@@ -193,29 +192,10 @@ Widget? _buildFlexibleBackground({
   return Stack(
     fit: StackFit.expand,
     children: <Widget>[
-      CachedNetworkImage(
+      CachedImage(
         imageUrl: imageUrl,
-        cacheManager: AppCacheManager.instance.imageCacheManager,
-        fit: BoxFit.cover,
-        placeholder: (_, _) => lowResImageUrl != null
-            ? CachedNetworkImage(
-                imageUrl: lowResImageUrl,
-                cacheManager: AppCacheManager.instance.imageCacheManager,
-                fit: BoxFit.cover,
-                placeholder: (_, _) => const ColoredBox(
-                  color: AppColors.grey200,
-                ),
-                errorWidget: (_, _, _) => const ColoredBox(
-                  color: AppColors.grey200,
-                ),
-              )
-            : const ColoredBox(
-                color: AppColors.grey200,
-                child: Center(
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-        errorWidget: (_, _, _) => const ColoredBox(
+        placeholderUrl: lowResImageUrl,
+        errorWidget: const ColoredBox(
           color: AppColors.grey200,
           child: Icon(
             Icons.image_not_supported,
@@ -274,14 +254,13 @@ class _ArticlePageContent extends CompositionWidget {
   @override
   Widget Function(BuildContext) setup() {
     final articleRepo = useArticleRepository();
-    final readingRepo = useReadingRepository();
+    final reading = useReading();
     final articleDetail = useArticleDetail(
       articleRepo,
       slug: slug,
     );
-    final isBookmarked = ref<bool>(false);
-    var hasRecordedReading = false;
     final theme = useTheme();
+    void Function()? stopRecordedReading;
 
     final imageUrl = computed(() {
       final a = articleDetail.article.value;
@@ -291,48 +270,47 @@ class _ArticlePageContent extends CompositionWidget {
       final a = articleDetail.article.value;
       return a != null ? _getLowResImageUrl(a) : heroImageUrl;
     });
-    final title = computed(() => articleDetail.article.value?.title ?? '');
+    final title = computed(
+      () => articleDetail.article.value?.title ?? '',
+    );
     final hasImage = computed(() => imageUrl.value != null);
-
-    onMounted(() {
-      isBookmarked.value = readingRepo.isBookmarked(slug);
+    final isBookmarked = computed(() {
+      // Read bookmarks to establish reactive tracking
+      final _ = reading.bookmarks.value;
+      return reading.isBookmarked(slug);
     });
-
-    void recordReadingIfNeeded(Article? article) {
-      if (article != null && !hasRecordedReading) {
-        hasRecordedReading = true;
-        final imageUrl = _getImageUrl(article);
-        readingRepo.addToHistory(
-          slug,
-          article.title,
-          imageUrl,
-          DateTime.now(),
-        );
-      }
-    }
 
     void shareArticle(String title) {
       final url = 'https://www.twreporter.org/a/$slug';
       final shareText = '$title\n$url';
-      unawaited(SharePlus.instance.share(ShareParams(text: shareText)));
+      unawaited(
+        SharePlus.instance.share(ShareParams(text: shareText)),
+      );
     }
 
     void toggleBookmark() {
       final article = articleDetail.article.value;
       if (article == null) return;
-      final imageUrl = _getImageUrl(article);
+      final imgUrl = _getImageUrl(article);
       if (isBookmarked.value) {
-        readingRepo.removeBookmark(slug);
-        isBookmarked.value = false;
+        reading.removeBookmark(slug);
       } else {
-        readingRepo.addBookmark(slug, article.title, imageUrl);
-        isBookmarked.value = true;
+        reading.addBookmark(slug, article.title, imgUrl);
       }
     }
 
-    // Record reading as a side effect when article is loaded
-    watch(() => articleDetail.article.value, (article, _) {
-      recordReadingIfNeeded(article);
+    stopRecordedReading = watchEffect(() {
+      final article = articleDetail.article.value;
+      if (article != null) {
+        final imgUrl = _getImageUrl(article);
+        reading.addToHistory(
+          slug,
+          article.title,
+          imgUrl,
+          DateTime.now(),
+        );
+        stopRecordedReading?.call();
+      }
     });
 
     return (BuildContext context) {
@@ -515,7 +493,6 @@ class _ArticlePageContent extends CompositionWidget {
               context: context,
               articleDetail: articleDetail,
               isBookmarked: isBookmarked,
-              readingRepo: readingRepo,
               slug: slug,
               onShare: shareArticle,
               onToggleBookmark: toggleBookmark,
@@ -537,8 +514,7 @@ class _ArticleContentView {
   static List<Widget> buildSlivers({
     required BuildContext context,
     required ArticleDetailResult articleDetail,
-    required Ref<bool> isBookmarked,
-    required ReadingRepository readingRepo,
+    required ReadonlyRef<bool> isBookmarked,
     required String slug,
     required void Function(String title) onShare,
     required VoidCallback onToggleBookmark,
@@ -600,7 +576,7 @@ class _ArticleBodySlivers {
     required BuildContext context,
     required Article article,
     required List<Article> relatedArticles,
-    required Ref<bool> isBookmarked,
+    required ReadonlyRef<bool> isBookmarked,
     required VoidCallback onToggleBookmark,
     required void Function(String title) onShare,
     required String slug,
@@ -1038,16 +1014,11 @@ class _ArticleHtmlContentView extends StatelessWidget {
               }
               return TapToLoadWrapper(
                 mediaType: MediaType.image,
-                child: CachedNetworkImage(
+                child: CachedImage(
                   imageUrl: src,
-                  cacheManager: AppCacheManager.instance.imageCacheManager,
                   fit: BoxFit.contain,
                   width: double.infinity,
-                  placeholder: (_, _) => const AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: ColoredBox(color: AppColors.grey200),
-                  ),
-                  errorWidget: (_, _, _) => const AspectRatio(
+                  errorWidget: const AspectRatio(
                     aspectRatio: 16 / 9,
                     child: ColoredBox(
                       color: AppColors.grey200,
@@ -1497,24 +1468,10 @@ class _RelatedArticlesCarousel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 if (relatedImageUrl != null)
-                  CachedNetworkImage(
+                  CachedImage(
                     imageUrl: relatedImageUrl,
-                    cacheManager: AppCacheManager.instance.imageCacheManager,
                     height: 140,
                     width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      height: 140,
-                      color: AppColors.grey200,
-                    ),
-                    errorWidget: (_, _, _) => Container(
-                      height: 140,
-                      color: AppColors.grey200,
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        color: AppColors.grey400,
-                      ),
-                    ),
                   ),
                 Expanded(
                   child: Padding(

@@ -1,10 +1,8 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
@@ -12,6 +10,7 @@ import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/features/author/logic/use_author_articles.dart';
 import 'package:tw_reporter_app/shared/composables/use_reading.dart';
 import 'package:tw_reporter_app/shared/widgets/article_card.dart';
+import 'package:tw_reporter_app/shared/widgets/cached_image_provider.dart';
 import 'package:tw_reporter_app/shared/widgets/empty_state.dart';
 import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
 
@@ -63,7 +62,8 @@ class _AuthorDetailPageContent extends CompositionWidget {
   Widget Function(BuildContext) setup() {
     final repo = useArticleRepository();
     final authorArticles = useAuthorArticles(repo, authorId: authorId);
-    final (:readSlugs) = useReadingSlugs();
+    final reading = useReading();
+    final readSlugs = reading.readSlugs;
 
     final scrollControllerRef = useScrollController();
 
@@ -130,12 +130,9 @@ class _AuthorHeader extends StatelessWidget {
           if (authorThumbnailUrl != null)
             CircleAvatar(
               radius: 40,
-              backgroundImage:
-                  CachedNetworkImageProvider(
-                    authorThumbnailUrl!,
-                    cacheManager:
-                        AppCacheManager.instance.imageCacheManager,
-                  ),
+              backgroundImage: CachedImageProvider(
+                authorThumbnailUrl!,
+              ),
               backgroundColor: AppColors.grey200,
             )
           else
