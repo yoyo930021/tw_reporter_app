@@ -19,6 +19,7 @@ import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/core/theme/app_theme.dart';
 import 'package:tw_reporter_app/features/article/logic/use_article_detail.dart';
+import 'package:tw_reporter_app/shared/composables/use_flexible_space_ratio.dart';
 import 'package:tw_reporter_app/shared/utils/content_renderer.dart';
 import 'package:tw_reporter_app/shared/utils/date_formatter.dart';
 import 'package:tw_reporter_app/shared/widgets/article_card.dart';
@@ -34,6 +35,12 @@ import 'package:tw_reporter_app/shared/widgets/slideshow_viewer.dart';
 import 'package:tw_reporter_app/shared/widgets/tap_to_load_wrapper.dart';
 import 'package:tw_reporter_app/shared/widgets/youtube_player_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum _ArticleMenuAction { bookmark, share, browser }
 
 // ---------------------------------------------------------------------------
 // Top-level pure functions
@@ -274,7 +281,7 @@ class _ArticlePageContent extends CompositionWidget {
     );
     final isBookmarked = ref<bool>(false);
     var hasRecordedReading = false;
-    final expandRatio = ref<double>(1);
+    final theme = useTheme();
 
     final imageUrl = computed(() {
       final a = articleDetail.article.value;
@@ -329,7 +336,6 @@ class _ArticlePageContent extends CompositionWidget {
     });
 
     return (BuildContext context) {
-
       return Scaffold(
         body: CustomScrollView(
           cacheExtent: 300,
@@ -339,46 +345,53 @@ class _ArticlePageContent extends CompositionWidget {
               pinned: true,
               // ComputedBuilder: only rebuild icons on scroll,
               // not the entire article body.
-              leading: ComputedBuilder(
-                builder: () => Builder(
-                  builder: (context) {
-                    final color = hasImage.value
+              leading: CompositionBuilder(
+                setup: () {
+                  final ratio = useFlexibleSpaceRatio();
+                  final color = computed(
+                    () => hasImage.value
                         ? Color.lerp(
-                            Theme.of(context).colorScheme.onSurface,
+                            theme.value.colorScheme.onSurface,
                             Colors.white,
-                            expandRatio.value,
+                            ratio.value,
                           )
-                        : Theme.of(context).colorScheme.onSurface;
-                    return BackButton(color: color);
-                  },
-                ),
+                        : theme.value.colorScheme.onSurface,
+                  );
+
+                  return (_) => BackButton(color: color.value);
+                },
               ),
               actions: <Widget>[
-                ComputedBuilder(
-                  builder: () => Builder(
-                    builder: (context) {
-                      final iconColor = hasImage.value
+                CompositionBuilder(
+                  setup: () {
+                    final ratio = useFlexibleSpaceRatio();
+                    final iconColor = computed(
+                      () => hasImage.value
                           ? Color.lerp(
-                              Theme.of(context).colorScheme.onSurface,
+                              theme.value.colorScheme.onSurface,
                               Colors.white,
-                              expandRatio.value,
+                              ratio.value,
                             )
-                          : Theme.of(context).colorScheme.onSurface;
-                    return PopupMenuButton<String>(
+                          : theme.value.colorScheme.onSurface,
+                    );
+
+                    return (_) => PopupMenuButton<_ArticleMenuAction>(
                       icon: Icon(
                         Icons.more_vert,
-                        color: iconColor,
+                        color: iconColor.value,
                       ),
-                      onSelected: (value) {
-                        switch (value) {
-                          case 'bookmark':
+                      onSelected: (action) {
+                        switch (action) {
+                          case _ArticleMenuAction.bookmark:
                             toggleBookmark();
-                          case 'share':
+                          case _ArticleMenuAction.share:
                             shareArticle(title.value);
-                          case 'browser':
+                          case _ArticleMenuAction.browser:
                             unawaited(
                               launchUrl(
-                                Uri.parse('https://www.twreporter.org/a/$slug'),
+                                Uri.parse(
+                                  'https://www.twreporter.org/a/$slug',
+                                ),
                                 mode: LaunchMode.inAppBrowserView,
                               ),
                             );
@@ -386,12 +399,11 @@ class _ArticlePageContent extends CompositionWidget {
                       },
                       itemBuilder: (ctx) {
                         final menuIconColor =
-                            Theme.of(ctx).iconTheme.color ?? Colors.black87;
-                        // Read isBookmarked.value at build time for menu items
+                            theme.value.iconTheme.color ?? Colors.black87;
                         final bookmarked = isBookmarked.value;
-                        return <PopupMenuEntry<String>>[
-                          PopupMenuItem<String>(
-                            value: 'bookmark',
+                        return <PopupMenuEntry<_ArticleMenuAction>>[
+                          PopupMenuItem<_ArticleMenuAction>(
+                            value: _ArticleMenuAction.bookmark,
                             child: Row(
                               children: <Widget>[
                                 Icon(
@@ -408,8 +420,8 @@ class _ArticlePageContent extends CompositionWidget {
                               ],
                             ),
                           ),
-                          PopupMenuItem<String>(
-                            value: 'share',
+                          PopupMenuItem<_ArticleMenuAction>(
+                            value: _ArticleMenuAction.share,
                             child: Row(
                               children: <Widget>[
                                 Icon(
@@ -422,8 +434,8 @@ class _ArticlePageContent extends CompositionWidget {
                               ],
                             ),
                           ),
-                          PopupMenuItem<String>(
-                            value: 'browser',
+                          PopupMenuItem<_ArticleMenuAction>(
+                            value: _ArticleMenuAction.browser,
                             child: Row(
                               children: <Widget>[
                                 Icon(
@@ -439,57 +451,54 @@ class _ArticlePageContent extends CompositionWidget {
                         ];
                       },
                     );
-                    },
-                  ),
+                  },
                 ),
               ],
-              flexibleSpace: LayoutBuilder(
-                builder: (context, constraints) {
-                  final statusBarHeight = MediaQuery.of(context).padding.top;
-                  final minExtent = kToolbarHeight + statusBarHeight;
-                  final expandedHeight = hasImage.value ? 300.0 : 160.0;
-                  final maxExtent = expandedHeight + statusBarHeight;
-                  final ratio =
-                      ((constraints.maxHeight - minExtent) /
-                              (maxExtent - minExtent))
-                          .clamp(0.0, 1.0);
+              flexibleSpace: CompositionBuilder(
+                setup: () {
+                  final ratio = useFlexibleSpaceRatio();
 
-                  if ((expandRatio.value - ratio).abs() > 0.01) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      expandRatio.value = ratio;
-                    });
-                  }
+                  final paddingHorizontal = computed(
+                    () => lerpDouble(56, 16, ratio.value)!,
+                  );
+                  final maxLines = computed(() => ratio.value > 0.4 ? 4 : 1);
+                  final color = computed(
+                    () => hasImage.value
+                        ? Color.lerp(
+                            theme.value.colorScheme.onSurface,
+                            Colors.white,
+                            ratio.value,
+                          )
+                        : theme.value.colorScheme.onSurface,
+                  );
+                  final shadows = computed(
+                    () => hasImage.value && ratio.value > 0.3
+                        ? <Shadow>[
+                            Shadow(
+                              color: Colors.black54.withValues(
+                                alpha: ratio.value,
+                              ),
+                              blurRadius: 4,
+                            ),
+                          ]
+                        : null,
+                  );
 
-                  return FlexibleSpaceBar(
+                  return (context) => FlexibleSpaceBar(
                     titlePadding: EdgeInsetsDirectional.only(
-                      start: lerpDouble(56, 16, ratio)!,
-                      bottom: 18,
-                      end: lerpDouble(56, 16, ratio)!,
+                      start: paddingHorizontal.value,
+                      bottom: 16,
+                      end: paddingHorizontal.value,
                     ),
                     title: Text(
                       title.value,
-                      maxLines: ratio > 0.4 ? 4 : 1,
+                      maxLines: maxLines.value,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: hasImage.value
-                            ? Color.lerp(
-                                Theme.of(context).colorScheme.onSurface,
-                                Colors.white,
-                                ratio,
-                              )
-                            : Theme.of(context).colorScheme.onSurface,
-                        shadows: hasImage.value && ratio > 0.3
-                            ? <Shadow>[
-                                Shadow(
-                                  color: Colors.black54.withValues(
-                                    alpha: ratio,
-                                  ),
-                                  blurRadius: 4,
-                                ),
-                              ]
-                            : null,
+                        color: color.value,
+                        shadows: shadows.value,
                       ),
                     ),
                     background: _buildFlexibleBackground(
@@ -602,9 +611,9 @@ class _ArticleBodySlivers {
     final secondaryTextColor = colors.onSurfaceVariant;
     final linkColor = colors.primary;
 
-    final contentBlocks = convertContentToBlocks(article.content)
-        .map(_markExternalLinks)
-        .toList();
+    final contentBlocks = convertContentToBlocks(
+      article.content,
+    ).map(_markExternalLinks).toList();
 
     return <Widget>[
       // 1. Metadata sliver (image desc, category, tags, date, byline, brief)
@@ -824,8 +833,7 @@ class _ArticleHtmlContent extends CompositionWidget {
         textColor: textColor,
         secondaryTextColor: secondaryTextColor,
         linkColor: linkColor,
-        isDataSaving:
-            mediaLoadModeRef.value == MediaLoadMode.dataSaving,
+        isDataSaving: mediaLoadModeRef.value == MediaLoadMode.dataSaving,
       );
     };
   }
@@ -1032,8 +1040,7 @@ class _ArticleHtmlContentView extends StatelessWidget {
                 mediaType: MediaType.image,
                 child: CachedNetworkImage(
                   imageUrl: src,
-                  cacheManager:
-                      AppCacheManager.instance.imageCacheManager,
+                  cacheManager: AppCacheManager.instance.imageCacheManager,
                   fit: BoxFit.contain,
                   width: double.infinity,
                   placeholder: (_, _) => const AspectRatio(
@@ -1061,8 +1068,7 @@ class _ArticleHtmlContentView extends StatelessWidget {
             final quoteByAuthor =
                 extensionContext.attributes['quoteby-author'] ?? '';
             return Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
               child: Column(
                 children: <Widget>[
                   Container(
