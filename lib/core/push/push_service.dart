@@ -122,7 +122,7 @@ class PushService {
       macOS: darwinSettings,
     );
     await _localNotifications.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
   }
@@ -274,10 +274,9 @@ class PushService {
     const details = NotificationDetails(android: androidDetails);
 
     await _localNotifications.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      title,
-      null,
-      details,
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title: title,
+      notificationDetails: details,
       payload: href,
     );
   }
