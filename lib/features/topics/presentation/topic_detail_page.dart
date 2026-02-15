@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:ui' show lerpDouble;
 
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
 import 'package:tw_reporter_app/core/router/app_router.dart';
@@ -15,6 +13,7 @@ import 'package:tw_reporter_app/core/theme/app_theme.dart';
 import 'package:tw_reporter_app/features/topics/logic/use_topic_detail.dart';
 import 'package:tw_reporter_app/shared/utils/date_formatter.dart';
 import 'package:tw_reporter_app/shared/widgets/article_card.dart';
+import 'package:tw_reporter_app/shared/widgets/cached_image.dart';
 import 'package:tw_reporter_app/shared/widgets/empty_state.dart';
 import 'package:tw_reporter_app/shared/widgets/error_view.dart';
 import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
@@ -47,34 +46,16 @@ Widget? _buildFlexibleBackground({
   return Stack(
     fit: StackFit.expand,
     children: <Widget>[
-      CachedNetworkImage(
+      CachedImage(
         imageUrl: imageUrl,
-        cacheManager:
-            AppCacheManager.instance.imageCacheManager,
-        fit: BoxFit.cover,
-        placeholder: (_, _) => lowResImageUrl != null
-            ? CachedNetworkImage(
-                imageUrl: lowResImageUrl,
-                cacheManager:
-                    AppCacheManager.instance.imageCacheManager,
-                fit: BoxFit.cover,
-                placeholder: (_, _) => const ColoredBox(
-                  color: AppColors.grey200,
-                ),
-                errorWidget: (_, _, _) => const ColoredBox(
-                  color: AppColors.grey200,
-                ),
-              )
-            : const ColoredBox(
-                color: AppColors.grey200,
-                child: Center(
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-        errorWidget: (_, _, _) => const ColoredBox(
+        placeholderUrl: lowResImageUrl,
+        errorWidget: const ColoredBox(
           color: AppColors.grey200,
-          child: Icon(Icons.image_not_supported,
-              color: AppColors.grey400, size: 48),
+          child: Icon(
+            Icons.image_not_supported,
+            color: AppColors.grey400,
+            size: 48,
+          ),
         ),
       ),
       const DecoratedBox(

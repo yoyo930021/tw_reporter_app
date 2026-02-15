@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tw_reporter_app/core/api/tw_reporter_api.dart';
-import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
@@ -15,6 +13,7 @@ import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/features/home/logic/use_home_data.dart';
 import 'package:tw_reporter_app/shared/widgets/article_card.dart';
+import 'package:tw_reporter_app/shared/widgets/cached_image.dart';
 import 'package:tw_reporter_app/shared/widgets/donate_banner.dart';
 import 'package:tw_reporter_app/shared/widgets/empty_state.dart';
 import 'package:tw_reporter_app/shared/widgets/error_view.dart';
@@ -392,28 +391,10 @@ class _FeaturedArticleCard extends StatelessWidget {
             if (imageUrl != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                child: CachedNetworkImage(
+                child: CachedImage(
                   imageUrl: imageUrl,
-                  cacheManager:
-                      AppCacheManager.instance.imageCacheManager,
                   height: 220,
                   width: double.infinity,
-                  fit: BoxFit.cover,
-                  placeholder: (_, _) => Container(
-                    height: 220,
-                    color: AppColors.grey200,
-                    child: const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                  errorWidget: (_, _, _) => Container(
-                    height: 220,
-                    color: AppColors.grey200,
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      color: AppColors.grey400,
-                    ),
-                  ),
                 ),
               ),
             AppSpacing.verticalSpacerSm,
@@ -483,25 +464,10 @@ class _HorizontalArticleSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 if (imageUrl != null)
-                  CachedNetworkImage(
+                  CachedImage(
                     imageUrl: imageUrl,
-                    cacheManager:
-                        AppCacheManager.instance.imageCacheManager,
                     height: imageHeight,
                     width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      height: imageHeight,
-                      color: AppColors.grey200,
-                    ),
-                    errorWidget: (_, _, _) => Container(
-                      height: imageHeight,
-                      color: AppColors.grey200,
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        color: AppColors.grey400,
-                      ),
-                    ),
                   ),
                 Expanded(
                   child: Padding(
@@ -670,25 +636,10 @@ class _CategoriesRow extends CompositionWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   if (imageUrl != null)
-                    CachedNetworkImage(
+                    CachedImage(
                       imageUrl: imageUrl,
-                      cacheManager:
-                          AppCacheManager.instance.imageCacheManager,
                       height: 140,
                       width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(
-                        height: 140,
-                        color: AppColors.grey200,
-                      ),
-                      errorWidget: (_, _, _) => Container(
-                        height: 140,
-                        color: AppColors.grey200,
-                        child: const Icon(
-                          Icons.image_not_supported,
-                          color: AppColors.grey400,
-                        ),
-                      ),
                     ),
                   Expanded(
                     child: Padding(
