@@ -27,7 +27,12 @@
 
 ## 截圖
 
-<!-- TODO: 加入截圖 -->
+<p align="center">
+  <img src="docs/screenshots/home.png" width="200" alt="首頁">
+  <img src="docs/screenshots/article.png" width="200" alt="文章頁面">
+  <img src="docs/screenshots/article-content.png" width="200" alt="文章內容">
+  <img src="docs/screenshots/article-embed.png" width="200" alt="嵌入式互動內容">
+</p>
 
 ## 開始開發
 
