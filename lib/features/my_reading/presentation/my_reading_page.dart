@@ -35,47 +35,48 @@ class _MyReadingPageContent extends CompositionWidget {
     final readingData = useReadingData(repo);
     final theme = useTheme();
 
-    return (BuildContext context) {
+    // Track theme + loading as a computed boolean
+    final isLoading = computed(() {
       // Read theme to establish reactive tracking for theme changes
       final _ = theme.value;
-      if (readingData.isLoading.value) {
-        return Scaffold(
-          appBar: AppBar(title: const Text('我的閱讀')),
-          body: const LoadingIndicator(),
-        );
-      }
+      return readingData.isLoading.value;
+    });
 
-      return DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('我的閱讀'),
-            bottom: const TabBar(
-              tabs: <Tab>[
-                Tab(text: '閱讀記錄'),
-                Tab(text: '收藏'),
-              ],
-            ),
-            actions: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  unawaited(context.router.push(
-                    const SettingsRoute(),
-                  ));
-                },
+    return (BuildContext context) => isLoading.value
+        ? Scaffold(
+            appBar: AppBar(title: const Text('我的閱讀')),
+            body: const LoadingIndicator(),
+          )
+        : DefaultTabController(
+            length: 2,
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text('我的閱讀'),
+                bottom: const TabBar(
+                  tabs: <Tab>[
+                    Tab(text: '閱讀記錄'),
+                    Tab(text: '收藏'),
+                  ],
+                ),
+                actions: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: () {
+                      unawaited(context.router.push(
+                        const SettingsRoute(),
+                      ));
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-          body: TabBarView(
-            children: <Widget>[
-              _HistoryTab(readingData: readingData),
-              _BookmarksTab(readingData: readingData),
-            ],
-          ),
-        ),
-      );
-    };
+              body: TabBarView(
+                children: <Widget>[
+                  _HistoryTab(readingData: readingData),
+                  _BookmarksTab(readingData: readingData),
+                ],
+              ),
+            ),
+          );
   }
 }
 

@@ -39,17 +39,13 @@ class SlideshowViewer extends CompositionWidget {
     }
 
     return (BuildContext context) {
-      final colors = theme.value.colorScheme;
-      final textTheme = theme.value.textTheme;
-      final total = props.value.slides.length;
-
       return Column(
         children: <Widget>[
           AspectRatio(
             aspectRatio: 16 / 10,
             child: PageView.builder(
               controller: pageControllerRef.raw,
-              itemCount: total,
+              itemCount: props.value.slides.length,
               onPageChanged: (index) {
                 currentPage.value = index;
               },
@@ -85,8 +81,8 @@ class SlideshowViewer extends CompositionWidget {
               ),
               child: Text(
                 props.value.slides[currentPage.value].description,
-                style: textTheme.bodySmall!.copyWith(
-                  color: colors.onSurfaceVariant,
+                style: theme.value.textTheme.bodySmall!.copyWith(
+                  color: theme.value.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -105,12 +101,12 @@ class SlideshowViewer extends CompositionWidget {
                       : null,
                 ),
                 Text(
-                  '${currentPage.value + 1} / $total',
-                  style: textTheme.bodyMedium,
+                  '${currentPage.value + 1} / ${props.value.slides.length}',
+                  style: theme.value.textTheme.bodyMedium,
                 ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
-                  onPressed: currentPage.value < total - 1
+                  onPressed: currentPage.value < props.value.slides.length - 1
                       ? () => goToPage(currentPage.value + 1)
                       : null,
                 ),

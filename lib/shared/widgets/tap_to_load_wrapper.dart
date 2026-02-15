@@ -57,18 +57,15 @@ class _TapToLoadWrapperContent extends CompositionWidget {
     final mediaLoadModeRef = useMediaLoadMode();
     final isLoaded = ref(false);
 
-    return (BuildContext context) {
-      if (mediaLoadModeRef.value != MediaLoadMode.dataSaving ||
-          isLoaded.value) {
-        return child;
-      }
-
-      return _TapToLoadPlaceholder(
-        mediaType: mediaType,
-        aspectRatio: aspectRatio,
-        onTap: () => isLoaded.value = true,
-      );
-    };
+    return (BuildContext context) =>
+        (mediaLoadModeRef.value != MediaLoadMode.dataSaving ||
+                isLoaded.value)
+            ? child
+            : _TapToLoadPlaceholder(
+                mediaType: mediaType,
+                aspectRatio: aspectRatio,
+                onTap: () => isLoaded.value = true,
+              );
   }
 }
 

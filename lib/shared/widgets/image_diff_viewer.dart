@@ -40,21 +40,12 @@ class ImageDiffViewer extends CompositionWidget {
           (p.afterDesc != null && p.afterDesc!.isNotEmpty);
     });
 
-    return (BuildContext context) {
-      final colors = theme.value.colorScheme;
-      final textTheme = theme.value.textTheme;
-
-      // Read reactive value HERE (in the render function) so that
-      // changes trigger a rebuild. LayoutBuilder.builder is NOT
-      // tracked by the reactive system.
-      final position = dividerPosition.value;
-
-      return Column(
+    return (BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           SelectionContainer.disabled(
             child: LayoutBuilder(
-              builder: (context, constraints) {
+              builder: (layoutCtx, constraints) {
                 final width = constraints.maxWidth;
                 return GestureDetector(
                   onHorizontalDragUpdate: (details) {
@@ -90,7 +81,7 @@ class ImageDiffViewer extends CompositionWidget {
                         // Before image (clipped from left)
                         Positioned.fill(
                           child: ClipRect(
-                            clipper: _LeftClipper(position),
+                            clipper: _LeftClipper(dividerPosition.value),
                             child: CachedNetworkImage(
                               imageUrl: props.value.beforeUrl,
                               cacheManager:
@@ -113,7 +104,7 @@ class ImageDiffViewer extends CompositionWidget {
                         ),
                         // Divider line
                         Positioned(
-                          left: width * position - 1,
+                          left: width * dividerPosition.value - 1,
                           top: 0,
                           bottom: 0,
                           child: Container(
@@ -123,7 +114,7 @@ class ImageDiffViewer extends CompositionWidget {
                         ),
                         // Drag handle
                         Positioned(
-                          left: width * position - 18,
+                          left: width * dividerPosition.value - 18,
                           top: 0,
                           bottom: 0,
                           child: Center(
@@ -166,8 +157,8 @@ class ImageDiffViewer extends CompositionWidget {
                   Expanded(
                     child: Text(
                       props.value.beforeDesc!,
-                      style: textTheme.bodySmall!.copyWith(
-                        color: colors.onSurfaceVariant,
+                      style: theme.value.textTheme.bodySmall!.copyWith(
+                        color: theme.value.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -177,8 +168,8 @@ class ImageDiffViewer extends CompositionWidget {
                     child: Text(
                       props.value.afterDesc!,
                       textAlign: TextAlign.end,
-                      style: textTheme.bodySmall!.copyWith(
-                        color: colors.onSurfaceVariant,
+                      style: theme.value.textTheme.bodySmall!.copyWith(
+                        color: theme.value.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -187,7 +178,6 @@ class ImageDiffViewer extends CompositionWidget {
           ],
         ],
       );
-    };
   }
 }
 

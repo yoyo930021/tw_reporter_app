@@ -66,15 +66,13 @@ class YoutubePlayerWidget extends CompositionWidget {
   Widget Function(BuildContext) setup() {
     final isPlaying = ref(false);
     final videoTitle = ref<String?>(null);
+    final theme = useTheme();
 
     onMounted(() async {
       videoTitle.value = await _fetchYoutubeTitle(videoId);
     });
 
     return (BuildContext context) {
-      final colors = Theme.of(context).colorScheme;
-      final textTheme = Theme.of(context).textTheme;
-
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -93,8 +91,8 @@ class YoutubePlayerWidget extends CompositionWidget {
             _YoutubePreview(
               videoId: videoId,
               title: videoTitle.value,
-              colors: colors,
-              textTheme: textTheme,
+              colors: theme.value.colorScheme,
+              textTheme: theme.value.textTheme,
               onPlay: () => isPlaying.value = true,
             ),
           if (caption != null && caption!.isNotEmpty)
@@ -102,8 +100,8 @@ class YoutubePlayerWidget extends CompositionWidget {
               padding: const EdgeInsets.only(top: AppSpacing.xs),
               child: Text(
                 caption!,
-                style: textTheme.bodySmall!.copyWith(
-                  color: colors.onSurfaceVariant,
+                style: theme.value.textTheme.bodySmall!.copyWith(
+                  color: theme.value.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),

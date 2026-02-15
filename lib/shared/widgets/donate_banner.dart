@@ -95,16 +95,14 @@ class _DonateBannerContent extends CompositionWidget {
       data.value = await service.fetch(pagePath: pagePath);
     });
 
+    void openDonation() {
+      unawaited(launchUrl(
+        Uri.parse(data.value.buttonUrl),
+        mode: LaunchMode.inAppBrowserView,
+      ));
+    }
+
     return (BuildContext context) {
-      final currentData = data.value;
-
-      void openDonation() {
-        unawaited(launchUrl(
-          Uri.parse(currentData.buttonUrl),
-          mode: LaunchMode.inAppBrowserView,
-        ));
-      }
-
       return Padding(
         padding: AppSpacing.edgeInsetsHorizontalMd,
         child: Card(
@@ -116,7 +114,7 @@ class _DonateBannerContent extends CompositionWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Html(
-                  data: _styledHtml(currentData.html),
+                  data: _styledHtml(data.value.html),
                   onLinkTap: (url, _, _) {
                     if (url != null && url.isNotEmpty) {
                       unawaited(launchUrl(

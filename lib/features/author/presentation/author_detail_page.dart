@@ -216,9 +216,9 @@ class _AuthorBody extends CompositionWidget {
           (hasMore.value ? 1 : 0);
     });
 
-    return (BuildContext context) {
-      final textTheme = Theme.of(context).textTheme;
+    final theme = useTheme();
 
+    return (BuildContext context) {
       return RefreshIndicator(
         onRefresh: authorArticles.refresh,
         child: ListView.builder(
@@ -250,7 +250,7 @@ class _AuthorBody extends CompositionWidget {
                 child: Center(
                   child: Text(
                     '載入更多...',
-                    style: textTheme.bodySmall,
+                    style: theme.value.textTheme.bodySmall,
                   ),
                 ),
               );

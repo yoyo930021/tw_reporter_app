@@ -34,55 +34,76 @@ class AnnotationWidget extends CompositionWidget {
       }
     });
 
-    return (BuildContext context) {
-      final colors = theme.value.colorScheme;
+    final arrow = computed(() => expanded.value ? ' ▲' : ' ▼');
 
-      final arrow = expanded.value ? ' ▲' : ' ▼';
-      final trigger = GestureDetector(
-        onTap: () => expanded.value = !expanded.value,
-        child: Text(
-          '${props.value.triggerText}$arrow',
-          style: props.value.textStyle.copyWith(
-            color: props.value.linkColor,
-            decoration: TextDecoration.underline,
-            decorationColor: props.value.linkColor,
-          ),
-        ),
-      );
-
-      if (!expanded.value) return trigger;
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          trigger,
-          Container(
-            margin: const EdgeInsets.only(
-              top: AppSpacing.xs,
-              bottom: AppSpacing.sm,
-            ),
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-              border: Border(
-                left: BorderSide(
-                  color: props.value.linkColor,
-                  width: 3,
+    return (BuildContext context) => expanded.value
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _AnnotationTrigger(
+                props: props,
+                arrow: arrow,
+                onTap: () => expanded.value = !expanded.value,
+              ),
+              Container(
+                margin: const EdgeInsets.only(
+                  top: AppSpacing.xs,
+                  bottom: AppSpacing.sm,
+                ),
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: theme.value.colorScheme.surfaceContainerHighest,
+                  borderRadius:
+                      BorderRadius.circular(AppSpacing.radiusSm),
+                  border: Border(
+                    left: BorderSide(
+                      color: props.value.linkColor,
+                      width: 3,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  decodedContent.value,
+                  style: theme.value.textTheme.bodyMedium!.copyWith(
+                    color: theme.value.colorScheme.onSurfaceVariant,
+                    height: 1.6,
+                  ),
                 ),
               ),
-            ),
-            child: Text(
-              decodedContent.value,
-              style: theme.value.textTheme.bodyMedium!.copyWith(
-                color: colors.onSurfaceVariant,
-                height: 1.6,
-              ),
-            ),
-          ),
-        ],
-      );
-    };
+            ],
+          )
+        : _AnnotationTrigger(
+            props: props,
+            arrow: arrow,
+            onTap: () => expanded.value = !expanded.value,
+          );
+  }
+}
+
+class _AnnotationTrigger extends StatelessWidget {
+  const _AnnotationTrigger({
+    required this.props,
+    required this.arrow,
+    required this.onTap,
+  });
+
+  final ReadonlyRef<AnnotationWidget> props;
+  final ReadonlyRef<String> arrow;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Text(
+        '${props.value.triggerText}${arrow.value}',
+        style: props.value.textStyle.copyWith(
+          color: props.value.linkColor,
+          decoration: TextDecoration.underline,
+          decorationColor: props.value.linkColor,
+        ),
+      ),
+    );
   }
 }
