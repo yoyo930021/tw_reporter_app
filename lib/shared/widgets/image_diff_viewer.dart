@@ -1,9 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
+import 'package:tw_reporter_app/shared/widgets/cached_image.dart';
 
 /// A before/after image comparison widget with a draggable divider.
 class ImageDiffViewer extends CompositionWidget {
@@ -36,7 +35,8 @@ class ImageDiffViewer extends CompositionWidget {
 
     final hasDescriptions = computed(() {
       final p = props.value;
-      return (p.beforeDesc != null && p.beforeDesc!.isNotEmpty) ||
+      return (p.beforeDesc != null &&
+              p.beforeDesc!.isNotEmpty) ||
           (p.afterDesc != null && p.afterDesc!.isNotEmpty);
     });
 
@@ -59,15 +59,9 @@ class ImageDiffViewer extends CompositionWidget {
                       children: <Widget>[
                         // After image (full width, behind)
                         Positioned.fill(
-                          child: CachedNetworkImage(
+                          child: CachedImage(
                             imageUrl: props.value.afterUrl,
-                            cacheManager:
-                                AppCacheManager.instance.imageCacheManager,
-                            fit: BoxFit.cover,
-                            placeholder: (_, _) => const ColoredBox(
-                              color: AppColors.grey200,
-                            ),
-                            errorWidget: (_, _, _) => const ColoredBox(
+                            errorWidget: const ColoredBox(
                               color: AppColors.grey200,
                               child: Center(
                                 child: Icon(
@@ -81,21 +75,20 @@ class ImageDiffViewer extends CompositionWidget {
                         // Before image (clipped from left)
                         Positioned.fill(
                           child: ClipRect(
-                            clipper: _LeftClipper(dividerPosition.value),
-                            child: CachedNetworkImage(
-                              imageUrl: props.value.beforeUrl,
-                              cacheManager:
-                                  AppCacheManager.instance.imageCacheManager,
-                              fit: BoxFit.cover,
-                              placeholder: (_, _) => const ColoredBox(
-                                color: AppColors.grey200,
-                              ),
-                              errorWidget: (_, _, _) => const ColoredBox(
+                            clipper: _LeftClipper(
+                              dividerPosition.value,
+                            ),
+                            child: CachedImage(
+                              imageUrl:
+                                  props.value.beforeUrl,
+                              errorWidget: const ColoredBox(
                                 color: AppColors.grey200,
                                 child: Center(
                                   child: Icon(
-                                    Icons.image_not_supported,
-                                    color: AppColors.grey400,
+                                    Icons
+                                        .image_not_supported,
+                                    color:
+                                        AppColors.grey400,
                                   ),
                                 ),
                               ),
@@ -104,7 +97,9 @@ class ImageDiffViewer extends CompositionWidget {
                         ),
                         // Divider line
                         Positioned(
-                          left: width * dividerPosition.value - 1,
+                          left: width *
+                                  dividerPosition.value -
+                              1,
                           top: 0,
                           bottom: 0,
                           child: Container(
@@ -114,7 +109,9 @@ class ImageDiffViewer extends CompositionWidget {
                         ),
                         // Drag handle
                         Positioned(
-                          left: width * dividerPosition.value - 18,
+                          left: width *
+                                  dividerPosition.value -
+                              18,
                           top: 0,
                           bottom: 0,
                           child: Center(
@@ -126,8 +123,10 @@ class ImageDiffViewer extends CompositionWidget {
                                 shape: BoxShape.circle,
                                 boxShadow: <BoxShadow>[
                                   BoxShadow(
-                                    color:
-                                        Colors.black.withValues(alpha: 0.3),
+                                    color: Colors.black
+                                        .withValues(
+                                      alpha: 0.3,
+                                    ),
                                     blurRadius: 4,
                                   ),
                                 ],
@@ -153,12 +152,16 @@ class ImageDiffViewer extends CompositionWidget {
             Row(
               children: <Widget>[
                 if (props.value.beforeDesc != null &&
-                    props.value.beforeDesc!.isNotEmpty)
+                    props
+                        .value.beforeDesc!.isNotEmpty)
                   Expanded(
                     child: Text(
                       props.value.beforeDesc!,
-                      style: theme.value.textTheme.bodySmall!.copyWith(
-                        color: theme.value.colorScheme.onSurfaceVariant,
+                      style: theme
+                          .value.textTheme.bodySmall!
+                          .copyWith(
+                        color: theme.value.colorScheme
+                            .onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -168,8 +171,11 @@ class ImageDiffViewer extends CompositionWidget {
                     child: Text(
                       props.value.afterDesc!,
                       textAlign: TextAlign.end,
-                      style: theme.value.textTheme.bodySmall!.copyWith(
-                        color: theme.value.colorScheme.onSurfaceVariant,
+                      style: theme
+                          .value.textTheme.bodySmall!
+                          .copyWith(
+                        color: theme.value.colorScheme
+                            .onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -188,7 +194,12 @@ class _LeftClipper extends CustomClipper<Rect> {
 
   @override
   Rect getClip(Size size) {
-    return Rect.fromLTRB(0, 0, size.width * fraction, size.height);
+    return Rect.fromLTRB(
+      0,
+      0,
+      size.width * fraction,
+      size.height,
+    );
   }
 
   @override

@@ -1,10 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/core/theme/app_theme.dart';
 import 'package:tw_reporter_app/shared/utils/date_formatter.dart';
+import 'package:tw_reporter_app/shared/widgets/cached_image.dart';
 import 'package:tw_reporter_app/shared/widgets/category_badge.dart';
 
 class ArticleCard extends StatelessWidget {
@@ -22,6 +21,7 @@ class ArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = _getImageUrl();
+    final placeholderUrl = _getPlaceholderUrl();
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -41,28 +41,11 @@ class ArticleCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             if (imageUrl != null)
-              CachedNetworkImage(
+              CachedImage(
                 imageUrl: imageUrl,
-                cacheManager:
-                    AppCacheManager.instance.imageCacheManager,
+                placeholderUrl: placeholderUrl,
                 height: 200,
                 width: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  height: 200,
-                  color: colors.surfaceContainerHighest,
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                errorWidget:
-                    (context, url, error) =>
-                        Container(
-                  height: 200,
-                  color: colors.surfaceContainerHighest,
-                  child: Icon(Icons.image_not_supported,
-                      color: colors.outline),
-                ),
               ),
             Padding(
               padding: AppSpacing.edgeInsetsCard,
@@ -70,16 +53,19 @@ class ArticleCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   if (article.categorySet.isNotEmpty &&
-                      article.categorySet.first.category != null) ...<Widget>[
+                      article.categorySet.first.category !=
+                          null) ...<Widget>[
                     CategoryBadge(
                       categoryName:
-                          article.categorySet.first.category!.name,
+                          article
+                              .categorySet.first.category!.name,
                     ),
                     AppSpacing.verticalSpacerSm,
                   ],
                   Text(
                     article.title,
-                    style: textTheme.displaySmall!.copyWith(fontSize: 18),
+                    style: textTheme.displaySmall!
+                        .copyWith(fontSize: 18),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -108,11 +94,13 @@ class ArticleCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: colors.outlineVariant,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius:
+                                BorderRadius.circular(4),
                           ),
                           child: Text(
                             '已讀',
-                            style: textTheme.labelSmall!.copyWith(
+                            style:
+                                textTheme.labelSmall!.copyWith(
                               color: colors.onSurfaceVariant,
                             ),
                           ),
@@ -130,6 +118,12 @@ class ArticleCard extends StatelessWidget {
   }
 
   String? _getImageUrl() => getArticleImageUrl(article);
+
+  String? _getPlaceholderUrl() {
+    final heroImage = article.heroImage ?? article.ogImage;
+    if (heroImage == null) return null;
+    return heroImage.resizedTargets.tiny?.url;
+  }
 
   static String? getArticleImageUrl(Article article) {
     final heroImage = article.heroImage ?? article.ogImage;

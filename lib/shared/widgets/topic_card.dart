@@ -1,10 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/models/topic.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
 import 'package:tw_reporter_app/core/theme/app_theme.dart';
 import 'package:tw_reporter_app/shared/utils/date_formatter.dart';
+import 'package:tw_reporter_app/shared/widgets/cached_image.dart';
 
 class TopicCard extends StatelessWidget {
   const TopicCard({
@@ -21,6 +20,7 @@ class TopicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = _getImageUrl();
+    final placeholderUrl = _getPlaceholderUrl();
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -32,7 +32,8 @@ class TopicCard extends StatelessWidget {
           ),
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        borderRadius:
+            BorderRadius.circular(AppSpacing.radiusMd),
       ),
       child: InkWell(
         onTap: onTap,
@@ -40,28 +41,11 @@ class TopicCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             if (imageUrl != null)
-              CachedNetworkImage(
+              CachedImage(
                 imageUrl: imageUrl,
-                cacheManager:
-                    AppCacheManager.instance.imageCacheManager,
+                placeholderUrl: placeholderUrl,
                 height: 180,
                 width: double.infinity,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  height: 180,
-                  color: colors.surfaceContainerHighest,
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                errorWidget:
-                    (context, url, error) =>
-                        Container(
-                  height: 180,
-                  color: colors.surfaceContainerHighest,
-                  child: Icon(Icons.image_not_supported,
-                      color: colors.outline),
-                ),
               ),
             Padding(
               padding: AppSpacing.edgeInsetsCard,
@@ -70,11 +54,13 @@ class TopicCard extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     topic.title,
-                    style: textTheme.displaySmall!.copyWith(fontSize: 18),
+                    style: textTheme.displaySmall!
+                        .copyWith(fontSize: 18),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (topic.ogDescription != null) ...<Widget>[
+                  if (topic.ogDescription !=
+                      null) ...<Widget>[
                     AppSpacing.verticalSpacerSm,
                     Text(
                       topic.ogDescription!,
@@ -105,5 +91,11 @@ class TopicCard extends StatelessWidget {
     return ogImage.resizedTargets.w400?.url ??
         ogImage.resizedTargets.mobile?.url ??
         ogImage.resizedTargets.tiny?.url;
+  }
+
+  String? _getPlaceholderUrl() {
+    final ogImage = topic.ogImage ?? topic.leadingImage;
+    if (ogImage == null) return null;
+    return ogImage.resizedTargets.tiny?.url;
   }
 }

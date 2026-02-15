@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
+import 'package:tw_reporter_app/shared/widgets/cached_image.dart';
 import 'package:tw_reporter_app/shared/widgets/embedded_webview.dart';
 
 /// Builds an HTML page with a YouTube embed iframe.
@@ -34,8 +33,10 @@ Future<String?> _fetchYoutubeTitle(String videoId) async {
       );
       final response = await request.close();
       if (response.statusCode == 200) {
-        final body = await response.transform(utf8.decoder).join();
-        final data = jsonDecode(body) as Map<String, dynamic>;
+        final body =
+            await response.transform(utf8.decoder).join();
+        final data =
+            jsonDecode(body) as Map<String, dynamic>;
         return data['title'] as String?;
       }
     } finally {
@@ -81,7 +82,8 @@ class YoutubePlayerWidget extends CompositionWidget {
               builder: (context, constraints) {
                 final height = constraints.maxWidth * 9 / 16;
                 return EmbeddedWebView(
-                  htmlData: _buildYoutubeIframeHtml(videoId),
+                  htmlData:
+                      _buildYoutubeIframeHtml(videoId),
                   height: height,
                   baseUrl: 'https://www.twreporter.org',
                 );
@@ -97,11 +99,14 @@ class YoutubePlayerWidget extends CompositionWidget {
             ),
           if (caption != null && caption!.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              padding:
+                  const EdgeInsets.only(top: AppSpacing.xs),
               child: Text(
                 caption!,
-                style: theme.value.textTheme.bodySmall!.copyWith(
-                  color: theme.value.colorScheme.onSurfaceVariant,
+                style:
+                    theme.value.textTheme.bodySmall!.copyWith(
+                  color: theme
+                      .value.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -139,15 +144,9 @@ class _YoutubePreview extends StatelessWidget {
           fit: StackFit.expand,
           children: <Widget>[
             // Thumbnail
-            CachedNetworkImage(
+            CachedImage(
               imageUrl: thumbnailUrl,
-              cacheManager:
-                  AppCacheManager.instance.imageCacheManager,
-              fit: BoxFit.cover,
-              placeholder: (_, _) => ColoredBox(
-                color: colors.surfaceContainer,
-              ),
-              errorWidget: (_, _, _) => ColoredBox(
+              errorWidget: ColoredBox(
                 color: colors.surfaceContainer,
                 child: Icon(
                   Icons.image_not_supported,
@@ -155,7 +154,7 @@ class _YoutubePreview extends StatelessWidget {
                 ),
               ),
             ),
-            // Dark gradient overlay at bottom for text readability
+            // Dark gradient overlay at bottom
             Positioned(
               left: 0,
               right: 0,
@@ -179,12 +178,14 @@ class _YoutubePreview extends StatelessWidget {
                     AppSpacing.sm,
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: <Widget>[
                       if (title != null)
                         Text(
                           title!,
-                          style: textTheme.bodyMedium!.copyWith(
+                          style:
+                              textTheme.bodyMedium!.copyWith(
                             color: Colors.white,
                           ),
                           maxLines: 2,
@@ -193,7 +194,8 @@ class _YoutubePreview extends StatelessWidget {
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         '來自 YouTube',
-                        style: textTheme.bodySmall!.copyWith(
+                        style:
+                            textTheme.bodySmall!.copyWith(
                           color: Colors.white70,
                         ),
                       ),

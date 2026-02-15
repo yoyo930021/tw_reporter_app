@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:tw_reporter_app/core/cache/app_cache_manager.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
+import 'package:tw_reporter_app/shared/widgets/cached_image.dart';
 
 /// A slide in the slideshow.
 typedef SlideItem = ({String url, String description});
@@ -51,14 +50,9 @@ class SlideshowViewer extends CompositionWidget {
               },
               itemBuilder: (_, index) {
                 final slide = props.value.slides[index];
-                return CachedNetworkImage(
+                return CachedImage(
                   imageUrl: slide.url,
-                  cacheManager: AppCacheManager.instance.imageCacheManager,
-                  fit: BoxFit.cover,
-                  placeholder: (_, _) => const ColoredBox(
-                    color: AppColors.grey200,
-                  ),
-                  errorWidget: (_, _, _) => const ColoredBox(
+                  errorWidget: const ColoredBox(
                     color: AppColors.grey200,
                     child: Center(
                       child: Icon(
@@ -72,7 +66,11 @@ class SlideshowViewer extends CompositionWidget {
             ),
           ),
           // Description
-          if (props.value.slides[currentPage.value].description.isNotEmpty)
+          if (props
+              .value
+              .slides[currentPage.value]
+              .description
+              .isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(
                 top: AppSpacing.xs,
@@ -80,9 +78,14 @@ class SlideshowViewer extends CompositionWidget {
                 right: AppSpacing.sm,
               ),
               child: Text(
-                props.value.slides[currentPage.value].description,
-                style: theme.value.textTheme.bodySmall!.copyWith(
-                  color: theme.value.colorScheme.onSurfaceVariant,
+                props
+                    .value
+                    .slides[currentPage.value]
+                    .description,
+                style:
+                    theme.value.textTheme.bodySmall!.copyWith(
+                  color: theme
+                      .value.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -97,17 +100,22 @@ class SlideshowViewer extends CompositionWidget {
                 IconButton(
                   icon: const Icon(Icons.chevron_left),
                   onPressed: currentPage.value > 0
-                      ? () => goToPage(currentPage.value - 1)
+                      ? () =>
+                          goToPage(currentPage.value - 1)
                       : null,
                 ),
                 Text(
-                  '${currentPage.value + 1} / ${props.value.slides.length}',
+                  '${currentPage.value + 1}'
+                  ' / '
+                  '${props.value.slides.length}',
                   style: theme.value.textTheme.bodyMedium,
                 ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
-                  onPressed: currentPage.value < props.value.slides.length - 1
-                      ? () => goToPage(currentPage.value + 1)
+                  onPressed: currentPage.value <
+                          props.value.slides.length - 1
+                      ? () =>
+                          goToPage(currentPage.value + 1)
                       : null,
                 ),
               ],
