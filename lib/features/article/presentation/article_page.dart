@@ -56,8 +56,8 @@ String? _getImageUrl(Article article) {
 String? _getLowResImageUrl(Article article) {
   final heroImage = article.heroImage ?? article.ogImage;
   if (heroImage == null) return null;
-  return heroImage.resizedTargets.w400?.url ??
-      heroImage.resizedTargets.tiny?.url;
+  return heroImage.resizedTargets.tiny?.url ??
+      heroImage.resizedTargets.w400?.url;
 }
 
 String _markExternalLinks(String html) {
