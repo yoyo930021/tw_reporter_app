@@ -32,8 +32,8 @@ String? _getTopicImageUrl(Topic topic) {
 String? _getLowResTopicImageUrl(Topic topic) {
   final ogImage = topic.ogImage ?? topic.leadingImage;
   if (ogImage == null) return null;
-  return ogImage.resizedTargets.tiny?.url ??
-      ogImage.resizedTargets.w400?.url;
+  return ogImage.resizedTargets.w400?.url ??
+      ogImage.resizedTargets.tiny?.url;
 }
 
 Widget? _buildFlexibleBackground({
