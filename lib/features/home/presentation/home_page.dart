@@ -389,12 +389,15 @@ class _FeaturedArticleCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             if (imageUrl != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                child: CachedImage(
-                  imageUrl: imageUrl,
-                  height: 220,
-                  width: double.infinity,
+              Hero(
+                tag: 'article-image-${article.slug}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  child: CachedImage(
+                    imageUrl: imageUrl,
+                    height: 220,
+                    width: double.infinity,
+                  ),
                 ),
               ),
             AppSpacing.verticalSpacerSm,
@@ -464,10 +467,13 @@ class _HorizontalArticleSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 if (imageUrl != null)
-                  CachedImage(
-                    imageUrl: imageUrl,
-                    height: imageHeight,
-                    width: double.infinity,
+                  Hero(
+                    tag: 'article-image-${article.slug}',
+                    child: CachedImage(
+                      imageUrl: imageUrl,
+                      height: imageHeight,
+                      width: double.infinity,
+                    ),
                   ),
                 Expanded(
                   child: Padding(
@@ -636,10 +642,13 @@ class _CategoriesRow extends CompositionWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   if (imageUrl != null)
-                    CachedImage(
-                      imageUrl: imageUrl,
-                      height: 140,
-                      width: double.infinity,
+                    Hero(
+                      tag: 'article-image-${article.slug}',
+                      child: CachedImage(
+                        imageUrl: imageUrl,
+                        height: 140,
+                        width: double.infinity,
+                      ),
                     ),
                   Expanded(
                     child: Padding(

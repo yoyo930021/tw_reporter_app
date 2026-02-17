@@ -41,11 +41,14 @@ class ArticleCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             if (imageUrl != null)
-              CachedImage(
-                imageUrl: imageUrl,
-                placeholderUrl: placeholderUrl,
-                height: 200,
-                width: double.infinity,
+              Hero(
+                tag: 'article-image-${article.slug}',
+                child: CachedImage(
+                  imageUrl: imageUrl,
+                  placeholderUrl: placeholderUrl,
+                  height: 200,
+                  width: double.infinity,
+                ),
               ),
             Padding(
               padding: AppSpacing.edgeInsetsCard,
