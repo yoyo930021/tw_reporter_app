@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:tw_reporter_app/core/services/donate_text_service.dart';
 import 'package:tw_reporter_app/core/theme/app_colors.dart';
 import 'package:tw_reporter_app/core/theme/app_spacing.dart';
@@ -113,33 +113,29 @@ class _DonateBannerContent extends CompositionWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Html(
-                  data: _styledHtml(data.value.html),
-                  onLinkTap: (url, _, _) {
-                    if (url != null && url.isNotEmpty) {
+                HtmlWidget(
+                  _styledHtml(data.value.html),
+                  onTapUrl: (url) async {
+                    if (url.isNotEmpty) {
                       unawaited(launchUrl(
                         Uri.parse(url),
                         mode: LaunchMode.inAppBrowserView,
                       ));
                     }
+                    return true;
                   },
-                  style: {
-                    'body': Style(
-                      margin: Margins.zero,
-                      padding: HtmlPaddings.zero,
-                    ),
-                    'div': Style(
-                      margin: Margins.zero,
-                      padding: HtmlPaddings.zero,
-                    ),
-                    'a': Style(
-                      color: AppColors.secondary,
-                      textDecoration: TextDecoration.underline,
-                      textDecorationColor: AppColors.secondary,
-                    ),
-                    'svg': Style(
-                      display: Display.none,
-                    ),
+                  customStylesBuilder: (element) {
+                    final tag = element.localName;
+                    if (tag == 'a') {
+                      return <String, String>{
+                        'color': '#E67E22',
+                        'text-decoration': 'underline',
+                      };
+                    }
+                    if (tag == 'svg') {
+                      return <String, String>{'display': 'none'};
+                    }
+                    return null;
                   },
                 ),
                 AppSpacing.verticalSpacerMd,

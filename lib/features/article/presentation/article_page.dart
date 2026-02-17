@@ -5,7 +5,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_compositions/flutter_compositions.dart';
-import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tw_reporter_app/core/di/composables.dart';
 import 'package:tw_reporter_app/core/models/article.dart';
@@ -18,21 +18,17 @@ import 'package:tw_reporter_app/core/theme/app_theme.dart';
 import 'package:tw_reporter_app/features/article/logic/use_article_detail.dart';
 import 'package:tw_reporter_app/shared/composables/use_flexible_space_ratio.dart';
 import 'package:tw_reporter_app/shared/composables/use_reading.dart';
+import 'package:tw_reporter_app/shared/html/article_html_styles.dart';
+import 'package:tw_reporter_app/shared/html/tw_reporter_widget_factory.dart';
 import 'package:tw_reporter_app/shared/utils/content_renderer.dart';
 import 'package:tw_reporter_app/shared/utils/date_formatter.dart';
 import 'package:tw_reporter_app/shared/widgets/article_card.dart';
 import 'package:tw_reporter_app/shared/widgets/cached_image.dart';
 import 'package:tw_reporter_app/shared/widgets/category_badge.dart';
 import 'package:tw_reporter_app/shared/widgets/donate_banner.dart';
-import 'package:tw_reporter_app/shared/widgets/embedded_video_player.dart';
-import 'package:tw_reporter_app/shared/widgets/embedded_webview.dart';
 import 'package:tw_reporter_app/shared/widgets/error_view.dart';
 import 'package:tw_reporter_app/shared/widgets/horizontal_carousel.dart';
-import 'package:tw_reporter_app/shared/widgets/image_diff_viewer.dart';
 import 'package:tw_reporter_app/shared/widgets/loading_indicator.dart';
-import 'package:tw_reporter_app/shared/widgets/slideshow_viewer.dart';
-import 'package:tw_reporter_app/shared/widgets/tap_to_load_wrapper.dart';
-import 'package:tw_reporter_app/shared/widgets/youtube_player_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // ---------------------------------------------------------------------------
@@ -152,11 +148,11 @@ void _showAnnotation(BuildContext context, String encodedPath) {
   } on Object catch (_) {}
 }
 
-Future<void> _handleLinkTap(BuildContext context, String? url) async {
-  if (url == null) return;
+/// Handles link taps. Returns `true` if handled (for [HtmlWidget.onTapUrl]).
+Future<bool> _handleLinkTap(BuildContext context, String url) async {
   if (url.startsWith('anno://')) {
     _showAnnotation(context, url.substring('anno://'.length));
-    return;
+    return true;
   }
   final uri = Uri.tryParse(url);
   if (uri != null &&
@@ -164,22 +160,23 @@ Future<void> _handleLinkTap(BuildContext context, String? url) async {
     final segments = uri.pathSegments;
     if (segments.length >= 2 && segments[0] == 'a') {
       unawaited(context.router.push(ArticleRoute(slug: segments[1])));
-      return;
+      return true;
     }
     if (segments.length >= 2 && segments[0] == 'topics') {
       unawaited(
         context.router.push(TopicDetailRoute(slug: segments[1])),
       );
-      return;
+      return true;
     }
     if (segments.length >= 2 && segments[0] == 'categories') {
       unawaited(
         context.router.push(CategoryRoute(category: segments[1])),
       );
-      return;
+      return true;
     }
   }
   await launchUrl(Uri.parse(url), mode: LaunchMode.inAppBrowserView);
+  return true;
 }
 
 Widget? _buildFlexibleBackground({
@@ -189,32 +186,35 @@ Widget? _buildFlexibleBackground({
   String? lowResImageUrl,
 }) {
   if (!hasImage || imageUrl == null) return null;
-  return Stack(
-    fit: StackFit.expand,
-    children: <Widget>[
-      CachedImage(
-        imageUrl: imageUrl,
-        placeholderUrl: lowResImageUrl,
-        errorWidget: const ColoredBox(
-          color: AppColors.grey200,
-          child: Icon(
-            Icons.image_not_supported,
-            color: AppColors.grey400,
-            size: 48,
+  return Hero(
+    tag: 'article-image-$slug',
+    child: Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        CachedImage(
+          imageUrl: imageUrl,
+          placeholderUrl: lowResImageUrl,
+          errorWidget: const ColoredBox(
+            color: AppColors.grey200,
+            child: Icon(
+              Icons.image_not_supported,
+              color: AppColors.grey400,
+              size: 48,
+            ),
           ),
         ),
-      ),
-      const DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: <Color>[Colors.transparent, Colors.black87],
-            stops: <double>[0.3, 1],
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: <Color>[Colors.transparent, Colors.black87],
+              stops: <double>[0.3, 1],
+            ),
           ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
@@ -583,13 +583,11 @@ class _ArticleBodySlivers {
   }) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final textColor = colors.onSurface;
     final secondaryTextColor = colors.onSurfaceVariant;
-    final linkColor = colors.primary;
 
-    final contentBlocks = convertContentToBlocks(
-      article.content,
-    ).map(_markExternalLinks).toList();
+    final fullHtml = _markExternalLinks(
+      convertContentToHtml(article.content),
+    );
 
     return <Widget>[
       // 1. Metadata sliver (image desc, category, tags, date, byline, brief)
@@ -598,8 +596,8 @@ class _ArticleBodySlivers {
           child: Padding(
             padding: AppSpacing.edgeInsetsMd,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
                 AppSpacing.verticalSpacerSm,
 
                 // 主圖描述
@@ -667,29 +665,16 @@ class _ArticleBodySlivers {
                   _BriefSection(brief: article.brief!),
                   AppSpacing.verticalSpacerLg,
                 ],
-              ],
-            ),
+            ],
+          ),
           ),
         ),
       ),
-
-      // 2. Article content blocks (virtual list with keep-alive)
-      if (contentBlocks.isNotEmpty)
-        SliverList.builder(
-          itemCount: contentBlocks.length,
-          itemBuilder: (context, index) {
-            return SelectionArea(
-              child: Padding(
-                padding: AppSpacing.edgeInsetsHorizontalMd,
-                child: _ArticleHtmlContent(
-                  htmlContent: contentBlocks[index],
-                  textColor: textColor,
-                  secondaryTextColor: secondaryTextColor,
-                  linkColor: linkColor,
-                ),
-              ),
-            );
-          },
+      // 2. Article content — sliver HtmlWidget with lazy rendering
+      if (fullHtml.isNotEmpty)
+        SliverPadding(
+          padding: AppSpacing.edgeInsetsHorizontalMd,
+          sliver: _ArticleHtmlContent(htmlContent: fullHtml),
         )
       else
         SliverToBoxAdapter(
@@ -783,415 +768,40 @@ class _ArticleBodySlivers {
 }
 
 // ---------------------------------------------------------------------------
-// Internal StatelessWidget: HTML content with extensions
+// Internal CompositionWidget: HTML content with HtmlWidget
 // ---------------------------------------------------------------------------
 
 class _ArticleHtmlContent extends CompositionWidget {
   const _ArticleHtmlContent({
     required this.htmlContent,
-    required this.textColor,
-    required this.secondaryTextColor,
-    required this.linkColor,
   });
 
   final String htmlContent;
-  final Color textColor;
-  final Color secondaryTextColor;
-  final Color linkColor;
 
   @override
   Widget Function(BuildContext) setup() {
     final mediaLoadModeRef = useMediaLoadMode();
 
     return (BuildContext context) {
-      return _ArticleHtmlContentView(
-        htmlContent: htmlContent,
-        textColor: textColor,
-        secondaryTextColor: secondaryTextColor,
-        linkColor: linkColor,
-        isDataSaving: mediaLoadModeRef.value == MediaLoadMode.dataSaving,
+      final colors = Theme.of(context).colorScheme;
+      final isDataSaving = mediaLoadModeRef.value == MediaLoadMode.dataSaving;
+
+      return HtmlWidget(
+        htmlContent,
+        enableCaching: true,
+        renderMode: RenderMode.sliverList,
+        customStylesBuilder: articleContentStylesBuilder,
+        factoryBuilder: () => TwReporterWidgetFactory(
+          isDataSaving: isDataSaving,
+        ),
+        onTapUrl: (url) => _handleLinkTap(context, url),
+        textStyle: TextStyle(
+          fontSize: 16,
+          height: 1.8,
+          color: colors.onSurface,
+        ),
       );
     };
-  }
-}
-
-class _ArticleHtmlContentView extends StatelessWidget {
-  const _ArticleHtmlContentView({
-    required this.htmlContent,
-    required this.textColor,
-    required this.secondaryTextColor,
-    required this.linkColor,
-    required this.isDataSaving,
-  });
-
-  final String htmlContent;
-  final Color textColor;
-  final Color secondaryTextColor;
-  final Color linkColor;
-  final bool isDataSaving;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Html(
-      data: htmlContent,
-      extensions: <HtmlExtension>[
-        TagExtension(
-          tagsToExtend: <String>{'ext-icon'},
-          builder: (_) => Icon(
-            Icons.open_in_new,
-            size: 14,
-            color: linkColor,
-          ),
-        ),
-        TagExtension(
-          tagsToExtend: <String>{'embedded-video'},
-          builder: (extensionContext) {
-            final src = extensionContext.attributes['src'] ?? '';
-            final caption = extensionContext.attributes['caption'] ?? '';
-            final autoplay = extensionContext.attributes['autoplay'] == 'true';
-            final muted = extensionContext.attributes['muted'] == 'true';
-            final loop = extensionContext.attributes['loop'] == 'true';
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppSpacing.md,
-              ),
-              child: TapToLoadWrapper(
-                mediaType: MediaType.video,
-                child: EmbeddedVideoPlayer(
-                  url: src,
-                  autoplay: autoplay,
-                  muted: muted,
-                  loop: loop,
-                  caption: caption.isNotEmpty ? caption : null,
-                ),
-              ),
-            );
-          },
-        ),
-        TagExtension(
-          tagsToExtend: <String>{'embedded-iframe'},
-          builder: (extensionContext) {
-            final src = extensionContext.attributes['src'] ?? '';
-            final caption = extensionContext.attributes['caption'] ?? '';
-            final height = double.tryParse(
-              extensionContext.attributes['height'] ?? '',
-            );
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppSpacing.md,
-              ),
-              child: TapToLoadWrapper(
-                mediaType: MediaType.webview,
-                child: EmbeddedWebView(
-                  src: src,
-                  height: height,
-                  caption: caption.isNotEmpty ? caption : null,
-                ),
-              ),
-            );
-          },
-        ),
-        TagExtension(
-          tagsToExtend: <String>{'embedded-webview'},
-          builder: (extensionContext) {
-            final data = extensionContext.attributes['data'] ?? '';
-            final caption = extensionContext.attributes['caption'] ?? '';
-            var htmlData = '';
-            if (data.isNotEmpty) {
-              try {
-                final decoded = utf8.decode(base64Url.decode(data));
-                htmlData = decoded;
-              } on FormatException catch (_) {
-                // ignore decode errors
-              }
-            }
-            if (htmlData.isEmpty) {
-              return const SizedBox.shrink();
-            }
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppSpacing.md,
-              ),
-              child: TapToLoadWrapper(
-                mediaType: MediaType.webview,
-                child: EmbeddedWebView(
-                  htmlData: htmlData,
-                  caption: caption.isNotEmpty ? caption : null,
-                ),
-              ),
-            );
-          },
-        ),
-        TagExtension(
-          tagsToExtend: <String>{'embedded-youtube'},
-          builder: (extensionContext) {
-            final id = extensionContext.attributes['id'] ?? '';
-            final caption = extensionContext.attributes['caption'] ?? '';
-            if (id.isEmpty) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppSpacing.md,
-              ),
-              child: TapToLoadWrapper(
-                mediaType: MediaType.youtube,
-                child: YoutubePlayerWidget(
-                  videoId: id,
-                  caption: caption.isNotEmpty ? caption : null,
-                ),
-              ),
-            );
-          },
-        ),
-        TagExtension(
-          tagsToExtend: <String>{'imagediff'},
-          builder: (extensionContext) {
-            final images = <({String url, String desc})>[];
-            for (final child in extensionContext.elementChildren) {
-              if (child.localName == 'diffimg') {
-                final src = child.attributes['src'] ?? '';
-                final desc = child.attributes['desc'] ?? '';
-                if (src.isNotEmpty) {
-                  images.add((url: src, desc: desc));
-                }
-              }
-            }
-            if (images.length < 2) {
-              return const SizedBox.shrink();
-            }
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppSpacing.md,
-              ),
-              child: TapToLoadWrapper(
-                mediaType: MediaType.imagediff,
-                child: ImageDiffViewer(
-                  beforeUrl: images[0].url,
-                  afterUrl: images[1].url,
-                  beforeDesc: images[0].desc.isNotEmpty ? images[0].desc : null,
-                  afterDesc: images[1].desc.isNotEmpty ? images[1].desc : null,
-                ),
-              ),
-            );
-          },
-        ),
-        TagExtension(
-          tagsToExtend: <String>{'slideshow'},
-          builder: (extensionContext) {
-            final slides = <SlideItem>[];
-            for (final child in extensionContext.elementChildren) {
-              if (child.localName == 'slide') {
-                final src = child.attributes['src'] ?? '';
-                final desc = child.attributes['desc'] ?? '';
-                if (src.isNotEmpty) {
-                  slides.add(
-                    (url: src, description: desc),
-                  );
-                }
-              }
-            }
-            if (slides.isEmpty) {
-              return const SizedBox.shrink();
-            }
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppSpacing.md,
-              ),
-              child: TapToLoadWrapper(
-                mediaType: MediaType.slideshow,
-                child: SlideshowViewer(slides: slides),
-              ),
-            );
-          },
-        ),
-        if (isDataSaving)
-          ImageExtension(
-            builder: (extensionContext) {
-              final src = extensionContext.attributes['src'] ?? '';
-              if (src.isEmpty) {
-                return const SizedBox.shrink();
-              }
-              return TapToLoadWrapper(
-                mediaType: MediaType.image,
-                child: CachedImage(
-                  imageUrl: src,
-                  fit: BoxFit.contain,
-                  width: double.infinity,
-                  errorWidget: const AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: ColoredBox(
-                      color: AppColors.grey200,
-                      child: Icon(
-                        Icons.image_not_supported,
-                        color: AppColors.grey400,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        TagExtension(
-          tagsToExtend: <String>{'quoteby'},
-          builder: (extensionContext) {
-            final quote = extensionContext.attributes['quote'] ?? '';
-            final quoteByAuthor =
-                extensionContext.attributes['quoteby-author'] ?? '';
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    width: 2,
-                    height: 80,
-                    color: AppColors.secondary,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    quote,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontStyle: FontStyle.italic,
-                      color: textColor,
-                      height: 1.6,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  if (quoteByAuthor.isNotEmpty) ...<Widget>[
-                    const SizedBox(height: AppSpacing.md),
-                    Text(
-                      '── $quoteByAuthor',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: colors.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ],
-              ),
-            );
-          },
-        ),
-        TagExtension(
-          tagsToExtend: <String>{'infobox'},
-          builder: (extensionContext) {
-            return Container(
-              margin: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest,
-                border: Border.all(
-                  color: colors.outline,
-                ),
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              ),
-              child: Html(
-                data: extensionContext.innerHtml,
-                extensions: <HtmlExtension>[
-                  TagExtension(
-                    tagsToExtend: <String>{'ext-icon'},
-                    builder: (_) => Icon(
-                      Icons.open_in_new,
-                      size: 14,
-                      color: linkColor,
-                    ),
-                  ),
-                ],
-                style: <String, Style>{
-                  'body': Style(
-                    fontSize: FontSize(14),
-                    lineHeight: const LineHeight(1.7),
-                    color: textColor,
-                    margin: Margins.zero,
-                    padding: HtmlPaddings.zero,
-                  ),
-                  'h4': Style(
-                    fontSize: FontSize(17),
-                    fontWeight: FontWeight.bold,
-                    margin: Margins.only(bottom: 8),
-                    color: linkColor,
-                  ),
-                  'p': Style(
-                    fontSize: FontSize(14),
-                    lineHeight: const LineHeight(1.7),
-                    margin: Margins.only(bottom: 8),
-                  ),
-                  'a': Style(
-                    color: linkColor,
-                    textDecoration: TextDecoration.underline,
-                  ),
-                },
-                onLinkTap: (url, _, _) => _handleLinkTap(context, url),
-              ),
-            );
-          },
-        ),
-      ],
-      style: <String, Style>{
-        'body': Style(
-          fontSize: FontSize(16),
-          lineHeight: const LineHeight(1.8),
-          color: textColor,
-          margin: Margins.zero,
-          padding: HtmlPaddings.zero,
-        ),
-        'p': Style(
-          fontSize: FontSize(16),
-          lineHeight: const LineHeight(1.8),
-          margin: Margins.only(bottom: 16),
-        ),
-        'h1': Style(
-          fontSize: FontSize(28),
-          fontWeight: FontWeight.bold,
-          margin: Margins.only(top: 24, bottom: 12),
-        ),
-        'h2': Style(
-          fontSize: FontSize(24),
-          fontWeight: FontWeight.bold,
-          margin: Margins.only(top: 20, bottom: 10),
-        ),
-        'h3': Style(
-          fontSize: FontSize(20),
-          fontWeight: FontWeight.bold,
-          margin: Margins.only(top: 16, bottom: 8),
-        ),
-        'h4': Style(
-          fontSize: FontSize(18),
-          fontWeight: FontWeight.bold,
-          margin: Margins.only(top: 12, bottom: 8),
-        ),
-        'blockquote': Style(
-          margin: Margins.only(left: 16, top: 8, bottom: 8),
-          padding: HtmlPaddings.only(left: 12),
-          border: const Border(
-            left: BorderSide(
-              color: AppColors.secondary,
-              width: 3,
-            ),
-          ),
-          fontStyle: FontStyle.italic,
-          color: secondaryTextColor,
-        ),
-        'a': Style(
-          color: linkColor,
-          textDecoration: TextDecoration.underline,
-        ),
-        'img': Style(
-          margin: Margins.only(top: 8, bottom: 8),
-        ),
-        'figcaption': Style(
-          fontSize: FontSize(13),
-          color: secondaryTextColor,
-          margin: Margins.only(top: 4, bottom: 16),
-        ),
-        'figure': Style(
-          margin: Margins.only(top: 16, bottom: 16),
-        ),
-      },
-      onLinkTap: (url, _, _) => _handleLinkTap(context, url),
-    );
   }
 }
 
@@ -1210,8 +820,6 @@ class _BriefSection extends StatelessWidget {
     if (briefHtml.isEmpty) return const SizedBox.shrink();
 
     final colors = Theme.of(context).colorScheme;
-    final textColor = colors.onSurface;
-    final linkColor = colors.primary;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -1224,37 +832,16 @@ class _BriefSection extends StatelessWidget {
           ),
         ),
       ),
-      child: Html(
-        data: briefHtml,
-        extensions: <HtmlExtension>[
-          TagExtension(
-            tagsToExtend: <String>{'ext-icon'},
-            builder: (_) => Icon(
-              Icons.open_in_new,
-              size: 14,
-              color: linkColor,
-            ),
-          ),
-        ],
-        style: <String, Style>{
-          'body': Style(
-            fontSize: FontSize(15),
-            lineHeight: const LineHeight(1.7),
-            color: textColor,
-            margin: Margins.zero,
-            padding: HtmlPaddings.zero,
-          ),
-          'p': Style(
-            fontSize: FontSize(15),
-            lineHeight: const LineHeight(1.7),
-            margin: Margins.only(bottom: 8),
-          ),
-          'a': Style(
-            color: linkColor,
-            textDecoration: TextDecoration.underline,
-          ),
-        },
-        onLinkTap: (url, _, _) => _handleLinkTap(context, url),
+      child: HtmlWidget(
+        briefHtml,
+        customStylesBuilder: briefStylesBuilder,
+        factoryBuilder: () => TwReporterWidgetFactory(),
+        onTapUrl: (url) => _handleLinkTap(context, url),
+        textStyle: TextStyle(
+          fontSize: 15,
+          height: 1.7,
+          color: colors.onSurface,
+        ),
       ),
     );
   }

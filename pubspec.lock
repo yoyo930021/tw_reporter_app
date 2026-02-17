@@ -13,10 +13,10 @@ packages:
     dependency: transitive
     description:
       name: alien_signals
-      sha256: "4e69390450cf316f7725618884b39ff0d772a29074e042f6c4ad4cce3fa1a5e1"
+      sha256: "7fa6365d943fc58b02cfab1f21dbb057a288160bd8d78fd3664b1b87b5ec2f50"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.3"
+    version: "2.1.2"
   analysis_server_plugin:
     dependency: transitive
     description:
@@ -53,10 +53,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: "2fde1607386ab523f7a36bb3e7edb43bd58e6edaf2ffb29d8a6d578b297fdbbd"
+      sha256: "16a4a4610a4375e2cfe0db0985bd817935219c627f8fd25a4b2a5b408ed34e64"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.7"
+    version: "4.0.8"
   args:
     dependency: transitive
     description:
@@ -346,26 +346,18 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_compositions
-      sha256: "6b37238408559349485178aa8d7d3cd7af400e773d55aa55a6fdebe451ba490b"
+      sha256: dc2f0189f5aaed209555b61525031d7f4e362993d05a19874918a286a91e3879
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.1"
+    version: "0.2.3"
   flutter_compositions_lints:
     dependency: "direct dev"
     description:
       name: flutter_compositions_lints
-      sha256: "904dce7b8f69d234b597b3e768196b9c890c6e572a7319da57850460f68ec8f5"
+      sha256: "71bcf91b426e7e048348aa451e0a071f5d7a4c10cd3e8d08c34f5cb40eb14d20"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.1"
-  flutter_html:
-    dependency: "direct main"
-    description:
-      name: flutter_html
-      sha256: "38a2fd702ffdf3243fb7441ab58aa1bc7e6922d95a50db76534de8260638558d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
+    version: "0.2.3"
   flutter_inappwebview:
     dependency: "direct main"
     description:
@@ -504,6 +496,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_widget_from_html_core:
+    dependency: "direct main"
+    description:
+      name: flutter_widget_from_html_core
+      sha256: "1120ee6ed3509ceff2d55aa6c6cbc7b6b1291434422de2411b5a59364dd6ff03"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.17.0"
   freezed:
     dependency: "direct dev"
     description:
@@ -561,7 +561,7 @@ packages:
     source: hosted
     version: "4.3.0"
   html:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: html
       sha256: "6d1264f2dffa1b1101c25a91dff0dc2daee4c18e87cd8538729773c073dbf602"
@@ -704,14 +704,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.6"
-  list_counter:
-    dependency: transitive
-    description:
-      name: list_counter
-      sha256: c447ae3dfcd1c55f0152867090e67e219d42fe6d4f2807db4bbe8b8d69912237
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
   logging:
     dependency: transitive
     description:
@@ -1393,10 +1385,10 @@ packages:
     dependency: "direct dev"
     description:
       name: very_good_analysis
-      sha256: "27927d1140ce1b140f998b6340f730a626faa5b95110b3e34a238ff254d731d0"
+      sha256: d1cb1d66a5aae2c702d68caca6c8347306d35e728fd94555fa21fa0448a972e0
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.0"
+    version: "10.2.0"
   video_player:
     dependency: "direct main"
     description:

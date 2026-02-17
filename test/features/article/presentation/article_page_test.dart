@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tw_reporter_app/core/storage/reading_storage.dart';
 import 'package:tw_reporter_app/features/article/presentation/article_page.dart';
@@ -94,9 +95,17 @@ void main() {
           find.text('測試文章標題'),
           findsAtLeast(1),
         );
+        // HtmlWidget renders HTML content. Verify the HtmlWidget
+        // is present and contains the expected HTML.
+        final htmlWidgets = tester.widgetList<HtmlWidget>(
+          find.byType(HtmlWidget),
+        );
+        expect(htmlWidgets, isNotEmpty);
         expect(
-          find.textContaining('這是文章的內容'),
-          findsOneWidget,
+          htmlWidgets.any(
+            (w) => w.html.contains('這是文章的內容'),
+          ),
+          isTrue,
         );
       },
     );
