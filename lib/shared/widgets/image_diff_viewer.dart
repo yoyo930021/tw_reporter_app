@@ -29,7 +29,6 @@ class ImageDiffViewer extends CompositionWidget {
 
   @override
   Widget Function(BuildContext) setup() {
-    final dividerPosition = ref(0.5);
     final props = widget();
     final theme = useTheme();
 
@@ -43,108 +42,9 @@ class ImageDiffViewer extends CompositionWidget {
     return (BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          SelectionContainer.disabled(
-            child: LayoutBuilder(
-              builder: (layoutCtx, constraints) {
-                final width = constraints.maxWidth;
-                return GestureDetector(
-                  onHorizontalDragUpdate: (details) {
-                    dividerPosition.value =
-                        (details.localPosition.dx / width)
-                            .clamp(0.0, 1.0);
-                  },
-                  child: AspectRatio(
-                    aspectRatio: 16 / 10,
-                    child: Stack(
-                      children: <Widget>[
-                        // After image (full width, behind)
-                        Positioned.fill(
-                          child: CachedImage(
-                            imageUrl: props.value.afterUrl,
-                            errorWidget: const ColoredBox(
-                              color: AppColors.grey200,
-                              child: Center(
-                                child: Icon(
-                                  Icons.image_not_supported,
-                                  color: AppColors.grey400,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Before image (clipped from left)
-                        Positioned.fill(
-                          child: ClipRect(
-                            clipper: _LeftClipper(
-                              dividerPosition.value,
-                            ),
-                            child: CachedImage(
-                              imageUrl:
-                                  props.value.beforeUrl,
-                              errorWidget: const ColoredBox(
-                                color: AppColors.grey200,
-                                child: Center(
-                                  child: Icon(
-                                    Icons
-                                        .image_not_supported,
-                                    color:
-                                        AppColors.grey400,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Divider line
-                        Positioned(
-                          left: width *
-                                  dividerPosition.value -
-                              1,
-                          top: 0,
-                          bottom: 0,
-                          child: Container(
-                            width: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                        // Drag handle
-                        Positioned(
-                          left: width *
-                                  dividerPosition.value -
-                              18,
-                          top: 0,
-                          bottom: 0,
-                          child: Center(
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: <BoxShadow>[
-                                  BoxShadow(
-                                    color: Colors.black
-                                        .withValues(
-                                      alpha: 0.3,
-                                    ),
-                                    blurRadius: 4,
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.drag_handle,
-                                size: 20,
-                                color: AppColors.grey600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+          _DragArea(
+            beforeUrl: props.value.beforeUrl,
+            afterUrl: props.value.afterUrl,
           ),
           // Descriptions
           if (hasDescriptions.value) ...<Widget>[
@@ -183,6 +83,130 @@ class ImageDiffViewer extends CompositionWidget {
             ),
           ],
         ],
+      );
+  }
+}
+
+/// The interactive drag area. Uses [ComputedBuilder] inside
+/// `LayoutBuilder.builder` so that reactive state changes trigger rebuilds —
+/// the render function's reactive effect does not cover callbacks that
+/// run during the layout phase.
+class _DragArea extends CompositionWidget {
+  const _DragArea({
+    required this.beforeUrl,
+    required this.afterUrl,
+  });
+
+  final String beforeUrl;
+  final String afterUrl;
+
+  @override
+  Widget Function(BuildContext) setup() {
+    final pos = ref(0.5);
+    final props = widget();
+
+    return (BuildContext context) => SelectionContainer.disabled(
+        child: LayoutBuilder(
+          builder: (layoutCtx, constraints) {
+            final width = constraints.maxWidth;
+            return GestureDetector(
+              onHorizontalDragUpdate: (details) {
+                pos.value =
+                    (details.localPosition.dx / width)
+                        .clamp(0.0, 1.0);
+              },
+              // ComputedBuilder creates its own reactive scope
+              // so pos.value reads are properly tracked even
+              // inside LayoutBuilder.builder.
+              child: ComputedBuilder(
+                builder: () => AspectRatio(
+                  aspectRatio: 16 / 10,
+                  child: Stack(
+                    children: <Widget>[
+                      // After image (full width, behind)
+                      Positioned.fill(
+                        child: CachedImage(
+                          imageUrl: props.value.afterUrl,
+                          errorWidget: const ColoredBox(
+                            color: AppColors.grey200,
+                            child: Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                color: AppColors.grey400,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Before image (clipped from left)
+                      Positioned.fill(
+                        child: ClipRect(
+                          clipper:
+                              _LeftClipper(pos.value),
+                          child: CachedImage(
+                            imageUrl:
+                                props.value.beforeUrl,
+                            errorWidget: const ColoredBox(
+                              color: AppColors.grey200,
+                              child: Center(
+                                child: Icon(
+                                  Icons
+                                      .image_not_supported,
+                                  color:
+                                      AppColors.grey400,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Divider line
+                      Positioned(
+                        left: width * pos.value - 1,
+                        top: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                      // Drag handle
+                      Positioned(
+                        left: width * pos.value - 18,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: Colors.black
+                                      .withValues(
+                                    alpha: 0.3,
+                                  ),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.drag_handle,
+                              size: 20,
+                              color: AppColors.grey600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       );
   }
 }
