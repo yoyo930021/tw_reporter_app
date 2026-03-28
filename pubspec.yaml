@@ -2,7 +2,7 @@ name: tw_reporter_app
 description: "報導者新聞 APP - Taiwan Reporter News Application"
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.11.0
