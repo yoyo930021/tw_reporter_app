@@ -96,20 +96,24 @@ class PushService {
     final prefs = await SharedPreferences.getInstance();
     _enabled = prefs.getBool(_prefKeyEnabled) ?? false;
 
-    // 初始化 UnifiedPush
-    await UnifiedPush.initialize(
+    // 初始化 UnifiedPush（回傳 true 表示之前已儲存 distributor）
+    final alreadyRegistered = await UnifiedPush.initialize(
       onNewEndpoint: _onNewEndpoint,
       onRegistrationFailed: _onRegistrationFailed,
       onUnregistered: _onUnregistered,
       onMessage: _onMessage,
     );
 
-    // 如果之前已啟用，嘗試重新連接
-    if (_enabled) {
-      final distributors = await UnifiedPush.getDistributors();
-      _hasDistributor = distributors.isNotEmpty;
-      _notifyStateChanged();
+    debugPrint('UnifiedPush: init — enabled=$_enabled, '
+        'alreadyRegistered=$alreadyRegistered');
+
+    // 每次啟動都必須重新 register，distributor 才會重新遞送 endpoint
+    if (_enabled && alreadyRegistered) {
+      _hasDistributor = true;
+      debugPrint('UnifiedPush: re-registering on startup');
+      await UnifiedPush.register(instance: _instanceName, vapid: _vapidKey);
     }
+    _notifyStateChanged();
   }
 
   Future<void> _initLocalNotifications() async {
@@ -145,6 +149,8 @@ class PushService {
   /// [distributor] 使用者選擇的推播提供者。若為 null，嘗試使用目前或預設提供者。
   Future<bool> enable({String? distributor}) async {
     if (!isSupported) return false;
+
+    debugPrint('UnifiedPush: enable — distributor=$distributor');
 
     if (distributor != null) {
       await UnifiedPush.saveDistributor(distributor);
@@ -194,6 +200,8 @@ class PushService {
 
   /// UnifiedPush 回調：收到新端點
   void _onNewEndpoint(PushEndpoint endpoint, String instance) {
+    debugPrint('UnifiedPush: onNewEndpoint — '
+        'instance=$instance, url=${endpoint.url}');
     _enabled = true;
     _registrationError = null;
     _notifyStateChanged();
@@ -222,30 +230,37 @@ class PushService {
   void _onMessage(PushMessage message, String instance) {
     try {
       final content = utf8.decode(message.content);
+      debugPrint('UnifiedPush: onMessage — content=$content');
       final data = json.decode(content) as Map<String, dynamic>;
       final title = data['title'] as String? ?? '報導者';
+      final body = data['body'] as String?;
       final href = data['href'] as String?;
 
-      unawaited(_showNotification(title: title, href: href));
+      unawaited(_showNotification(title: title, body: body, href: href));
     } on Object catch (e) {
-      debugPrint('Error processing push message: $e');
+      debugPrint('UnifiedPush: error processing message — $e');
     }
   }
 
   /// 向報導者伺服器訂閱推播
   Future<void> _subscribeToServer(PushEndpoint endpoint) async {
+    debugPrint('UnifiedPush: subscribing to server — '
+        'endpoint=${endpoint.url}');
     try {
       final dio = Dio();
-      await dio.post<dynamic>(
+      final response = await dio.post<dynamic>(
         _subscriptionApiUrl,
         data: <String, dynamic>{
           'endpoint': endpoint.url,
-          'keys': <String, String>{
+          // 報導者 API 要求 keys 為 JSON 字串，不是 object
+          'keys': json.encode(<String, String>{
             'p256dh': endpoint.pubKeySet?.pubKey ?? '',
             'auth': endpoint.pubKeySet?.auth ?? '',
-          },
+          }),
         },
       );
+      debugPrint('UnifiedPush: server subscription succeeded — '
+          'status=${response.statusCode}');
 
       // 儲存端點
       final prefs = await SharedPreferences.getInstance();
@@ -253,15 +268,17 @@ class PushService {
       _enabled = true;
       _registrationError = null;
       _notifyStateChanged();
-      debugPrint('Subscribed to push notifications');
     } on Object catch (e) {
-      debugPrint('Error subscribing to push: $e');
+      debugPrint('UnifiedPush: server subscription failed — $e');
+      _registrationError = '伺服器訂閱失敗：$e';
+      _notifyStateChanged();
     }
   }
 
   /// 顯示本地通知
   Future<void> _showNotification({
     required String title,
+    String? body,
     String? href,
   }) async {
     const androidDetails = AndroidNotificationDetails(
@@ -276,6 +293,7 @@ class PushService {
     await _localNotifications.show(
       id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title: title,
+      body: body,
       notificationDetails: details,
       payload: href,
     );
